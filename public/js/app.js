@@ -246,6 +246,7 @@ function switchDashTab(tabName) {
   if (tabName === 'databases') loadDatabases();
   if (tabName === 'dns') loadDnsDomains();
   if (tabName === 'backups') loadBackups();
+  if (tabName === 'profile') loadUserProfileForm();
   if (tabName === 'settings') loadSettingsForm();
   if (tabName === 'chat') loadAdminChatThreads();
 }
@@ -1360,12 +1361,17 @@ async function initAuth() {
       AppState.currentUser = data.user;
       AppState.isAuthenticated = true;
       AppState.activeUser = data.user.username;
+      AppState.chatSessionId = `hosta_user_${data.user.id}`;
+      localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
       updateAuthUI();
+      checkVisitorChatSession();
     } else {
       localStorage.removeItem('hosta_token');
+      localStorage.removeItem('hosta_chat_session');
       AppState.authToken = null;
       AppState.currentUser = null;
       AppState.isAuthenticated = false;
+      AppState.chatSessionId = null;
       updateAuthUI();
     }
   } catch (err) {
@@ -1387,10 +1393,15 @@ function updateAuthUI() {
   const mobileUserAvatar = document.getElementById('mobileUserAvatar');
   const subnavAccountsBtn = document.querySelector('[data-tab="accounts"]');
   const subnavChatBtn = document.querySelector('[data-tab="chat"]');
+  const subnavSettingsBtn = document.getElementById('subnavSettingsBtn');
+  const subnavProfileBtn = document.getElementById('subnavProfileBtn');
 
   if (AppState.isAuthenticated && AppState.currentUser) {
     const user = AppState.currentUser;
     const isAdmin = user.role === 'admin';
+
+    AppState.chatSessionId = `hosta_user_${user.id}`;
+    localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
 
     if (guestGroup) guestGroup.style.display = 'none';
     if (userGroup) userGroup.style.display = 'flex';
@@ -1425,6 +1436,12 @@ function updateAuthUI() {
     if (subnavChatBtn) {
       subnavChatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
+    if (subnavSettingsBtn) {
+      subnavSettingsBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
+    if (subnavProfileBtn) {
+      subnavProfileBtn.style.display = 'inline-flex';
+    }
 
     const mobileNavAccounts = document.getElementById('mobileNavAccounts');
     const mobileNavChat = document.getElementById('mobileNavChat');
@@ -1444,12 +1461,10 @@ function updateAuthUI() {
     if (mobileBannerGuest) mobileBannerGuest.style.display = 'block';
     if (mobileBannerUser) mobileBannerUser.style.display = 'none';
 
-    if (subnavAccountsBtn) {
-      subnavAccountsBtn.style.display = 'none';
-    }
-    if (subnavChatBtn) {
-      subnavChatBtn.style.display = 'none';
-    }
+    if (subnavAccountsBtn) subnavAccountsBtn.style.display = 'none';
+    if (subnavChatBtn) subnavChatBtn.style.display = 'none';
+    if (subnavSettingsBtn) subnavSettingsBtn.style.display = 'none';
+    if (subnavProfileBtn) subnavProfileBtn.style.display = 'none';
 
     const mobileNavAccounts = document.getElementById('mobileNavAccounts');
     const mobileNavChat = document.getElementById('mobileNavChat');
@@ -1782,6 +1797,8 @@ async function handleLoginSubmit(e) {
       AppState.currentUser = data.user;
       AppState.isAuthenticated = true;
       AppState.activeUser = data.user.username;
+      AppState.chatSessionId = `hosta_user_${data.user.id}`;
+      localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
 
       updateAuthUI();
       closeModal('modalLogin');
@@ -1954,6 +1971,8 @@ async function handleVerifyRegistrationCode(e) {
       AppState.currentUser = data.user;
       AppState.isAuthenticated = true;
       AppState.activeUser = data.user.username;
+      AppState.chatSessionId = `hosta_user_${data.user.id}`;
+      localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
 
       updateAuthUI();
       closeModal('modalLogin');
@@ -2079,10 +2098,16 @@ async function handleLogout() {
     console.warn('Logout network error:', err);
   } finally {
     localStorage.removeItem('hosta_token');
+    localStorage.removeItem('hosta_chat_session');
     AppState.authToken = null;
     AppState.currentUser = null;
     AppState.isAuthenticated = false;
     AppState.activeUser = 'admin';
+    AppState.chatSessionId = null;
+    if (AppState.chatPollInterval) {
+      clearInterval(AppState.chatPollInterval);
+      AppState.chatPollInterval = null;
+    }
 
     updateAuthUI();
     switchMainView('landing');
@@ -2090,6 +2115,211 @@ async function handleLogout() {
   }
 }
 window.handleLogout = handleLogout;
+
+function openUserProfile() {
+  if (!AppState.isAuthenticated) {
+    openLoginModal();
+    return;
+  }
+  switchMainView('dashboard');
+  switchDashTab('profile');
+}
+window.openUserProfile = openUserProfile;
+
+function loadUserProfileForm() {
+  if (!AppState.currentUser) return;
+  const user = AppState.currentUser;
+  const isAdmin = user.role === 'admin';
+
+  const avatarEl = document.getElementById('profileHeroAvatar');
+  const nameEl = document.getElementById('profileHeroName');
+  const roleEl = document.getElementById('profileHeroRoleBadge');
+  const usernameEl = document.getElementById('profileHeroUsername');
+  const emailEl = document.getElementById('profileHeroEmail');
+  const createdEl = document.getElementById('profileHeroCreated');
+  const packageEl = document.getElementById('profileHeroPackage');
+
+  if (avatarEl) {
+    avatarEl.textContent = (user.username || 'U').charAt(0).toUpperCase();
+    avatarEl.className = `user-chip-avatar ${isAdmin ? 'admin' : ''}`;
+  }
+  if (nameEl) nameEl.textContent = user.name || `@${user.username}`;
+  if (roleEl) {
+    roleEl.textContent = user.role.toUpperCase();
+    roleEl.className = `badge badge-sm badge-role ${isAdmin ? 'admin' : 'student'}`;
+  }
+  if (usernameEl) usernameEl.textContent = `@${user.username}`;
+  if (emailEl) emailEl.textContent = user.email || '';
+  if (createdEl) createdEl.textContent = user.created || new Date().getFullYear();
+  if (packageEl) {
+    packageEl.textContent = isAdmin ? 'Platform Administrator' : (user.package === 'thesis-pass' ? 'Thesis Pass (₱450/term)' : 'Student Monthly Pass (₱150/mo)');
+  }
+
+  setValue('profileFirstName', user.firstName || '');
+  setValue('profileLastName', user.lastName || '');
+  setValue('profileEmail', user.email || '');
+
+  if (user.birthdate) {
+    const bDate = new Date(user.birthdate);
+    if (!isNaN(bDate.getTime())) {
+      setValue('profileBirthdate', bDate.toISOString().split('T')[0]);
+    } else {
+      setValue('profileBirthdate', user.birthdate);
+    }
+  } else {
+    setValue('profileBirthdate', '');
+  }
+  setValue('profileUsername', `@${user.username}`);
+
+  const bInput = document.getElementById('profileBirthdate');
+  if (bInput) {
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() - 12);
+    bInput.max = maxDate.toISOString().split('T')[0];
+  }
+
+  setValue('profileCurrentPassword', '');
+  setValue('profileNewPassword', '');
+  setValue('profileConfirmPassword', '');
+
+  const personalAlert = document.getElementById('profilePersonalAlert');
+  if (personalAlert) personalAlert.style.display = 'none';
+
+  const passwordAlert = document.getElementById('profilePasswordAlert');
+  if (passwordAlert) passwordAlert.style.display = 'none';
+}
+window.loadUserProfileForm = loadUserProfileForm;
+
+function showProfileAlert(el, message, type = 'danger') {
+  if (!el) return;
+  el.className = `alert alert-${type}`;
+  el.textContent = message;
+  el.style.display = 'block';
+}
+
+async function handleUpdateProfilePersonal(e) {
+  if (e) e.preventDefault();
+  const alertEl = document.getElementById('profilePersonalAlert');
+  const btn = document.getElementById('btnSaveProfilePersonal');
+  const btnText = document.getElementById('btnSaveProfilePersonalText');
+
+  if (alertEl) alertEl.style.display = 'none';
+
+  const firstName = getValue('profileFirstName').trim();
+  const lastName = getValue('profileLastName').trim();
+  const email = getValue('profileEmail').trim();
+  const birthdate = getValue('profileBirthdate').trim();
+
+  if (!firstName || firstName.length < 2) {
+    showProfileAlert(alertEl, 'First Name must be at least 2 characters.', 'danger');
+    return;
+  }
+  if (!lastName || lastName.length < 2) {
+    showProfileAlert(alertEl, 'Last Name must be at least 2 characters.', 'danger');
+    return;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showProfileAlert(alertEl, 'Please enter a valid email address.', 'danger');
+    return;
+  }
+
+  if (birthdate) {
+    const bDate = new Date(birthdate);
+    const minAgeDate = new Date();
+    minAgeDate.setFullYear(minAgeDate.getFullYear() - 12);
+    if (bDate > minAgeDate) {
+      showProfileAlert(alertEl, 'You must be at least 12 years old.', 'danger');
+      return;
+    }
+  }
+
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = 'Saving...';
+
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AppState.authToken}`
+      },
+      body: JSON.stringify({ firstName, lastName, email, birthdate })
+    });
+    const data = await res.json();
+    if (data.success && data.user) {
+      AppState.currentUser = data.user;
+      AppState.activeUser = data.user.username;
+      updateAuthUI();
+      loadUserProfileForm();
+      showProfileAlert(alertEl, data.message || 'Profile settings updated successfully!', 'success');
+      showToast('Profile Updated', 'Personal information saved.', 'success');
+    } else {
+      showProfileAlert(alertEl, data.error || 'Failed to update profile.', 'danger');
+    }
+  } catch (err) {
+    showProfileAlert(alertEl, err.message || 'Network error.', 'danger');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Save Changes';
+  }
+}
+window.handleUpdateProfilePersonal = handleUpdateProfilePersonal;
+
+async function handleUpdateProfilePassword(e) {
+  if (e) e.preventDefault();
+  const alertEl = document.getElementById('profilePasswordAlert');
+  const btn = document.getElementById('btnSaveProfilePassword');
+  const btnText = document.getElementById('btnSaveProfilePasswordText');
+
+  if (alertEl) alertEl.style.display = 'none';
+
+  const currentPassword = getValue('profileCurrentPassword');
+  const newPassword = getValue('profileNewPassword');
+  const confirmPassword = getValue('profileConfirmPassword');
+
+  if (!currentPassword) {
+    showProfileAlert(alertEl, 'Please enter your current password.', 'danger');
+    return;
+  }
+  if (!newPassword || newPassword.length < 6) {
+    showProfileAlert(alertEl, 'New password must be at least 6 characters long.', 'danger');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    showProfileAlert(alertEl, 'New password and confirmation do not match.', 'danger');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = 'Updating...';
+
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AppState.authToken}`
+      },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setValue('profileCurrentPassword', '');
+      setValue('profileNewPassword', '');
+      setValue('profileConfirmPassword', '');
+      showProfileAlert(alertEl, 'Password changed successfully!', 'success');
+      showToast('Security Updated', 'Your password was changed successfully.', 'success');
+    } else {
+      showProfileAlert(alertEl, data.error || 'Failed to change password.', 'danger');
+    }
+  } catch (err) {
+    showProfileAlert(alertEl, err.message || 'Network error.', 'danger');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Update Password';
+  }
+}
+window.handleUpdateProfilePassword = handleUpdateProfilePassword;
 
 function toggleMainPortalView() {
   if (!AppState.isAuthenticated) {
@@ -2116,6 +2346,15 @@ window.handleServerStatusClick = handleServerStatusClick;
 
 // --- Forms Submission Handlers ---
 function initForms() {
+  const formProfilePersonal = document.getElementById('formProfilePersonal');
+  if (formProfilePersonal) {
+    formProfilePersonal.addEventListener('submit', handleUpdateProfilePersonal);
+  }
+  const formProfilePassword = document.getElementById('formProfilePassword');
+  if (formProfilePassword) {
+    formProfilePassword.addEventListener('submit', handleUpdateProfilePassword);
+  }
+
   // Login Trigger & Form
   const headerLoginBtn = document.getElementById('headerLoginBtn');
   if (headerLoginBtn) {
@@ -2517,6 +2756,24 @@ async function toggleFloatingChat() {
     const badge = document.getElementById('floatingChatBadge');
     if (badge) badge.style.display = 'none';
 
+    // When logged in: auto-connect to account without captcha or name/email input!
+    if (AppState.isAuthenticated && AppState.currentUser) {
+      const user = AppState.currentUser;
+      const userSessionId = `hosta_user_${user.id}`;
+      AppState.chatSessionId = userSessionId;
+      localStorage.setItem('hosta_chat_session', userSessionId);
+
+      const screenCaptcha = document.getElementById('chatScreenCaptcha');
+      const screenMessages = document.getElementById('chatScreenMessages');
+      if (screenCaptcha) screenCaptcha.style.display = 'none';
+      if (screenMessages) screenMessages.style.display = 'flex';
+
+      await autoConnectAuthChat(user);
+      await loadVisitorMessages();
+      startVisitorChatPolling();
+      return;
+    }
+
     if (AppState.chatSessionId) {
       const screenCaptcha = document.getElementById('chatScreenCaptcha');
       const screenMessages = document.getElementById('chatScreenMessages');
@@ -2534,6 +2791,30 @@ async function toggleFloatingChat() {
   }
 }
 window.toggleFloatingChat = toggleFloatingChat;
+
+async function autoConnectAuthChat(user) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (AppState.authToken) {
+      headers['Authorization'] = `Bearer ${AppState.authToken}`;
+    }
+    const res = await fetch('/api/chat/start', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        sessionId: AppState.chatSessionId || `hosta_user_${user.id}`,
+        visitorName: user.name || `@${user.username}`,
+        visitorEmail: user.email || ''
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.messages) {
+      renderVisitorMessages(data.messages);
+    }
+  } catch (err) {
+    console.warn('Auto chat connect error:', err);
+  }
+}
 
 let _expectedChatCaptcha = null;
 
@@ -2728,10 +3009,17 @@ async function handleSendVisitorMessage(e) {
   if (btn) btn.disabled = true;
 
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (AppState.authToken) headers['Authorization'] = `Bearer ${AppState.authToken}`;
+
+    const senderName = AppState.currentUser
+      ? (AppState.currentUser.name || `@${AppState.currentUser.username}`)
+      : (getValue('chatVisitorName') || 'Visitor');
+
     const res = await fetch(`/api/chat/session/${AppState.chatSessionId}/message`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, senderName: getValue('chatVisitorName') || 'Visitor' })
+      headers,
+      body: JSON.stringify({ message: text, senderName })
     });
     const data = await res.json();
     if (data.success) {

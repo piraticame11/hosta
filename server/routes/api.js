@@ -431,6 +431,93 @@ router.get('/auth/me', async (req, res) => {
   }
 });
 
+// Update Profile & Settings (Personal Information & Password)
+router.put('/auth/profile', requireAuth, async (req, res) => {
+  try {
+    const { firstName, lastName, email, birthdate, currentPassword, newPassword } = req.body || {};
+    const userId = req.user.id;
+    const username = req.user.username;
+
+    const userRes = await db.pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    const userRow = userRes.rows[0];
+    if (!userRow) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+
+    const updates = {};
+
+    if (firstName !== undefined && firstName.trim()) {
+      if (firstName.trim().length < 2) {
+        return res.status(400).json({ success: false, error: 'First Name must be at least 2 characters.' });
+      }
+      updates.firstName = firstName.trim();
+    }
+
+    if (lastName !== undefined && lastName.trim()) {
+      if (lastName.trim().length < 2) {
+        return res.status(400).json({ success: false, error: 'Last Name must be at least 2 characters.' });
+      }
+      updates.lastName = lastName.trim();
+    }
+
+    if (updates.firstName || updates.lastName) {
+      const f = updates.firstName || userRow.first_name || '';
+      const l = updates.lastName || userRow.last_name || '';
+      updates.name = `${f} ${l}`.trim() || username;
+    }
+
+    if (birthdate !== undefined && birthdate.trim()) {
+      const bDate = new Date(birthdate.trim());
+      if (isNaN(bDate.getTime())) {
+        return res.status(400).json({ success: false, error: 'Please enter a valid birthdate.' });
+      }
+      const minAgeDate = new Date();
+      minAgeDate.setFullYear(minAgeDate.getFullYear() - 12);
+      if (bDate > minAgeDate) {
+        return res.status(400).json({ success: false, error: 'You must be at least 12 years old.' });
+      }
+      updates.birthdate = birthdate.trim();
+    }
+
+    if (email && email.trim()) {
+      const cleanEmail = email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+      }
+      if (cleanEmail !== userRow.email.toLowerCase()) {
+        const checkCollision = await db.pool.query('SELECT id FROM users WHERE LOWER(email) = $1 AND id != $2', [cleanEmail, userId]);
+        if (checkCollision.rowCount > 0) {
+          return res.status(400).json({ success: false, error: 'Email is already used by another account.' });
+        }
+        updates.email = cleanEmail;
+      }
+    }
+
+    // Password change (optional)
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ success: false, error: 'Current password is required to set a new password.' });
+      }
+      if (!db.verifyPassword(currentPassword, userRow.password_hash, userRow.salt)) {
+        return res.status(400).json({ success: false, error: 'Current password is incorrect.' });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
+      }
+      updates.password = newPassword;
+    }
+
+    const updatedUser = await db.updateUser(username, updates);
+    res.json({
+      success: true,
+      message: 'Profile settings updated successfully.',
+      user: updatedUser
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 router.get('/roles', (req, res) => {
   res.json({
     success: true,
@@ -845,16 +932,23 @@ router.get('/chat/captcha', (req, res) => {
   res.json({ success: true, challenge });
 });
 
-// Start chat session (requires captcha verification)
+// Start chat session (requires captcha verification for guests; auto-connects for authenticated users)
 router.post('/chat/start', optionalAuth, async (req, res) => {
   try {
-    const { visitorName, visitorEmail, captchaAnswer, captchaToken, sessionId } = req.body || {};
-    if (!sessionId) {
-      return res.status(400).json({ success: false, error: 'Session ID is required.' });
-    }
+    let { visitorName, visitorEmail, captchaAnswer, captchaToken, sessionId } = req.body || {};
 
-    if (!verifyCaptcha(captchaAnswer, captchaToken)) {
-      return res.status(400).json({ success: false, error: 'Incorrect captcha answer. Please try again.' });
+    if (req.user) {
+      // Authenticated user: bypass captcha, link to user account
+      sessionId = sessionId || `hosta_user_${req.user.id}`;
+      visitorName = req.user.name || `@${req.user.username}`;
+      visitorEmail = req.user.email || '';
+    } else {
+      if (!sessionId) {
+        return res.status(400).json({ success: false, error: 'Session ID is required.' });
+      }
+      if (!verifyCaptcha(captchaAnswer, captchaToken)) {
+        return res.status(400).json({ success: false, error: 'Incorrect captcha answer. Please try again.' });
+      }
     }
 
     const thread = await db.getOrCreateChatThread({
@@ -886,7 +980,7 @@ router.post('/chat/start', optionalAuth, async (req, res) => {
 });
 
 // Get messages for visitor's active session
-router.get('/chat/session/:sessionId/messages', async (req, res) => {
+router.get('/chat/session/:sessionId/messages', optionalAuth, async (req, res) => {
   try {
     const { sessionId } = req.params;
     const messages = await db.getChatMessages(sessionId);
@@ -897,7 +991,7 @@ router.get('/chat/session/:sessionId/messages', async (req, res) => {
 });
 
 // Visitor sends a message
-router.post('/chat/session/:sessionId/message', async (req, res) => {
+router.post('/chat/session/:sessionId/message', optionalAuth, async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { message, senderName } = req.body || {};
@@ -905,10 +999,14 @@ router.post('/chat/session/:sessionId/message', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Message cannot be empty.' });
     }
 
+    const effectiveSender = req.user 
+      ? (req.user.name || `@${req.user.username}`)
+      : (senderName || 'Visitor');
+
     const newMsg = await db.addChatMessage({
       threadIdOrSession: sessionId,
       senderType: 'visitor',
-      senderName: senderName || 'Visitor',
+      senderName: effectiveSender,
       message: message.trim()
     });
 

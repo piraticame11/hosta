@@ -88,7 +88,7 @@
 
         <!-- Authenticated Auth Controls (Visible when LOGGED IN) -->
         <div id="headerAuthUser" class="header-auth-group" style="display: none;">
-          <div class="header-user-chip" id="headerUserChip" onclick="toggleMainPortalView();" title="Click to open your Portal">
+          <div class="header-user-chip" id="headerUserChip" onclick="openUserProfile();" title="My Profile &amp; Settings">
             <div class="user-chip-avatar" id="headerUserAvatar">A</div>
             <div class="user-chip-meta">
               <span class="user-chip-name" id="headerUserName">@admin</span>
@@ -136,14 +136,18 @@
             <button class="btn btn-primary btn-sm btn-block" onclick="openLoginModal(); closeMobileMenu();">Log In to Account</button>
           </div>
           <div id="mobileBannerUser" class="mobile-banner-user" style="display: none;">
-            <div class="mobile-user-details">
+            <div class="mobile-user-details" onclick="openUserProfile(); closeMobileMenu();" style="cursor: pointer;" title="My Profile &amp; Settings">
               <div class="user-chip-avatar" id="mobileUserAvatar">A</div>
               <div>
                 <strong id="mobileUserName">@admin</strong>
                 <div class="badge badge-sm badge-role" id="mobileUserRoleBadge">Admin</div>
               </div>
             </div>
-            <button class="btn btn-danger-outline btn-sm btn-block" onclick="handleLogout(); closeMobileMenu();" style="margin-top: 10px;">Log Out</button>
+            <button class="btn btn-outline btn-sm btn-block" onclick="openUserProfile(); closeMobileMenu();" style="margin-top: 10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile &amp; Settings
+            </button>
+            <button class="btn btn-danger-outline btn-sm btn-block" onclick="handleLogout(); closeMobileMenu();" style="margin-top: 8px;">Log Out</button>
           </div>
         </div>
 
@@ -528,7 +532,11 @@
           <span>Backups</span>
           <span class="pill-count" id="pillBackupsCount">0</span>
         </button>
-        <button class="subnav-btn" data-tab="settings">
+        <button class="subnav-btn" data-tab="profile" id="subnavProfileBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </button>
+        <button class="subnav-btn" data-tab="settings" id="subnavSettingsBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>Server Setup</span>
         </button>
@@ -904,6 +912,140 @@
               <!-- Populated by JavaScript -->
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- TAB: PROFILE & ACCOUNT SETTINGS -->
+      <div id="dash-profile" class="dash-view">
+        <div class="dash-action-bar" style="margin-bottom: 24px;">
+          <div>
+            <h3 class="dash-heading">Account Profile &amp; Settings</h3>
+            <p class="dash-heading-sub">Update your personal information, contact email, birthdate, or change your account password.</p>
+          </div>
+        </div>
+
+        <!-- Profile Hero Header Card -->
+        <div class="profile-hero-card" style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 18px;">
+            <div class="user-chip-avatar" id="profileHeroAvatar" style="width: 58px; height: 58px; font-size: 1.5rem; border-radius: var(--radius-md);">U</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <h4 id="profileHeroName" style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Student User</h4>
+                <span id="profileHeroRoleBadge" class="badge badge-sm badge-role student">STUDENT</span>
+                <span class="badge badge-sm" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25);">Active</span>
+              </div>
+              <div style="font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span id="profileHeroUsername" style="font-family: var(--font-mono); color: var(--primary); font-weight: 600;">@username</span>
+                <span>&bull;</span>
+                <span id="profileHeroEmail">student@hosta.site</span>
+                <span>&bull;</span>
+                <span>Member since <strong id="profileHeroCreated">2026</strong></span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span style="font-size: 0.82rem; padding: 6px 14px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-full); color: var(--text-secondary); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+              <span id="profileHeroPackage">Student Monthly Pass (₱150/mo)</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Two Column Settings Grid -->
+        <div class="settings-grid">
+          <!-- Column 1: Personal Information Form -->
+          <div class="settings-card">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+              <div style="width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Personal Information</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 0;">Update your name, student email, and birthdate.</p>
+              </div>
+            </div>
+
+            <div id="profilePersonalAlert" class="alert" style="display: none; margin-bottom: 16px;"></div>
+
+            <form id="formProfilePersonal" onsubmit="handleUpdateProfilePersonal(event);">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="profileFirstName">First Name *</label>
+                  <input type="text" id="profileFirstName" class="form-control" placeholder="First Name" required minlength="2">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profileLastName">Last Name *</label>
+                  <input type="text" id="profileLastName" class="form-control" placeholder="Last Name" required minlength="2">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profileEmail">Email Address *</label>
+                <input type="email" id="profileEmail" class="form-control" placeholder="name@email.com" required>
+                <div class="form-help">Used for verification codes, hosting notices, and support.</div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="profileBirthdate">Birthdate</label>
+                  <input type="date" id="profileBirthdate" class="form-control" style="color-scheme: light dark;">
+                  <div class="form-help">Must be at least 12 years old.</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profileUsername">Account Username</label>
+                  <input type="text" id="profileUsername" class="form-control" disabled style="opacity: 0.75; background: var(--bg-surface); cursor: not-allowed; font-family: var(--font-mono);">
+                  <div class="form-help">Username is permanently locked for hosting stability.</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <button type="submit" class="btn btn-primary" id="btnSaveProfilePersonal">
+                  <span id="btnSaveProfilePersonalText">Save Changes</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Column 2: Security & Change Password -->
+          <div class="settings-card">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+              <div style="width: 34px; height: 34px; border-radius: var(--radius-sm); background: rgba(220, 38, 38, 0.1); color: var(--danger); display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div>
+                <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Change Password</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 0;">Enter current password to set a new one.</p>
+              </div>
+            </div>
+
+            <div id="profilePasswordAlert" class="alert" style="display: none; margin-bottom: 16px;"></div>
+
+            <form id="formProfilePassword" onsubmit="handleUpdateProfilePassword(event);">
+              <div class="form-group">
+                <label class="form-label" for="profileCurrentPassword">Current Password *</label>
+                <input type="password" id="profileCurrentPassword" class="form-control" placeholder="Enter current password" required autocomplete="current-password">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profileNewPassword">New Password *</label>
+                <input type="password" id="profileNewPassword" class="form-control" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profileConfirmPassword">Confirm New Password *</label>
+                <input type="password" id="profileConfirmPassword" class="form-control" placeholder="Repeat new password" required minlength="6" autocomplete="new-password">
+              </div>
+
+              <div style="margin-top: 14px;">
+                <button type="submit" class="btn btn-secondary" id="btnSaveProfilePassword">
+                  <span id="btnSaveProfilePasswordText">Update Password</span>
+                </button>
+              </div>
+            </form>
+
+            <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-subtle); font-size: 0.83rem; color: var(--text-muted); line-height: 1.5;">
+              <strong style="color: var(--text-main);">Need Instant Help?</strong> Use the floating live chat on the bottom right. As a logged-in user, you are automatically connected to our administrator without filling out extra forms.
+            </div>
+          </div>
         </div>
       </div>
 

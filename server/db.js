@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 const crypto = require('crypto');
 const os = require('os');
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://hosta_owner:npg_5UoNAhO7rZmQ@ep-weathered-fire-b3zb8rdz-pooler.c-4.ap-southeast-1.aws.neon.tech/hosta?sslmode=require';
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
   connectionString,
@@ -512,13 +512,29 @@ const dbService = {
 
   async updateUser(username, updates = {}) {
     await ensureInitialized();
-    const userRes = await pool.query('SELECT id FROM users WHERE LOWER(username) = LOWER($1)', [username]);
+    const userRes = await pool.query('SELECT id, first_name, last_name FROM users WHERE LOWER(username) = LOWER($1)', [username]);
     const user = userRes.rows[0];
     if (!user) throw new Error(`User "${username}" not found.`);
 
-    if (updates.name) {
-      await pool.query('UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2', [updates.name.trim(), user.id]);
+    if (updates.firstName !== undefined) {
+      await pool.query('UPDATE users SET first_name = $1, updated_at = NOW() WHERE id = $2', [updates.firstName ? updates.firstName.trim() : null, user.id]);
     }
+    if (updates.lastName !== undefined) {
+      await pool.query('UPDATE users SET last_name = $1, updated_at = NOW() WHERE id = $2', [updates.lastName ? updates.lastName.trim() : null, user.id]);
+    }
+    if (updates.birthdate !== undefined) {
+      await pool.query('UPDATE users SET birthdate = $1, updated_at = NOW() WHERE id = $2', [updates.birthdate ? String(updates.birthdate).trim() : null, user.id]);
+    }
+    if (updates.name || updates.fullName) {
+      const fn = updates.name || updates.fullName;
+      await pool.query('UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2', [fn.trim(), user.id]);
+    } else if (updates.firstName !== undefined || updates.lastName !== undefined) {
+      const fn = updates.firstName !== undefined ? (updates.firstName ? updates.firstName.trim() : '') : (user.first_name || '');
+      const ln = updates.lastName !== undefined ? (updates.lastName ? updates.lastName.trim() : '') : (user.last_name || '');
+      const combined = `${fn} ${ln}`.trim() || username;
+      await pool.query('UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2', [combined, user.id]);
+    }
+
     if (updates.email) {
       await pool.query('UPDATE users SET email = $1, updated_at = NOW() WHERE id = $2', [updates.email.trim().toLowerCase(), user.id]);
     }
@@ -963,13 +979,35 @@ const dbService = {
   // --- Live Chat System Queries ---
   async getOrCreateChatThread({ sessionId, visitorName, visitorEmail = '', userId = null }) {
     await ensureInitialized();
-    const existing = await pool.query('SELECT * FROM chat_threads WHERE session_id = $1', [sessionId]);
-    if (existing.rowCount > 0) {
-      if (visitorName && existing.rows[0].visitor_name !== visitorName) {
-        await pool.query('UPDATE chat_threads SET visitor_name = $1, updated_at = NOW() WHERE id = $2', [visitorName, existing.rows[0].id]);
-        existing.rows[0].visitor_name = visitorName;
+    let existing;
+    if (userId) {
+      existing = await pool.query('SELECT * FROM chat_threads WHERE user_id = $1 ORDER BY id DESC LIMIT 1', [userId]);
+    }
+    if (!existing || existing.rowCount === 0) {
+      existing = await pool.query('SELECT * FROM chat_threads WHERE session_id = $1', [sessionId]);
+    }
+    if (existing && existing.rowCount > 0) {
+      const thread = existing.rows[0];
+      const updates = [];
+      const params = [];
+      let idx = 1;
+      if (visitorName && thread.visitor_name !== visitorName) {
+        updates.push(`visitor_name = $${idx++}`);
+        params.push(visitorName);
       }
-      return existing.rows[0];
+      if (visitorEmail && thread.visitor_email !== visitorEmail) {
+        updates.push(`visitor_email = $${idx++}`);
+        params.push(visitorEmail);
+      }
+      if (userId && !thread.user_id) {
+        updates.push(`user_id = $${idx++}`);
+        params.push(userId);
+      }
+      if (updates.length > 0) {
+        params.push(thread.id);
+        await pool.query(`UPDATE chat_threads SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${idx}`, params);
+      }
+      return thread;
     }
     const res = await pool.query(`
       INSERT INTO chat_threads (session_id, visitor_name, visitor_email, user_id, status)
