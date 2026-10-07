@@ -979,12 +979,18 @@ const dbService = {
   // --- Live Chat System Queries ---
   async getOrCreateChatThread({ sessionId, visitorName, visitorEmail = '', userId = null }) {
     await ensureInitialized();
-    let existing;
+    let validUserId = null;
     if (userId) {
-      existing = await pool.query('SELECT * FROM chat_threads WHERE user_id = $1 ORDER BY id DESC LIMIT 1', [userId]);
+      const uCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+      if (uCheck.rowCount > 0) validUserId = userId;
+    }
+
+    let existing;
+    if (validUserId) {
+      existing = await pool.query('SELECT * FROM chat_threads WHERE user_id = $1 ORDER BY id DESC LIMIT 1', [validUserId]);
     }
     if (!existing || existing.rowCount === 0) {
-      existing = await pool.query('SELECT * FROM chat_threads WHERE session_id = $1', [sessionId]);
+      existing = await pool.query('SELECT * FROM chat_threads WHERE session_id = $1 ORDER BY id DESC LIMIT 1', [sessionId]);
     }
     if (existing && existing.rowCount > 0) {
       const thread = existing.rows[0];
@@ -999,13 +1005,18 @@ const dbService = {
         updates.push(`visitor_email = $${idx++}`);
         params.push(visitorEmail);
       }
-      if (userId && !thread.user_id) {
+      if (validUserId && !thread.user_id) {
         updates.push(`user_id = $${idx++}`);
-        params.push(userId);
+        params.push(validUserId);
+      }
+      if (sessionId && thread.session_id !== sessionId) {
+        updates.push(`session_id = $${idx++}`);
+        params.push(sessionId);
       }
       if (updates.length > 0) {
         params.push(thread.id);
-        await pool.query(`UPDATE chat_threads SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${idx}`, params);
+        const updateRes = await pool.query(`UPDATE chat_threads SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${idx} RETURNING *`, params);
+        return updateRes.rows[0];
       }
       return thread;
     }
@@ -1013,7 +1024,7 @@ const dbService = {
       INSERT INTO chat_threads (session_id, visitor_name, visitor_email, user_id, status)
       VALUES ($1, $2, $3, $4, 'open')
       RETURNING *
-    `, [sessionId, visitorName || 'Visitor', visitorEmail, userId]);
+    `, [sessionId, visitorName || 'Visitor', visitorEmail, validUserId]);
     return res.rows[0];
   },
 
@@ -1041,11 +1052,28 @@ const dbService = {
     }));
   },
 
-  async getChatMessages(threadIdOrSession) {
+  async getChatMessages(threadIdOrSession, userId = null) {
     await ensureInitialized();
     let threadId = threadIdOrSession;
     if (typeof threadIdOrSession === 'string' && isNaN(Number(threadIdOrSession))) {
-      const threadRes = await pool.query('SELECT id FROM chat_threads WHERE session_id = $1', [threadIdOrSession]);
+      let parsedUserId = userId;
+      if (!parsedUserId && threadIdOrSession.startsWith('hosta_user_')) {
+        const p = parseInt(threadIdOrSession.replace('hosta_user_', ''), 10);
+        if (!isNaN(p)) parsedUserId = p;
+      }
+
+      let threadRes;
+      if (parsedUserId) {
+        threadRes = await pool.query(
+          'SELECT id FROM chat_threads WHERE session_id = $1 OR user_id = $2 ORDER BY id DESC LIMIT 1',
+          [threadIdOrSession, parsedUserId]
+        );
+      } else {
+        threadRes = await pool.query(
+          'SELECT id FROM chat_threads WHERE session_id = $1 ORDER BY id DESC LIMIT 1',
+          [threadIdOrSession]
+        );
+      }
       if (threadRes.rowCount === 0) return [];
       threadId = threadRes.rows[0].id;
     }
@@ -1065,13 +1093,40 @@ const dbService = {
     }));
   },
 
-  async addChatMessage({ threadIdOrSession, senderType, senderName, message }) {
+  async addChatMessage({ threadIdOrSession, senderType, senderName, message, userId = null }) {
     await ensureInitialized();
     let threadId = threadIdOrSession;
     if (typeof threadIdOrSession === 'string' && isNaN(Number(threadIdOrSession))) {
-      const threadRes = await pool.query('SELECT id FROM chat_threads WHERE session_id = $1', [threadIdOrSession]);
-      if (threadRes.rowCount === 0) throw new Error('Chat thread not found');
-      threadId = threadRes.rows[0].id;
+      let parsedUserId = userId;
+      if (!parsedUserId && threadIdOrSession.startsWith('hosta_user_')) {
+        const p = parseInt(threadIdOrSession.replace('hosta_user_', ''), 10);
+        if (!isNaN(p)) parsedUserId = p;
+      }
+
+      let threadRes;
+      if (parsedUserId) {
+        threadRes = await pool.query(
+          'SELECT id FROM chat_threads WHERE session_id = $1 OR user_id = $2 ORDER BY id DESC LIMIT 1',
+          [threadIdOrSession, parsedUserId]
+        );
+      } else {
+        threadRes = await pool.query(
+          'SELECT id FROM chat_threads WHERE session_id = $1 ORDER BY id DESC LIMIT 1',
+          [threadIdOrSession]
+        );
+      }
+
+      if (threadRes.rowCount === 0) {
+        // Auto-provision thread on demand so sending a message never fails with "Chat thread not found"
+        const newThread = await this.getOrCreateChatThread({
+          sessionId: threadIdOrSession,
+          visitorName: senderName || (parsedUserId ? 'Student User' : 'Visitor'),
+          userId: parsedUserId
+        });
+        threadId = newThread.id;
+      } else {
+        threadId = threadRes.rows[0].id;
+      }
     }
 
     const res = await pool.query(`

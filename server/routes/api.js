@@ -942,6 +942,16 @@ router.post('/chat/start', optionalAuth, async (req, res) => {
       sessionId = sessionId || `hosta_user_${req.user.id}`;
       visitorName = req.user.name || `@${req.user.username}`;
       visitorEmail = req.user.email || '';
+    } else if (sessionId && sessionId.startsWith('hosta_user_')) {
+      const parsedUserId = parseInt(sessionId.replace('hosta_user_', ''), 10);
+      if (!isNaN(parsedUserId)) {
+        const u = await db.getUser(parsedUserId);
+        if (u) {
+          req.user = u;
+          visitorName = u.name || `@${u.username}`;
+          visitorEmail = u.email || '';
+        }
+      }
     } else {
       if (!sessionId) {
         return res.status(400).json({ success: false, error: 'Session ID is required.' });
@@ -958,17 +968,18 @@ router.post('/chat/start', optionalAuth, async (req, res) => {
       userId: req.user ? req.user.id : null
     });
 
-    const messages = await db.getChatMessages(thread.id);
+    const messages = await db.getChatMessages(thread.id, req.user ? req.user.id : null);
     if (messages.length === 0) {
       await db.addChatMessage({
         threadIdOrSession: thread.id,
         senderType: 'admin',
         senderName: 'Hosta Support',
-        message: '👋 Hello! Welcome to Hosta LiveChat. How can our administrator help you with your web hosting or school project today?'
+        message: '👋 Hello! Welcome to Hosta LiveChat. How can our administrator help you with your web hosting or school project today?',
+        userId: req.user ? req.user.id : null
       });
     }
 
-    const updatedMessages = await db.getChatMessages(thread.id);
+    const updatedMessages = await db.getChatMessages(thread.id, req.user ? req.user.id : null);
     res.json({
       success: true,
       thread,
@@ -983,7 +994,12 @@ router.post('/chat/start', optionalAuth, async (req, res) => {
 router.get('/chat/session/:sessionId/messages', optionalAuth, async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const messages = await db.getChatMessages(sessionId);
+    let userId = req.user ? req.user.id : null;
+    if (!userId && sessionId && sessionId.startsWith('hosta_user_')) {
+      const parsed = parseInt(sessionId.replace('hosta_user_', ''), 10);
+      if (!isNaN(parsed)) userId = parsed;
+    }
+    const messages = await db.getChatMessages(sessionId, userId);
     res.json({ success: true, messages });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -999,6 +1015,12 @@ router.post('/chat/session/:sessionId/message', optionalAuth, async (req, res) =
       return res.status(400).json({ success: false, error: 'Message cannot be empty.' });
     }
 
+    let userId = req.user ? req.user.id : null;
+    if (!userId && sessionId && sessionId.startsWith('hosta_user_')) {
+      const parsed = parseInt(sessionId.replace('hosta_user_', ''), 10);
+      if (!isNaN(parsed)) userId = parsed;
+    }
+
     const effectiveSender = req.user 
       ? (req.user.name || `@${req.user.username}`)
       : (senderName || 'Visitor');
@@ -1007,7 +1029,8 @@ router.post('/chat/session/:sessionId/message', optionalAuth, async (req, res) =
       threadIdOrSession: sessionId,
       senderType: 'visitor',
       senderName: effectiveSender,
-      message: message.trim()
+      message: message.trim(),
+      userId
     });
 
     res.json({ success: true, message: newMsg });

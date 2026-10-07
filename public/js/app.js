@@ -3002,7 +3002,17 @@ async function handleSendVisitorMessage(e) {
   const input = document.getElementById('chatVisitorInput');
   if (!input) return;
   const text = input.value.trim();
-  if (!text || !AppState.chatSessionId) return;
+  if (!text) return;
+
+  if (!AppState.chatSessionId) {
+    if (AppState.currentUser) {
+      AppState.chatSessionId = `hosta_user_${AppState.currentUser.id}`;
+      localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
+    } else {
+      AppState.chatSessionId = 'hosta_sess_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+      localStorage.setItem('hosta_chat_session', AppState.chatSessionId);
+    }
+  }
 
   input.value = '';
   const btn = document.getElementById('btnVisitorSend');
