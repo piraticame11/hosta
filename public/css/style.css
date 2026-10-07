@@ -1848,6 +1848,51 @@ input:checked + .slider:before {
   margin-top: 6px;
 }
 
+/* Form Live Validation Feedback */
+.field-feedback {
+  font-size: 0.73rem;
+  color: var(--danger);
+  min-height: 16px;
+  line-height: 1.25;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.form-control.is-invalid {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.16) !important;
+}
+
+.form-control.is-valid {
+  border-color: rgba(34, 197, 94, 0.6) !important;
+}
+
+.input-with-action {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-inline-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.input-inline-btn:hover {
+  color: var(--primary);
+  background: rgba(14, 165, 233, 0.12);
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

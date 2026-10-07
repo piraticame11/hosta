@@ -4,6 +4,38 @@ const { loadConfig, saveConfig } = require('../config-manager');
 const HestiaClient = require('../hestia-client');
 const db = require('../db');
 const emailService = require('../email-service');
+const crypto = require('crypto');
+
+const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || 'hosta_ph_chat_secret_2026';
+
+function generateCaptcha() {
+  const n1 = Math.floor(Math.random() * 8) + 2;
+  const n2 = Math.floor(Math.random() * 8) + 1;
+  const answer = String(n1 + n2);
+  const expires = Date.now() + 10 * 60 * 1000;
+  const payload = `${answer}:${expires}`;
+  const hmac = crypto.createHmac('sha256', CAPTCHA_SECRET).update(payload).digest('hex');
+  const token = Buffer.from(`${payload}:${hmac}`).toString('base64');
+  return {
+    question: `What is ${n1} + ${n2}?`,
+    token
+  };
+}
+
+function verifyCaptcha(answer, token) {
+  if (!answer || !token) return false;
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    const [expectedAnswer, expiresStr, hmac] = decoded.split(':');
+    const expires = parseInt(expiresStr, 10);
+    if (Date.now() > expires) return false;
+    const expectedHmac = crypto.createHmac('sha256', CAPTCHA_SECRET).update(`${expectedAnswer}:${expiresStr}`).digest('hex');
+    if (hmac !== expectedHmac) return false;
+    return String(answer).trim() === expectedAnswer;
+  } catch {
+    return false;
+  }
+}
 
 // Initialize client
 let currentConfig = loadConfig();
@@ -136,10 +168,16 @@ async function generateUniqueUsername(firstName, lastName, email) {
   }
 }
 
+// Registration Captcha challenge
+router.get('/auth/register-captcha', (req, res) => {
+  const challenge = generateCaptcha();
+  res.json({ success: true, challenge });
+});
+
 // 1. Step 1: Send registration confirmation code via email
 router.post('/auth/register-send-code', async (req, res) => {
   try {
-    const { firstName, lastName, birthdate, email, password, passwordConfirm } = req.body || {};
+    const { firstName, lastName, birthdate, email, password, passwordConfirm, captchaAnswer, captchaToken } = req.body || {};
 
     if (!firstName || !firstName.trim()) {
       return res.status(400).json({ success: false, error: 'First Name is required.' });
@@ -150,6 +188,18 @@ router.post('/auth/register-send-code', async (req, res) => {
     if (!birthdate || !birthdate.trim()) {
       return res.status(400).json({ success: false, error: 'Birthdate is required.' });
     }
+
+    // Validate minimum age: must be at least 12 years old
+    const bDate = new Date(birthdate.trim());
+    if (isNaN(bDate.getTime())) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid birthdate.' });
+    }
+    const minAgeDate = new Date();
+    minAgeDate.setFullYear(minAgeDate.getFullYear() - 12);
+    if (bDate > minAgeDate) {
+      return res.status(400).json({ success: false, error: 'You must be at least 12 years old to create an account.' });
+    }
+
     if (!email || !email.trim()) {
       return res.status(400).json({ success: false, error: 'Student Email is required.' });
     }
@@ -167,6 +217,11 @@ router.post('/auth/register-send-code', async (req, res) => {
     }
     if (passwordConfirm !== undefined && password !== passwordConfirm) {
       return res.status(400).json({ success: false, error: 'Password confirmation does not match.' });
+    }
+
+    // Validate security captcha
+    if (!verifyCaptcha(captchaAnswer, captchaToken)) {
+      return res.status(400).json({ success: false, error: 'Incorrect security captcha. Please solve the challenge again.' });
     }
 
     // Check collision in existing users
@@ -783,38 +838,6 @@ router.post('/backups', optionalAuth, async (req, res) => {
  * LIVE CHAT & CAPTCHA SYSTEM
  * =====================================================================
  */
-
-const crypto = require('crypto');
-const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || 'hosta_ph_chat_secret_2026';
-
-function generateCaptcha() {
-  const n1 = Math.floor(Math.random() * 8) + 2;
-  const n2 = Math.floor(Math.random() * 8) + 1;
-  const answer = String(n1 + n2);
-  const expires = Date.now() + 10 * 60 * 1000;
-  const payload = `${answer}:${expires}`;
-  const hmac = crypto.createHmac('sha256', CAPTCHA_SECRET).update(payload).digest('hex');
-  const token = Buffer.from(`${payload}:${hmac}`).toString('base64');
-  return {
-    question: `What is ${n1} + ${n2}?`,
-    token
-  };
-}
-
-function verifyCaptcha(answer, token) {
-  if (!answer || !token) return false;
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf8');
-    const [expectedAnswer, expiresStr, hmac] = decoded.split(':');
-    const expires = parseInt(expiresStr, 10);
-    if (Date.now() > expires) return false;
-    const expectedHmac = crypto.createHmac('sha256', CAPTCHA_SECRET).update(`${expectedAnswer}:${expiresStr}`).digest('hex');
-    if (hmac !== expectedHmac) return false;
-    return String(answer).trim() === expectedAnswer;
-  } catch {
-    return false;
-  }
-}
 
 // Get Captcha challenge
 router.get('/chat/captcha', (req, res) => {

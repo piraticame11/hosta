@@ -1226,6 +1226,11 @@ function updatePlanPricesDisplay() {
 }
 
 function openOrderModal(planId, planName) {
+  if (!AppState.isAuthenticated) {
+    showToast('Sign In Required', 'Please sign in or create an account to get your student pass.', 'info');
+    openLoginModal('register');
+    return;
+  }
   setValue('orderPlanId', planId);
   setText('orderPlanNameText', planName);
   openModal('modalOrderPlan');
@@ -1479,6 +1484,8 @@ function switchAuthTab(tab) {
       if (stepVerify) stepVerify.style.display = 'none';
     }
     if (subtitle) subtitle.textContent = 'Create your student account with 100MB SSD & MariaDB.';
+    initRegistrationLiveValidations();
+    loadRegisterCaptcha();
   } else {
     if (tabLogin) tabLogin.classList.add('active');
     if (tabRegister) tabRegister.classList.remove('active');
@@ -1489,12 +1496,12 @@ function switchAuthTab(tab) {
 }
 window.switchAuthTab = switchAuthTab;
 
-function openLoginModal() {
+function openLoginModal(tab = 'login') {
   const alertEl = document.getElementById('loginErrorAlert');
   if (alertEl) alertEl.style.display = 'none';
   const regAlert = document.getElementById('registerErrorAlert');
   if (regAlert) regAlert.style.display = 'none';
-  switchAuthTab('login');
+  switchAuthTab(tab);
   openModal('modalLogin');
 }
 window.openLoginModal = openLoginModal;
@@ -1507,6 +1514,206 @@ function fillLoginCredentials(username, password) {
   showToast('Credentials Filled', `Ready to sign in as @${username}`, 'info');
 }
 window.fillLoginCredentials = fillLoginCredentials;
+
+// --- Calendar picker helper ---
+function openBirthdatePicker() {
+  const el = document.getElementById('regBirthdate');
+  if (!el) return;
+  if (typeof el.showPicker === 'function') {
+    try {
+      el.showPicker();
+      return;
+    } catch (e) {
+      // fallback
+    }
+  }
+  el.focus();
+}
+window.openBirthdatePicker = openBirthdatePicker;
+
+// --- Registration Captcha Challenge ---
+async function loadRegisterCaptcha() {
+  const qEl = document.getElementById('regCaptchaQuestion');
+  const tEl = document.getElementById('regCaptchaToken');
+  const aEl = document.getElementById('regCaptchaAnswer');
+  const fEl = document.getElementById('feedbackRegCaptcha');
+  if (qEl) qEl.textContent = 'Loading challenge...';
+  if (aEl) {
+    aEl.value = '';
+    aEl.classList.remove('is-invalid', 'is-valid');
+  }
+  if (fEl) fEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/auth/register-captcha');
+    const data = await res.json();
+    if (data.success && data.challenge) {
+      if (qEl) qEl.textContent = data.challenge.question;
+      if (tEl) tEl.value = data.challenge.token;
+    } else {
+      if (qEl) qEl.textContent = 'Challenge error';
+    }
+  } catch (err) {
+    if (qEl) qEl.textContent = 'What is 5 + 4?';
+  }
+}
+window.loadRegisterCaptcha = loadRegisterCaptcha;
+
+// --- Registration Field Live Validations ---
+function setFieldFeedback(inputId, feedbackId, errorMsg) {
+  const input = document.getElementById(inputId);
+  const feedback = document.getElementById(feedbackId);
+  if (!input) return;
+  if (errorMsg) {
+    input.classList.add('is-invalid');
+    input.classList.remove('is-valid');
+    if (feedback) {
+      feedback.textContent = errorMsg;
+      feedback.style.display = 'block';
+    }
+  } else {
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    if (feedback) {
+      feedback.textContent = '';
+      feedback.style.display = 'none';
+    }
+  }
+}
+
+function validateFirstName(showError = false) {
+  const val = getValue('regFirstName').trim();
+  if (!val) {
+    if (showError) setFieldFeedback('regFirstName', 'feedbackRegFirstName', 'First name is required.');
+    return false;
+  }
+  if (val.length < 2) {
+    if (showError) setFieldFeedback('regFirstName', 'feedbackRegFirstName', 'First name must be at least 2 characters.');
+    return false;
+  }
+  setFieldFeedback('regFirstName', 'feedbackRegFirstName', '');
+  return true;
+}
+
+function validateLastName(showError = false) {
+  const val = getValue('regLastName').trim();
+  if (!val) {
+    if (showError) setFieldFeedback('regLastName', 'feedbackRegLastName', 'Last name is required.');
+    return false;
+  }
+  if (val.length < 2) {
+    if (showError) setFieldFeedback('regLastName', 'feedbackRegLastName', 'Last name must be at least 2 characters.');
+    return false;
+  }
+  setFieldFeedback('regLastName', 'feedbackRegLastName', '');
+  return true;
+}
+
+function validateBirthdate(showError = false) {
+  const val = getValue('regBirthdate').trim();
+  if (!val) {
+    if (showError) setFieldFeedback('regBirthdate', 'feedbackRegBirthdate', 'Birthdate is required.');
+    return false;
+  }
+  const bDate = new Date(val);
+  if (isNaN(bDate.getTime())) {
+    if (showError) setFieldFeedback('regBirthdate', 'feedbackRegBirthdate', 'Please enter a valid birthdate.');
+    return false;
+  }
+  const minAgeDate = new Date();
+  minAgeDate.setFullYear(minAgeDate.getFullYear() - 12);
+  if (bDate > minAgeDate) {
+    if (showError) setFieldFeedback('regBirthdate', 'feedbackRegBirthdate', 'You must be at least 12 years old to create an account.');
+    return false;
+  }
+  setFieldFeedback('regBirthdate', 'feedbackRegBirthdate', '');
+  return true;
+}
+
+function validateEmail(showError = false) {
+  const val = getValue('regEmail').trim();
+  if (!val) {
+    if (showError) setFieldFeedback('regEmail', 'feedbackRegEmail', 'Student email is required.');
+    return false;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    if (showError) setFieldFeedback('regEmail', 'feedbackRegEmail', 'Please enter a valid email address.');
+    return false;
+  }
+  setFieldFeedback('regEmail', 'feedbackRegEmail', '');
+  return true;
+}
+
+function validatePassword(showError = false) {
+  const val = getValue('regPassword');
+  if (!val) {
+    if (showError) setFieldFeedback('regPassword', 'feedbackRegPassword', 'Password is required.');
+    return false;
+  }
+  if (val.length < 6) {
+    if (showError) setFieldFeedback('regPassword', 'feedbackRegPassword', 'Password must be at least 6 characters.');
+    return false;
+  }
+  setFieldFeedback('regPassword', 'feedbackRegPassword', '');
+  const conf = getValue('regPasswordConfirm');
+  if (conf) validatePasswordConfirm(true);
+  return true;
+}
+
+function validatePasswordConfirm(showError = false) {
+  const pass = getValue('regPassword');
+  const conf = getValue('regPasswordConfirm');
+  if (!conf) {
+    if (showError) setFieldFeedback('regPasswordConfirm', 'feedbackRegPasswordConfirm', 'Please confirm your password.');
+    return false;
+  }
+  if (conf !== pass) {
+    if (showError) setFieldFeedback('regPasswordConfirm', 'feedbackRegPasswordConfirm', 'Passwords do not match.');
+    return false;
+  }
+  setFieldFeedback('regPasswordConfirm', 'feedbackRegPasswordConfirm', '');
+  return true;
+}
+
+function validateCaptcha(showError = false) {
+  const ans = getValue('regCaptchaAnswer').trim();
+  if (!ans) {
+    if (showError) setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', 'Please enter captcha answer.');
+    return false;
+  }
+  setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', '');
+  return true;
+}
+
+let _regValidationsInitialized = false;
+function initRegistrationLiveValidations() {
+  const bInput = document.getElementById('regBirthdate');
+  if (bInput) {
+    const maxBirthdate = new Date();
+    maxBirthdate.setFullYear(maxBirthdate.getFullYear() - 12);
+    bInput.max = maxBirthdate.toISOString().split('T')[0];
+  }
+
+  if (_regValidationsInitialized) return;
+  _regValidationsInitialized = true;
+
+  const bind = (id, fn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => fn(true));
+    el.addEventListener('blur', () => fn(true));
+    el.addEventListener('change', () => fn(true));
+  };
+
+  bind('regFirstName', validateFirstName);
+  bind('regLastName', validateLastName);
+  bind('regBirthdate', validateBirthdate);
+  bind('regEmail', validateEmail);
+  bind('regPassword', validatePassword);
+  bind('regPasswordConfirm', validatePasswordConfirm);
+  bind('regCaptchaAnswer', validateCaptcha);
+}
+window.initRegistrationLiveValidations = initRegistrationLiveValidations;
 
 async function handleLoginSubmit(e) {
   e.preventDefault();
@@ -1578,44 +1785,38 @@ async function handleRegisterSubmit(e) {
   const email = getValue('regEmail').trim();
   const password = getValue('regPassword');
   const passwordConfirm = getValue('regPasswordConfirm');
+  const captchaAnswer = getValue('regCaptchaAnswer').trim();
+  const captchaToken = getValue('regCaptchaToken');
   const alertEl = document.getElementById('registerErrorAlert');
   const submitBtn = document.getElementById('btnRegisterSubmit');
   const submitText = document.getElementById('btnRegisterText');
 
   if (alertEl) alertEl.style.display = 'none';
 
-  if (!firstName || !lastName || !birthdate || !email || !password || !passwordConfirm) {
-    if (alertEl) {
-      alertEl.textContent = 'Please fill in all required fields.';
-      alertEl.style.display = 'block';
-    }
-    return;
-  }
+  const okFirst = validateFirstName(true);
+  const okLast = validateLastName(true);
+  const okBirth = validateBirthdate(true);
+  const okEmail = validateEmail(true);
+  const okPass = validatePassword(true);
+  const okPassConf = validatePasswordConfirm(true);
+  const okCaptcha = validateCaptcha(true);
 
-  if (password.length < 6) {
+  if (!okFirst || !okLast || !okBirth || !okEmail || !okPass || !okPassConf || !okCaptcha) {
     if (alertEl) {
-      alertEl.textContent = 'Password must be at least 6 characters long.';
-      alertEl.style.display = 'block';
-    }
-    return;
-  }
-
-  if (password !== passwordConfirm) {
-    if (alertEl) {
-      alertEl.textContent = 'Password confirmation does not match password.';
+      alertEl.textContent = 'Please fill out all required fields correctly.';
       alertEl.style.display = 'block';
     }
     return;
   }
 
   if (submitBtn) submitBtn.disabled = true;
-  if (submitText) submitText.textContent = 'Sending code...';
+  if (submitText) submitText.textContent = 'Registering...';
 
   try {
     const res = await fetch('/api/auth/register-send-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstName, lastName, birthdate, email, password, passwordConfirm })
+      body: JSON.stringify({ firstName, lastName, birthdate, email, password, passwordConfirm, captchaAnswer, captchaToken })
     });
     const data = await res.json();
     if (data.success) {
@@ -1652,15 +1853,17 @@ async function handleRegisterSubmit(e) {
         alertEl.textContent = data.error || 'Failed to start registration.';
         alertEl.style.display = 'block';
       }
+      loadRegisterCaptcha();
     }
   } catch (err) {
     if (alertEl) {
       alertEl.textContent = err.message || 'Connection error. Please try again.';
       alertEl.style.display = 'block';
     }
+    loadRegisterCaptcha();
   } finally {
     if (submitBtn) submitBtn.disabled = false;
-    if (submitText) submitText.textContent = 'Continue & Send Code';
+    if (submitText) submitText.textContent = 'Register';
   }
 }
 window.handleRegisterSubmit = handleRegisterSubmit;
