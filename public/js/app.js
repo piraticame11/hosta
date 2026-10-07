@@ -41,7 +41,11 @@ const AppState = {
   adminChatActiveThreadId: null,
   adminChatPollInterval: null,
   adminChatFilter: 'all',
-  adminChatThreads: []
+  adminChatThreads: [],
+  // Registration flow state
+  pendingRegisterEmail: '',
+  pendingDevCode: null,
+  resendCountdownTimer: null
 };
 
 // --- DOM Ready Initialization ---
@@ -262,7 +266,11 @@ function handleQuickAction(action) {
       window.open(phpMyAdminUrl, '_blank');
       break;
     case 'livechat':
-      toggleFloatingChat();
+      if (AppState.isAuthenticated && AppState.currentUser?.role === 'admin') {
+        switchDashTab('chat');
+      } else {
+        toggleFloatingChat();
+      }
       break;
   }
 }
@@ -1412,6 +1420,18 @@ function updateAuthUI() {
     if (subnavChatBtn) {
       subnavChatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
+
+    const mobileNavAccounts = document.getElementById('mobileNavAccounts');
+    const mobileNavChat = document.getElementById('mobileNavChat');
+    if (mobileNavAccounts) mobileNavAccounts.style.display = isAdmin ? 'flex' : 'none';
+    if (mobileNavChat) mobileNavChat.style.display = isAdmin ? 'flex' : 'none';
+
+    const quickChatText = document.getElementById('btnQuickLiveChatText');
+    if (quickChatText) quickChatText.textContent = isAdmin ? 'Chat Inbox' : 'Live Chat Support';
+
+    if (isAdmin) {
+      loadAdminChatThreads(false);
+    }
   } else {
     if (guestGroup) guestGroup.style.display = 'flex';
     if (userGroup) userGroup.style.display = 'none';
@@ -1425,6 +1445,11 @@ function updateAuthUI() {
     if (subnavChatBtn) {
       subnavChatBtn.style.display = 'none';
     }
+
+    const mobileNavAccounts = document.getElementById('mobileNavAccounts');
+    const mobileNavChat = document.getElementById('mobileNavChat');
+    if (mobileNavAccounts) mobileNavAccounts.style.display = 'none';
+    if (mobileNavChat) mobileNavChat.style.display = 'none';
   }
 }
 
@@ -1433,22 +1458,33 @@ function switchAuthTab(tab) {
   const tabRegister = document.getElementById('authTabRegister');
   const panelLogin = document.getElementById('authPanelLogin');
   const panelRegister = document.getElementById('authPanelRegister');
+  const subtitle = document.getElementById('modalLoginSubtitle');
   const loginAlert = document.getElementById('loginErrorAlert');
   const registerAlert = document.getElementById('registerErrorAlert');
+  const verifyAlert = document.getElementById('verifyErrorAlert');
 
   if (loginAlert) loginAlert.style.display = 'none';
   if (registerAlert) registerAlert.style.display = 'none';
+  if (verifyAlert) verifyAlert.style.display = 'none';
 
   if (tab === 'register') {
     if (tabLogin) tabLogin.classList.remove('active');
     if (tabRegister) tabRegister.classList.add('active');
     if (panelLogin) panelLogin.style.display = 'none';
-    if (panelRegister) panelRegister.style.display = 'block';
+    if (panelRegister) {
+      panelRegister.style.display = 'flex';
+      const stepForm = document.getElementById('authRegStepForm');
+      const stepVerify = document.getElementById('authRegStepVerify');
+      if (stepForm) stepForm.style.display = 'block';
+      if (stepVerify) stepVerify.style.display = 'none';
+    }
+    if (subtitle) subtitle.textContent = 'Create your student account with 100MB SSD & MariaDB.';
   } else {
     if (tabLogin) tabLogin.classList.add('active');
     if (tabRegister) tabRegister.classList.remove('active');
-    if (panelLogin) panelLogin.style.display = 'block';
+    if (panelLogin) panelLogin.style.display = 'flex';
     if (panelRegister) panelRegister.style.display = 'none';
+    if (subtitle) subtitle.textContent = 'Sign in to access your student hosting control panel.';
   }
 }
 window.switchAuthTab = switchAuthTab;
@@ -1515,6 +1551,7 @@ async function handleLoginSubmit(e) {
       refreshDashboardData();
       if (data.user.role === 'admin') {
         loadAccounts();
+        loadAdminChatThreads(false);
       }
     } else {
       if (alertEl) {
@@ -1535,35 +1572,21 @@ async function handleLoginSubmit(e) {
 
 async function handleRegisterSubmit(e) {
   e.preventDefault();
-  const name = getValue('regFullName').trim();
-  const username = getValue('regUsername').trim();
+  const firstName = getValue('regFirstName').trim();
+  const lastName = getValue('regLastName').trim();
+  const birthdate = getValue('regBirthdate').trim();
   const email = getValue('regEmail').trim();
   const password = getValue('regPassword');
+  const passwordConfirm = getValue('regPasswordConfirm');
   const alertEl = document.getElementById('registerErrorAlert');
   const submitBtn = document.getElementById('btnRegisterSubmit');
   const submitText = document.getElementById('btnRegisterText');
 
   if (alertEl) alertEl.style.display = 'none';
 
-  if (!name || !username || !email || !password) {
+  if (!firstName || !lastName || !birthdate || !email || !password || !passwordConfirm) {
     if (alertEl) {
       alertEl.textContent = 'Please fill in all required fields.';
-      alertEl.style.display = 'block';
-    }
-    return;
-  }
-
-  if (username.length < 3 || username.length > 24) {
-    if (alertEl) {
-      alertEl.textContent = 'Username must be between 3 and 24 characters.';
-      alertEl.style.display = 'block';
-    }
-    return;
-  }
-
-  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-    if (alertEl) {
-      alertEl.textContent = 'Username may only contain letters, numbers, hyphens, and underscores.';
       alertEl.style.display = 'block';
     }
     return;
@@ -1577,14 +1600,97 @@ async function handleRegisterSubmit(e) {
     return;
   }
 
+  if (password !== passwordConfirm) {
+    if (alertEl) {
+      alertEl.textContent = 'Password confirmation does not match password.';
+      alertEl.style.display = 'block';
+    }
+    return;
+  }
+
   if (submitBtn) submitBtn.disabled = true;
-  if (submitText) submitText.textContent = 'Creating account...';
+  if (submitText) submitText.textContent = 'Sending code...';
 
   try {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/auth/register-send-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, username, email, password })
+      body: JSON.stringify({ firstName, lastName, birthdate, email, password, passwordConfirm })
+    });
+    const data = await res.json();
+    if (data.success) {
+      AppState.pendingRegisterEmail = email;
+      AppState.pendingDevCode = data.devCode || null;
+
+      const emailDisplay = document.getElementById('verifyEmailDisplay');
+      if (emailDisplay) emailDisplay.textContent = email;
+
+      const devBox = document.getElementById('devCodeHelperBox');
+      const devVal = document.getElementById('devCodeValue');
+      if (data.devCode) {
+        if (devVal) devVal.textContent = data.devCode;
+        if (devBox) devBox.style.display = 'block';
+      } else {
+        if (devBox) devBox.style.display = 'none';
+      }
+
+      const stepForm = document.getElementById('authRegStepForm');
+      const stepVerify = document.getElementById('authRegStepVerify');
+      if (stepForm) stepForm.style.display = 'none';
+      if (stepVerify) stepVerify.style.display = 'block';
+
+      const codeInp = document.getElementById('regVerifyCode');
+      if (codeInp) {
+        codeInp.value = '';
+        setTimeout(() => codeInp.focus(), 100);
+      }
+
+      startResendCountdown(30);
+      showToast('Confirmation Code Sent', data.message || `Code sent to ${email}`, 'info');
+    } else {
+      if (alertEl) {
+        alertEl.textContent = data.error || 'Failed to start registration.';
+        alertEl.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (alertEl) {
+      alertEl.textContent = err.message || 'Connection error. Please try again.';
+      alertEl.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+    if (submitText) submitText.textContent = 'Continue & Send Code';
+  }
+}
+window.handleRegisterSubmit = handleRegisterSubmit;
+
+async function handleVerifyRegistrationCode(e) {
+  if (e) e.preventDefault();
+  const email = AppState.pendingRegisterEmail || getValue('regEmail').trim();
+  const code = getValue('regVerifyCode').trim();
+  const alertEl = document.getElementById('verifyErrorAlert');
+  const submitBtn = document.getElementById('btnVerifySubmit');
+  const submitText = document.getElementById('btnVerifyText');
+
+  if (alertEl) alertEl.style.display = 'none';
+
+  if (!code || code.length !== 6) {
+    if (alertEl) {
+      alertEl.textContent = 'Please enter the 6-digit confirmation code.';
+      alertEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (submitBtn) submitBtn.disabled = true;
+  if (submitText) submitText.textContent = 'Verifying...';
+
+  try {
+    const res = await fetch('/api/auth/register-verify-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code })
     });
     const data = await res.json();
     if (data.success && data.token) {
@@ -1602,7 +1708,7 @@ async function handleRegisterSubmit(e) {
       refreshDashboardData();
     } else {
       if (alertEl) {
-        alertEl.textContent = data.error || 'Registration failed. Please check inputs.';
+        alertEl.textContent = data.error || 'Invalid confirmation code. Please check and try again.';
         alertEl.style.display = 'block';
       }
     }
@@ -1613,10 +1719,103 @@ async function handleRegisterSubmit(e) {
     }
   } finally {
     if (submitBtn) submitBtn.disabled = false;
-    if (submitText) submitText.textContent = 'Register & Sign In';
+    if (submitText) submitText.textContent = 'Confirm & Register';
   }
 }
-window.handleRegisterSubmit = handleRegisterSubmit;
+window.handleVerifyRegistrationCode = handleVerifyRegistrationCode;
+
+function backToRegStepForm() {
+  const stepForm = document.getElementById('authRegStepForm');
+  const stepVerify = document.getElementById('authRegStepVerify');
+  const verifyAlert = document.getElementById('verifyErrorAlert');
+  if (verifyAlert) verifyAlert.style.display = 'none';
+  if (stepVerify) stepVerify.style.display = 'none';
+  if (stepForm) stepForm.style.display = 'block';
+}
+window.backToRegStepForm = backToRegStepForm;
+
+function fillDevCode() {
+  const val = document.getElementById('devCodeValue')?.textContent;
+  if (val) {
+    setValue('regVerifyCode', val);
+    const codeInp = document.getElementById('regVerifyCode');
+    if (codeInp) codeInp.focus();
+  }
+}
+window.fillDevCode = fillDevCode;
+
+function startResendCountdown(seconds = 30) {
+  const btn = document.getElementById('btnResendCode');
+  const countdownEl = document.getElementById('resendCountdown');
+  if (!btn) return;
+
+  if (AppState.resendCountdownTimer) {
+    clearInterval(AppState.resendCountdownTimer);
+  }
+
+  let remaining = seconds;
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+  if (countdownEl) {
+    countdownEl.style.display = 'inline';
+    countdownEl.textContent = `(${remaining}s)`;
+  }
+
+  AppState.resendCountdownTimer = setInterval(() => {
+    remaining--;
+    if (countdownEl) countdownEl.textContent = `(${remaining}s)`;
+    if (remaining <= 0) {
+      clearInterval(AppState.resendCountdownTimer);
+      AppState.resendCountdownTimer = null;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      if (countdownEl) countdownEl.style.display = 'none';
+    }
+  }, 1000);
+}
+
+async function handleResendVerificationCode() {
+  const email = AppState.pendingRegisterEmail || getValue('regEmail').trim();
+  const alertEl = document.getElementById('verifyErrorAlert');
+  if (alertEl) alertEl.style.display = 'none';
+
+  if (!email) {
+    backToRegStepForm();
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/register-resend-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (data.devCode) {
+        const devVal = document.getElementById('devCodeValue');
+        const devBox = document.getElementById('devCodeHelperBox');
+        if (devVal) devVal.textContent = data.devCode;
+        if (devBox) devBox.style.display = 'block';
+      }
+      startResendCountdown(30);
+      showToast('Code Resent', data.message || `Fresh code sent to ${email}`, 'success');
+    } else {
+      if (alertEl) {
+        alertEl.textContent = data.error || 'Failed to resend code.';
+        alertEl.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (alertEl) {
+      alertEl.textContent = err.message || 'Connection error. Please try again.';
+      alertEl.style.display = 'block';
+    }
+  }
+}
+window.handleResendVerificationCode = handleResendVerificationCode;
 
 async function handleLogout() {
   try {
@@ -1678,6 +1877,10 @@ function initForms() {
   const formRegister = document.getElementById('formRegister');
   if (formRegister) {
     formRegister.addEventListener('submit', handleRegisterSubmit);
+  }
+  const formVerify = document.getElementById('formVerifyCode');
+  if (formVerify) {
+    formVerify.addEventListener('submit', handleVerifyRegistrationCode);
   }
   const btnToggleLoginPass = document.getElementById('btnToggleLoginPass');
   if (btnToggleLoginPass) {
@@ -2309,28 +2512,27 @@ function initAdminChat() {
     });
   }
 
-  // Periodic poll if admin is on chat tab
+  // Periodic poll if admin is logged in (keeps unread count live across all tabs)
   setInterval(() => {
     if (AppState.isAuthenticated && AppState.currentUser?.role === 'admin') {
-      if (AppState.activeDashTab === 'chat') {
-        loadAdminChatThreads();
-      }
+      loadAdminChatThreads(AppState.activeDashTab === 'chat');
     }
   }, 4000);
 }
 
-async function loadAdminChatThreads() {
+async function loadAdminChatThreads(autoSelectFirst = true) {
   if (!AppState.isAuthenticated || AppState.currentUser?.role !== 'admin') return;
 
   const listEl = document.getElementById('adminChatThreadsList');
-  if (!listEl) return;
 
   try {
     const res = await fetch('/api/chat/admin/threads');
     const data = await res.json();
     if (data.success && data.threads) {
       AppState.adminChatThreads = data.threads;
-      renderAdminChatThreads();
+      if (listEl) {
+        renderAdminChatThreads();
+      }
 
       const unreadTotal = data.threads.reduce((acc, t) => acc + (parseInt(t.unreadCount || t.unread_admin_count, 10) || 0), 0);
       const pill = document.getElementById('pillChatCount');
@@ -2343,10 +2545,12 @@ async function loadAdminChatThreads() {
         }
       }
 
-      if (AppState.adminChatActiveThreadId) {
-        loadAdminThreadMessages(AppState.adminChatActiveThreadId, false);
-      } else if (data.threads.length > 0) {
-        selectAdminChatThread(data.threads[0].id);
+      if (AppState.activeDashTab === 'chat') {
+        if (AppState.adminChatActiveThreadId) {
+          loadAdminThreadMessages(AppState.adminChatActiveThreadId, false);
+        } else if (autoSelectFirst && data.threads.length > 0) {
+          selectAdminChatThread(data.threads[0].id);
+        }
       }
     }
   } catch (err) {

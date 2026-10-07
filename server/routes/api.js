@@ -3,6 +3,7 @@ const router = express.Router();
 const { loadConfig, saveConfig } = require('../config-manager');
 const HestiaClient = require('../hestia-client');
 const db = require('../db');
+const emailService = require('../email-service');
 
 // Initialize client
 let currentConfig = loadConfig();
@@ -114,31 +115,218 @@ router.post('/auth/login', async (req, res) => {
   }
 });
 
+// Helper to generate a unique hosting username from student name or email
+async function generateUniqueUsername(firstName, lastName, email) {
+  let base = `${firstName || ''}_${lastName || ''}`.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (!base || base.length < 3) {
+    base = (email || 'student').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+  }
+  if (!base || base.length < 3) base = 'student';
+  base = base.substring(0, 18);
+
+  let candidate = base;
+  let counter = 1;
+  while (true) {
+    const existing = await db.pool.query('SELECT id FROM users WHERE LOWER(username) = $1', [candidate]);
+    if (existing.rowCount === 0) {
+      return candidate;
+    }
+    candidate = `${base.substring(0, 16)}${counter}`;
+    counter++;
+  }
+}
+
+// 1. Step 1: Send registration confirmation code via email
+router.post('/auth/register-send-code', async (req, res) => {
+  try {
+    const { firstName, lastName, birthdate, email, password, passwordConfirm } = req.body || {};
+
+    if (!firstName || !firstName.trim()) {
+      return res.status(400).json({ success: false, error: 'First Name is required.' });
+    }
+    if (!lastName || !lastName.trim()) {
+      return res.status(400).json({ success: false, error: 'Last Name is required.' });
+    }
+    if (!birthdate || !birthdate.trim()) {
+      return res.status(400).json({ success: false, error: 'Birthdate is required.' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, error: 'Student Email is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+
+    if (!password) {
+      return res.status(400).json({ success: false, error: 'Password is required.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+    }
+    if (passwordConfirm !== undefined && password !== passwordConfirm) {
+      return res.status(400).json({ success: false, error: 'Password confirmation does not match.' });
+    }
+
+    // Check collision in existing users
+    const existingUser = await db.pool.query('SELECT id FROM users WHERE LOWER(email) = $1', [cleanEmail]);
+    if (existingUser.rowCount > 0) {
+      return res.status(400).json({ success: false, error: 'An account with this email address already exists. Please Sign In.' });
+    }
+
+    // Generate unique username
+    const username = await generateUniqueUsername(firstName.trim(), lastName.trim(), cleanEmail);
+
+    // Generate 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store in registration_verifications table (expires in 15 mins)
+    await db.saveRegistrationVerification({
+      email: cleanEmail,
+      code,
+      registrationData: {
+        username,
+        password,
+        email: cleanEmail,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        birthdate: birthdate.trim(),
+        fullName: `${firstName.trim()} ${lastName.trim()}`,
+        role: 'student',
+        package: 'student-pass'
+      },
+      expiresMinutes: 15
+    });
+
+    // Send code through email
+    const emailResult = await emailService.sendVerificationCode(cleanEmail, code, firstName.trim());
+
+    res.json({
+      success: true,
+      message: `A 6-digit confirmation code has been sent to ${cleanEmail}. Please enter the code to activate your account.`,
+      email: cleanEmail,
+      candidateUsername: username,
+      expiresInMinutes: 15,
+      devCode: emailResult.previewCode || null,
+      emailSent: emailResult.sent
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Step 2: Verify code and finalize registration
+router.post('/auth/register-verify-code', async (req, res) => {
+  try {
+    const { email, code } = req.body || {};
+    if (!email || !code) {
+      return res.status(400).json({ success: false, error: 'Email and verification code are required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = String(code).trim();
+
+    const verification = await db.getRegistrationVerification(cleanEmail, cleanCode);
+    if (!verification) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired verification code. Please check your code or request a new one.'
+      });
+    }
+
+    const regData = typeof verification.registration_data === 'string'
+      ? JSON.parse(verification.registration_data)
+      : verification.registration_data;
+
+    // Double check user doesn't already exist
+    const collision = await db.pool.query('SELECT id FROM users WHERE LOWER(email) = $1 OR LOWER(username) = $2', [cleanEmail, regData.username.toLowerCase()]);
+    if (collision.rowCount > 0) {
+      await db.deleteRegistrationVerification(cleanEmail);
+      return res.status(400).json({ success: false, error: 'An account with this email or username was already registered. Please Sign In.' });
+    }
+
+    const newUser = await db.createUser(regData);
+
+    // Delete verification record
+    await db.deleteRegistrationVerification(cleanEmail);
+
+    // Create authenticated session
+    const session = await db.createSession(newUser.id, req.ip, req.headers['user-agent'] || '');
+    client.defaultUser = newUser.username;
+
+    res.json({
+      success: true,
+      message: `Welcome to Hosta, ${newUser.name}! Your account has been verified and activated.`,
+      token: session.token,
+      user: newUser
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Resend code
+router.post('/auth/register-resend-code', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = await db.getPendingVerificationByEmail(cleanEmail);
+    if (!pending) {
+      return res.status(400).json({ success: false, error: 'No active pending registration found for this email. Please fill out the registration form again.' });
+    }
+
+    const regData = typeof pending.registration_data === 'string' ? JSON.parse(pending.registration_data) : pending.registration_data;
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await db.saveRegistrationVerification({
+      email: cleanEmail,
+      code: newCode,
+      registrationData: regData,
+      expiresMinutes: 15
+    });
+
+    const emailResult = await emailService.sendVerificationCode(cleanEmail, newCode, regData.firstName || 'Student');
+
+    res.json({
+      success: true,
+      message: `A new 6-digit confirmation code has been sent to ${cleanEmail}.`,
+      email: cleanEmail,
+      devCode: emailResult.previewCode || null,
+      emailSent: emailResult.sent
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Backward compatibility direct register
 router.post('/auth/register', async (req, res) => {
   try {
-    const { username, name, email, password } = req.body || {};
-    if (!username || !email || !password) {
-      return res.status(400).json({ success: false, error: 'Username, email, and password are required.' });
+    const { username, name, email, password, firstName, lastName, birthdate } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password are required.' });
     }
 
-    const cleanUsername = username.trim().toLowerCase();
-    if (cleanUsername.length < 3 || cleanUsername.length > 24) {
-      return res.status(400).json({ success: false, error: 'Username must be between 3 and 24 characters.' });
-    }
-
-    if (!/^[a-zA-Z0-9_-]+$/.test(cleanUsername)) {
-      return res.status(400).json({ success: false, error: 'Username may only contain letters, numbers, hyphens, and underscores.' });
-    }
+    const cleanEmail = email.trim().toLowerCase();
+    const finalUsername = username ? username.trim().toLowerCase() : await generateUniqueUsername(firstName, lastName, cleanEmail);
 
     if (password.length < 6) {
       return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
     }
 
     const newUser = await db.createUser({
-      username: cleanUsername,
+      username: finalUsername,
       password,
-      email: email.trim().toLowerCase(),
-      fullName: name ? name.trim() : cleanUsername,
+      email: cleanEmail,
+      fullName: name || ([firstName, lastName].filter(Boolean).join(' ') || finalUsername),
+      firstName: firstName || null,
+      lastName: lastName || null,
+      birthdate: birthdate || null,
       role: 'student',
       package: 'student-pass'
     });

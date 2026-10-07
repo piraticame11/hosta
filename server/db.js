@@ -201,6 +201,19 @@ async function initSchema() {
         is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS registration_verifications (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(150) UNIQUE NOT NULL,
+        code VARCHAR(10) NOT NULL,
+        registration_data JSONB NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS birthdate VARCHAR(50);
     `);
 
     // 1. Seed Roles
@@ -293,10 +306,18 @@ ensureInitialized().catch(err => {
 // Helper to format user row into standard public structure
 function formatUser(row) {
   if (!row) return null;
+  const fullName = row.full_name || '';
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstName = row.first_name || (nameParts.length > 0 ? nameParts[0] : row.username);
+  const lastName = row.last_name || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '');
+
   return {
     id: row.id,
     username: row.username,
     name: row.full_name,
+    firstName,
+    lastName,
+    birthdate: row.birthdate || null,
     email: row.email,
     role: row.role_name || row.role || 'student',
     roleId: row.role_id,
@@ -436,7 +457,7 @@ const dbService = {
     return formatUser(res.rows[0]);
   },
 
-  async createUser({ username, password, email, fullName, role = 'student', package: packageId = 'student-pass' }) {
+  async createUser({ username, password, email, fullName, firstName, lastName, birthdate, role = 'student', package: packageId = 'student-pass' }) {
     if (!username || !password || !email) {
       throw new Error('Username, password, and email are required.');
     }
@@ -460,20 +481,24 @@ const dbService = {
     const domainsLimit = 1;
     const dbsLimit = 1;
 
+    const computedFullName = fullName ? fullName.trim() : ([firstName, lastName].filter(Boolean).join(' ') || cleanUsername);
     const { salt, hash } = hashPassword(password);
     const result = await pool.query(`
       INSERT INTO users (
-        username, password_hash, salt, email, full_name, role_id, 
+        username, password_hash, salt, email, full_name, first_name, last_name, birthdate, role_id, 
         package, suspended, disk_limit_mb, disk_used_mb, bw_limit_mb, bw_used_mb,
         web_domains_limit, databases_limit, cron_jobs_limit, backups_limit
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, $8, 0, $9, 0, $10, $11, 2, 3)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, FALSE, $11, 0, $12, 0, $13, $14, 2, 3)
       RETURNING id
     `, [
       cleanUsername,
       hash,
       salt,
       cleanEmail,
-      fullName || cleanUsername,
+      computedFullName,
+      firstName ? firstName.trim() : null,
+      lastName ? lastName.trim() : null,
+      birthdate ? String(birthdate).trim() : null,
       roleId,
       packageId || 'student-pass',
       diskMB,
@@ -1044,6 +1069,53 @@ const dbService = {
     await ensureInitialized();
     await pool.query("UPDATE chat_threads SET status = 'resolved', updated_at = NOW() WHERE id = $1", [Number(threadId)]);
     return { success: true };
+  },
+
+  // --- Registration Verification Codes ---
+  async saveRegistrationVerification({ email, code, registrationData, expiresMinutes = 15 }) {
+    await ensureInitialized();
+    const cleanEmail = email.trim().toLowerCase();
+    const expiresAt = new Date(Date.now() + expiresMinutes * 60 * 1000);
+
+    await pool.query(`
+      INSERT INTO registration_verifications (email, code, registration_data, expires_at, created_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (email) 
+      DO UPDATE SET code = $2, registration_data = $3, expires_at = $4, created_at = NOW()
+    `, [cleanEmail, String(code).trim(), JSON.stringify(registrationData), expiresAt]);
+
+    return { email: cleanEmail, expiresAt };
+  },
+
+  async getRegistrationVerification(email, code) {
+    await ensureInitialized();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = String(code).trim();
+
+    const res = await pool.query(`
+      SELECT * FROM registration_verifications
+      WHERE LOWER(email) = $1 AND code = $2 AND expires_at > NOW()
+    `, [cleanEmail, cleanCode]);
+
+    if (res.rowCount === 0) return null;
+    return res.rows[0];
+  },
+
+  async getPendingVerificationByEmail(email) {
+    await ensureInitialized();
+    const cleanEmail = email.trim().toLowerCase();
+    const res = await pool.query(`
+      SELECT * FROM registration_verifications
+      WHERE LOWER(email) = $1 AND expires_at > NOW()
+    `, [cleanEmail]);
+    if (res.rowCount === 0) return null;
+    return res.rows[0];
+  },
+
+  async deleteRegistrationVerification(email) {
+    await ensureInitialized();
+    const cleanEmail = email.trim().toLowerCase();
+    await pool.query('DELETE FROM registration_verifications WHERE LOWER(email) = $1', [cleanEmail]);
   }
 };
 
