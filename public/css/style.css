@@ -235,25 +235,24 @@ code, pre {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  background: rgba(14, 165, 233, 0.1);
-  border: 1px solid rgba(14, 165, 233, 0.24);
-  padding: 3px;
-  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.15);
-  overflow: hidden;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  overflow: visible;
+  transition: transform var(--transition-fast);
 }
 
 .logo-link:hover .logo-icon {
-  transform: translateY(-1px) scale(1.04);
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+  transform: scale(1.06);
+  box-shadow: none;
 }
 
 .brand-logo-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: calc(var(--radius-md) - 2px);
+  border-radius: 0;
   display: block;
 }
 
@@ -869,6 +868,115 @@ code, pre {
   color: var(--success);
   font-weight: 700;
   text-transform: uppercase;
+}
+
+/* Student Review / Feedback Card in Hero */
+.hero-review-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-badge-group {
+  display: flex;
+  align-items: center;
+}
+
+.review-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  color: var(--cyan);
+}
+
+.review-stars-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #f59e0b;
+  font-size: 1rem;
+}
+
+.review-rating-score {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-left: 5px;
+}
+
+.review-quote-body {
+  position: relative;
+  margin: 12px 0 20px 0;
+}
+
+.review-quote-icon {
+  color: var(--cyan);
+  opacity: 0.35;
+  margin-bottom: 8px;
+}
+
+.review-quote-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-main);
+  font-style: italic;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.review-author-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.review-author-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--cyan));
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+  flex-shrink: 0;
+}
+
+.review-author-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.review-verified-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--success);
+  background: var(--success-bg);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.review-author-meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .metric-bars-group {

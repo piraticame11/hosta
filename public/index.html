@@ -266,57 +266,53 @@
           </div>
         </div>
 
-        <!-- Student Server Live Status Card -->
-        <div class="hero-card-preview">
+        <!-- Student Feedback / Review Card -->
+        <div class="hero-card-preview hero-review-card">
           <div class="hero-card-header">
-            <div class="card-title-group">
-              <div class="status-dot pulse"></div>
-              <div>
-                <strong style="font-size: 0.95rem;">Philippine Student Node</strong>
-                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">119.92.128.45 (HestiaCP)</div>
-              </div>
+            <div class="review-badge-group">
+              <span class="review-verified-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Student Review
+              </span>
             </div>
-            <span class="preview-badge">Online</span>
-          </div>
-
-          <div class="metric-bars-group">
-            <div class="metric-bar-item">
-              <div class="metric-bar-label">
-                <span>Student Storage Quota</span>
-                <strong style="color: var(--text-main);">28.5 MB / 100 MB</strong>
-              </div>
-              <div class="progress-track">
-                <div class="progress-fill" style="width: 28.5%;"></div>
-              </div>
-            </div>
-
-            <div class="metric-bar-item">
-              <div class="metric-bar-label">
-                <span>Monthly Bandwidth Quota</span>
-                <strong style="color: var(--text-main);">1.2 GB / 20 GB</strong>
-              </div>
-              <div class="progress-track">
-                <div class="progress-fill" style="width: 6%;"></div>
-              </div>
-            </div>
-
-            <div class="metric-bar-item">
-              <div class="metric-bar-label">
-                <span>MariaDB Database Slot</span>
-                <strong style="color: var(--success);">1 / 1 DB In Use</strong>
-              </div>
-              <div class="progress-track">
-                <div class="progress-fill" style="width: 100%; background: var(--success);"></div>
-              </div>
+            <div class="review-stars-badge" aria-label="5 out of 5 stars">
+              <span class="review-star">★</span>
+              <span class="review-star">★</span>
+              <span class="review-star">★</span>
+              <span class="review-star">★</span>
+              <span class="review-star">★</span>
+              <span class="review-rating-score">5.0</span>
             </div>
           </div>
 
-          <div class="hero-card-tags">
-            <span class="tech-tag">PHP 8.2 / 8.3</span>
-            <span class="tech-tag">MariaDB 10.11</span>
-            <span class="tech-tag">phpMyAdmin</span>
-            <span class="tech-tag">Let's Encrypt SSL</span>
-            <span class="tech-tag">Admin Live Chat</span>
+          <div class="review-quote-body">
+            <div class="review-quote-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            </div>
+            <blockquote class="review-quote-text">
+              &ldquo;Okay siya for students kay barato ra&rdquo;
+            </blockquote>
+          </div>
+
+          <div class="review-author-row">
+            <div class="review-author-avatar">M</div>
+            <div class="review-author-info">
+              <div class="review-author-name">
+                <strong>Mark</strong>
+                <span class="review-verified-tag" title="Verified Account">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                  Verified Student
+                </span>
+              </div>
+              <div class="review-author-meta">IT Student &bull; ₱150/mo Student Pass User</div>
+            </div>
+          </div>
+
+          <div class="hero-card-tags" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+            <span class="tech-tag">Student Friendly</span>
+            <span class="tech-tag">₱150 / mo</span>
+            <span class="tech-tag">Free hosta.site</span>
+            <span class="tech-tag">Fast PHP &amp; MariaDB</span>
           </div>
         </div>
       </div>
