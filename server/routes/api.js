@@ -870,7 +870,7 @@ router.post('/chat/start', optionalAuth, async (req, res) => {
         threadIdOrSession: thread.id,
         senderType: 'admin',
         senderName: 'Hosta Support',
-        message: '👋 Hello! Welcome to Hosta Philippines LiveChat. How can our administrator help you with your web hosting or school project today?'
+        message: '👋 Hello! Welcome to Hosta LiveChat. How can our administrator help you with your web hosting or school project today?'
       });
     }
 

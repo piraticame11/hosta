@@ -1532,6 +1532,17 @@ function openBirthdatePicker() {
 window.openBirthdatePicker = openBirthdatePicker;
 
 // --- Registration Captcha Challenge ---
+let _expectedRegisterCaptcha = null;
+
+function extractExpectedCaptchaSum(questionText) {
+  if (!questionText || typeof questionText !== 'string') return null;
+  const match = questionText.match(/(\d+)\s*\+\s*(\d+)/);
+  if (match) {
+    return parseInt(match[1], 10) + parseInt(match[2], 10);
+  }
+  return null;
+}
+
 async function loadRegisterCaptcha() {
   const qEl = document.getElementById('regCaptchaQuestion');
   const tEl = document.getElementById('regCaptchaToken');
@@ -1542,7 +1553,11 @@ async function loadRegisterCaptcha() {
     aEl.value = '';
     aEl.classList.remove('is-invalid', 'is-valid');
   }
-  if (fEl) fEl.style.display = 'none';
+  if (fEl) {
+    fEl.textContent = '';
+    fEl.style.display = 'none';
+  }
+  _expectedRegisterCaptcha = null;
 
   try {
     const res = await fetch('/api/auth/register-captcha');
@@ -1550,11 +1565,13 @@ async function loadRegisterCaptcha() {
     if (data.success && data.challenge) {
       if (qEl) qEl.textContent = data.challenge.question;
       if (tEl) tEl.value = data.challenge.token;
+      _expectedRegisterCaptcha = extractExpectedCaptchaSum(data.challenge.question);
     } else {
       if (qEl) qEl.textContent = 'Challenge error';
     }
   } catch (err) {
     if (qEl) qEl.textContent = 'What is 5 + 4?';
+    _expectedRegisterCaptcha = 9;
   }
 }
 window.loadRegisterCaptcha = loadRegisterCaptcha;
@@ -1676,11 +1693,26 @@ function validatePasswordConfirm(showError = false) {
 }
 
 function validateCaptcha(showError = false) {
-  const ans = getValue('regCaptchaAnswer').trim();
-  if (!ans) {
+  const ansStr = getValue('regCaptchaAnswer').trim();
+  const qEl = document.getElementById('regCaptchaQuestion');
+  const expected = _expectedRegisterCaptcha !== null ? _expectedRegisterCaptcha : extractExpectedCaptchaSum(qEl ? qEl.textContent : '');
+
+  if (!ansStr) {
     if (showError) setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', 'Please enter captcha answer.');
     return false;
   }
+
+  const ansNum = parseInt(ansStr, 10);
+  if (isNaN(ansNum)) {
+    if (showError) setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', 'Answer must be a number.');
+    return false;
+  }
+
+  if (expected !== null && ansNum !== expected) {
+    if (showError) setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', 'Incorrect answer. Please calculate the sum.');
+    return false;
+  }
+
   setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', '');
   return true;
 }
@@ -1703,6 +1735,7 @@ function initRegistrationLiveValidations() {
     el.addEventListener('input', () => fn(true));
     el.addEventListener('blur', () => fn(true));
     el.addEventListener('change', () => fn(true));
+    el.addEventListener('keyup', () => fn(true));
   };
 
   bind('regFirstName', validateFirstName);
@@ -1802,8 +1835,19 @@ async function handleRegisterSubmit(e) {
   const okCaptcha = validateCaptcha(true);
 
   if (!okFirst || !okLast || !okBirth || !okEmail || !okPass || !okPassConf || !okCaptcha) {
+    if (!okCaptcha) {
+      const captchaInput = document.getElementById('regCaptchaAnswer');
+      if (captchaInput) {
+        captchaInput.classList.add('is-invalid');
+        captchaInput.focus();
+      }
+    }
     if (alertEl) {
-      alertEl.textContent = 'Please fill out all required fields correctly.';
+      if (!okCaptcha && okFirst && okLast && okBirth && okEmail && okPass && okPassConf) {
+        alertEl.textContent = 'Incorrect captcha answer. Please solve the security verification challenge.';
+      } else {
+        alertEl.textContent = 'Please fill out all required fields correctly.';
+      }
       alertEl.style.display = 'block';
     }
     return;
@@ -1849,6 +1893,14 @@ async function handleRegisterSubmit(e) {
       startResendCountdown(30);
       showToast('Confirmation Code Sent', data.message || `Code sent to ${email}`, 'info');
     } else {
+      if (data.error && data.error.toLowerCase().includes('captcha')) {
+        setFieldFeedback('regCaptchaAnswer', 'feedbackRegCaptcha', data.error);
+        const captchaInput = document.getElementById('regCaptchaAnswer');
+        if (captchaInput) {
+          captchaInput.classList.add('is-invalid');
+          captchaInput.focus();
+        }
+      }
       if (alertEl) {
         alertEl.textContent = data.error || 'Failed to start registration.';
         alertEl.style.display = 'block';
@@ -2483,6 +2535,8 @@ async function toggleFloatingChat() {
 }
 window.toggleFloatingChat = toggleFloatingChat;
 
+let _expectedChatCaptcha = null;
+
 async function fetchChatCaptcha() {
   const qEl = document.getElementById('chatCaptchaQuestion');
   const tokenEl = document.getElementById('chatCaptchaToken');
@@ -2492,6 +2546,7 @@ async function fetchChatCaptcha() {
   if (qEl) qEl.textContent = 'Loading challenge...';
   if (ansEl) ansEl.value = '';
   if (errEl) errEl.style.display = 'none';
+  _expectedChatCaptcha = null;
 
   try {
     const res = await fetch('/api/chat/captcha');
@@ -2500,6 +2555,7 @@ async function fetchChatCaptcha() {
       if (qEl) qEl.textContent = data.challenge.question;
       if (tokenEl) tokenEl.value = data.challenge.token;
       AppState.chatCaptchaToken = data.challenge.token;
+      _expectedChatCaptcha = extractExpectedCaptchaSum(data.challenge.question);
     }
   } catch (err) {
     if (qEl) qEl.textContent = 'Could not load captcha. Click to retry.';
@@ -2535,6 +2591,20 @@ async function handleStartChat(e) {
     return;
   }
 
+  const expectedChat = _expectedChatCaptcha !== null ? _expectedChatCaptcha : extractExpectedCaptchaSum(document.getElementById('chatCaptchaQuestion')?.textContent);
+  if (expectedChat !== null && parseInt(captchaAnswer, 10) !== expectedChat) {
+    if (errEl) {
+      errEl.textContent = 'Incorrect captcha answer. Please solve the math verification.';
+      errEl.style.display = 'block';
+    }
+    const aEl = document.getElementById('chatCaptchaAnswer');
+    if (aEl) {
+      aEl.classList.add('is-invalid');
+      aEl.focus();
+    }
+    return;
+  }
+
   if (btn) btn.disabled = true;
   if (btnText) btnText.textContent = 'Connecting to Admin...';
 
@@ -2564,7 +2634,7 @@ async function handleStartChat(e) {
 
       renderVisitorMessages(data.messages || []);
       startVisitorChatPolling();
-      showToast('Chat Connected', 'Connected to Hosta Philippines admin support', 'success');
+      showToast('Chat Connected', 'Connected to Hosta admin support', 'success');
     } else {
       if (errEl) {
         errEl.textContent = data.error || 'Verification failed. Try again.';
