@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hosta - Affordable Student Web Hosting Philippines (HestiaCP)</title>
+  <meta name="description" content="Affordable ₱150/month Philippine web hosting made specifically for IT, CS & engineering students. 100MB SSD, 20 GB monthly bandwidth, 1 MariaDB database, phpMyAdmin, and free hosta.site subdomain.">
+  <link rel="icon" type="image/jpeg" href="/assets/Hosta.jpg">
+  <script>
+    // Initialize theme immediately to prevent flashing (Default: white/light)
+    (function() {
+      const savedTheme = localStorage.getItem('hosta_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- =================================================================
+       Sticky Global Header
+       ================================================================= -->
+  <header class="header" id="globalHeader">
+    <div class="header-container">
+      <a href="#" class="logo-link" data-view-target="landing">
+        <div class="logo-icon">
+          <img src="/assets/Hosta.jpg" alt="Hosta Logo" class="brand-logo-img">
+        </div>
+        <span class="logo-title">Hosta</span>
+      </a>
+
+      <!-- Desktop Navigation for Landing View -->
+      <nav class="header-nav" id="headerNavLanding">
+        <ul class="nav-links">
+          <li><button class="nav-btn active" data-view-target="landing">Overview</button></li>
+          <li><a href="#plans" class="nav-btn" onclick="switchMainView('landing')">Pricing (₱150/mo)</a></li>
+          <li><a href="#features" class="nav-btn" onclick="switchMainView('landing')">Features</a></li>
+          <li><a href="#subdomains" class="nav-btn" onclick="switchMainView('landing')">Free Subdomain</a></li>
+          <li><button class="nav-btn" data-view-target="dashboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Student Portal
+          </button></li>
+        </ul>
+      </nav>
+
+      <!-- Desktop Breadcrumb Context for Dashboard View -->
+      <div class="header-portal-context" id="headerPortalContext" style="display: none;">
+        <span class="portal-badge-label">Portal</span>
+        <span class="portal-divider">/</span>
+        <span class="portal-user-tag" id="topbarActiveUserTag">@admin</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme Switcher Button -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light or dark theme" title="Switch between Light and Dark mode">
+          <span class="theme-icon-sun">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </span>
+          <span class="theme-icon-moon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Guest Auth Button (Visible when NOT logged in) -->
+        <div id="headerAuthGuest" class="header-auth-group">
+          <button class="btn btn-primary btn-sm header-cta-btn" id="headerLoginBtn" onclick="openLoginModal();">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <span>Log In</span>
+          </button>
+        </div>
+
+        <!-- Authenticated Auth Controls (Visible when LOGGED IN) -->
+        <div id="headerAuthUser" class="header-auth-group" style="display: none;">
+          <div class="header-user-chip" id="headerUserChip" onclick="toggleMainPortalView();" title="Click to open your Portal">
+            <div class="user-chip-avatar" id="headerUserAvatar">A</div>
+            <div class="user-chip-meta">
+              <span class="user-chip-name" id="headerUserName">@admin</span>
+              <span class="badge badge-sm badge-role" id="headerUserRoleBadge">Admin</span>
+            </div>
+          </div>
+
+          <button class="btn btn-outline btn-sm header-view-btn" id="headerViewToggleBtn" onclick="toggleMainPortalView();">
+            <span id="headerViewToggleText">Portal</span>
+          </button>
+
+          <button class="btn btn-danger-outline btn-sm header-logout-btn" id="headerLogoutBtn" onclick="handleLogout();" title="Log out of account">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Logout</span>
+          </button>
+        </div>
+
+        <!-- Mobile Menu Toggle Button (Visible on screens <= 1024px) -->
+        <button class="mobile-toggle-btn" id="mobileMenuToggle" aria-label="Toggle mobile menu" aria-expanded="false">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div class="mobile-drawer" id="mobileDrawer">
+      <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop"></div>
+      <div class="mobile-drawer-panel">
+        <div class="mobile-drawer-header">
+          <div class="logo-link">
+            <div class="logo-icon" style="width: 32px; height: 32px;">
+              <img src="/assets/Hosta.jpg" alt="Hosta" class="brand-logo-img">
+            </div>
+            <span>Hosta</span>
+          </div>
+          <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu">&times;</button>
+        </div>
+
+        <!-- Mobile Auth State Banner -->
+        <div class="mobile-user-banner" id="mobileUserBanner">
+          <div id="mobileBannerGuest" class="mobile-banner-guest">
+            <p>Welcome to Hosta Cloud Hosting</p>
+            <button class="btn btn-primary btn-sm btn-block" onclick="openLoginModal(); closeMobileMenu();">Log In to Account</button>
+          </div>
+          <div id="mobileBannerUser" class="mobile-banner-user" style="display: none;">
+            <div class="mobile-user-details">
+              <div class="user-chip-avatar" id="mobileUserAvatar">A</div>
+              <div>
+                <strong id="mobileUserName">@admin</strong>
+                <div class="badge badge-sm badge-role" id="mobileUserRoleBadge">Admin</div>
+              </div>
+            </div>
+            <button class="btn btn-danger-outline btn-sm btn-block" onclick="handleLogout(); closeMobileMenu();" style="margin-top: 10px;">Log Out</button>
+          </div>
+        </div>
+
+        <div class="mobile-drawer-body">
+          <div class="mobile-nav-group">
+            <span class="mobile-group-title">Public Pages</span>
+            <button class="mobile-nav-item active" data-view-target="landing" onclick="closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>Overview</span>
+            </button>
+            <a href="#plans" class="mobile-nav-item" onclick="switchMainView('landing'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 10h20"/></svg>
+              <span>Pricing (₱150/mo)</span>
+            </a>
+            <a href="#features" class="mobile-nav-item" onclick="switchMainView('landing'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>Features</span>
+            </a>
+            <a href="#subdomains" class="mobile-nav-item" onclick="switchMainView('landing'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>Free Subdomain</span>
+            </a>
+          </div>
+
+          <div class="mobile-nav-group">
+            <span class="mobile-group-title">Student Portal Sections</span>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('overview'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>Dashboard Overview</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('accounts'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Student Accounts</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('domains'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>Web Domains</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('databases'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <span>MariaDB Databases</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('dns'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+              <span>DNS Records</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('backups'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Backups</span>
+            </button>
+            <button class="mobile-nav-item" onclick="switchMainView('dashboard'); switchDashTab('settings'); closeMobileMenu();">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Server Setup</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mobile-drawer-footer">
+          <button class="btn btn-primary btn-block" style="margin-bottom: 10px;" onclick="switchMainView('dashboard'); closeMobileMenu();">
+            <span>Open Student Portal</span>
+          </button>
+          <button class="btn btn-secondary btn-block" onclick="toggleFloatingChat(); closeMobileMenu();">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Chat with Admin</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =================================================================
+       VIEW 1: PUBLIC MARKETING & HOSTING PLANS LANDING
+       ================================================================= -->
+  <main id="view-landing" class="view-section active">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Philippine Student Web Hosting • Hosted on Philippines</span>
+          </div>
+
+          <h1 class="hero-title">
+            Simple, Affordable Web Hosting for <span class="gradient-text">Filipino Students.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Deploy your school assignments, capstone systems, and thesis projects without breaking the bank. Only <strong>₱150/month</strong> with 100MB SSD, <strong>20 GB</strong> bandwidth, 1 MariaDB database, phpMyAdmin, and free hosta.site subdomain.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#plans" class="btn btn-primary btn-lg">
+              <span>Get Started for ₱150/mo</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <button class="btn btn-secondary btn-lg" onclick="toggleFloatingChat()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Live Chat with Admin</span>
+            </button>
+          </div>
+
+          <div class="hero-stats-row">
+            <div class="hero-stat-item">
+              <h4>₱150 / mo</h4>
+              <p>Student Budget Friendly</p>
+            </div>
+            <div class="hero-stat-item">
+              <h4>100 MB SSD</h4>
+              <p>Perfect for PHP &amp; Web Code</p>
+            </div>
+            <div class="hero-stat-item">
+              <h4>20 GB Bandwidth</h4>
+              <p>For Thesis Demos &amp; Defense</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Server Live Status Card -->
+        <div class="hero-card-preview">
+          <div class="hero-card-header">
+            <div class="card-title-group">
+              <div class="status-dot pulse"></div>
+              <div>
+                <strong style="font-size: 0.95rem;">Philippine Student Node</strong>
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">119.92.128.45 (HestiaCP)</div>
+              </div>
+            </div>
+            <span class="preview-badge">Online</span>
+          </div>
+
+          <div class="metric-bars-group">
+            <div class="metric-bar-item">
+              <div class="metric-bar-label">
+                <span>Student Storage Quota</span>
+                <strong style="color: var(--text-main);">28.5 MB / 100 MB</strong>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 28.5%;"></div>
+              </div>
+            </div>
+
+            <div class="metric-bar-item">
+              <div class="metric-bar-label">
+                <span>Monthly Bandwidth Quota</span>
+                <strong style="color: var(--text-main);">1.2 GB / 20 GB</strong>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 6%;"></div>
+              </div>
+            </div>
+
+            <div class="metric-bar-item">
+              <div class="metric-bar-label">
+                <span>MariaDB Database Slot</span>
+                <strong style="color: var(--success);">1 / 1 DB In Use</strong>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 100%; background: var(--success);"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-card-tags">
+            <span class="tech-tag">PHP 8.2 / 8.3</span>
+            <span class="tech-tag">MariaDB 10.11</span>
+            <span class="tech-tag">phpMyAdmin</span>
+            <span class="tech-tag">Let's Encrypt SSL</span>
+            <span class="tech-tag">Admin Live Chat</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Free Subdomain Showcase Section (Replaces Domain Search) -->
+    <section class="domain-search-section" id="subdomains">
+      <div class="container">
+        <div class="subdomain-highlight-card">
+          <div class="subdomain-badge-pill">Free With Every Pass</div>
+          <h2 class="subdomain-title">Free <span class="gradient-text">hosta.site</span> Subdomain Included</h2>
+          <p class="subdomain-desc">No need to spend ₱1,400 on custom domain names for your thesis presentation. Every student account includes an instant, permanent <strong>.hosta.site</strong> subdomain with automated Let's Encrypt SSL HTTPS encryption.</p>
+
+          <div class="subdomain-preview-box">
+            <div class="subdomain-url-bar">
+              <span class="subdomain-lock-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <span class="subdomain-protocol">https://</span>
+              <span class="subdomain-user-part">yourproject</span>
+              <span class="subdomain-root-part">.hosta.site</span>
+              <span class="subdomain-badge-active">Online • Ready</span>
+            </div>
+            <div class="subdomain-perks-row">
+              <div class="perk-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Instant DNS activation</span>
+              </div>
+              <div class="perk-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Zero domain registrar fee</span>
+              </div>
+              <div class="perk-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Clean HTTPS for panel grading</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hosting Plans & Pricing Section -->
+    <section class="plans-section" id="plans">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Only One Simple Plan</div>
+          <h2 class="section-title">Student Monthly Pass (₱150/mo)</h2>
+          <p class="section-desc">Designed strictly around student budgets and course requirements. No confusing tiers, no hidden renewal hikes.</p>
+        </div>
+
+        <!-- Single Plan Showcase -->
+        <div class="single-plan-wrapper" style="max-width: 540px; margin: 0 auto;">
+          <div class="plan-card popular" style="text-align: left;">
+            <div class="plan-card-tag">Official Student Plan</div>
+            <div class="plan-header">
+              <h3 class="plan-name">Student Monthly Pass</h3>
+              <p class="plan-subtitle">Complete package for web development, capstone &amp; thesis</p>
+            </div>
+            <div class="plan-price-group">
+              <span class="price-currency">₱</span>
+              <span class="price-amount">150</span>
+              <span class="price-period">/month</span>
+            </div>
+            <ul class="plan-features-list">
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>100 MB</strong> Fast SSD Storage</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>20 GB</strong> Monthly Bandwidth</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>1</strong> MariaDB / MySQL Database</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>phpMyAdmin</strong> Web Database Access</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Free <strong>hosta.site</strong> Subdomain Included</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Free Let's Encrypt SSL (HTTPS)</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Live Chat with Admin Support</strong></span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>PHP 7.4 - 8.3 &amp; Node.js</span>
+              </li>
+              <li class="plan-feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Daily Project Backups</span>
+              </li>
+              <li class="plan-feature-item" style="color: var(--text-muted);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>No Email Accounts (Simplified &amp; Fast)</span>
+              </li>
+            </ul>
+            <div style="margin-top: 24px;">
+              <button class="btn btn-primary btn-block btn-lg" onclick="openOrderModal('student-monthly', 'Student Monthly Pass (₱150/mo)')">
+                Order Student Pass (₱150/mo)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Grid -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Why Students Love Hosta</div>
+          <h2 class="section-title">Built Specifically for School Projects</h2>
+          <p class="section-desc">Everything an IT or Computer Science student needs to get an A+ on their web project without technical headaches.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="feature-title">Live Chat with Admin Support</h3>
+            <p class="feature-description">Stuck on a MySQL database connection error or file upload? Chat directly with our administrator for quick troubleshooting and guidance.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <h3 class="feature-title">1 MariaDB DB + phpMyAdmin</h3>
+            <p class="feature-description">Easily import your SQL database dumps via phpMyAdmin. Supports tables, primary keys, and full MySQL syntax taught in school courses.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3 class="feature-title">100 MB SSD &amp; 20 GB Bandwidth</h3>
+            <p class="feature-description">Ideal quota for PHP scripts, HTML/CSS, Bootstrap, and datasets. A generous 20 GB bandwidth ensures uninterrupted live testing and thesis presentations.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3 class="feature-title">Free Let's Encrypt SSL</h3>
+            <p class="feature-description">Automatic HTTPS encryption for your project domain so professors and panel examiners never see a "Not Secure" browser warning.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            </div>
+            <h3 class="feature-title">One-Click Project Backups</h3>
+            <p class="feature-description">Download complete `.tar` archive backups of your code and database before testing new features so your homework is always safe.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <h3 class="feature-title">Zero Email Clutter</h3>
+            <p class="feature-description">We intentionally eliminated complex mailboxes so you don't waste precious server RAM or quota on spam filters. Pure web and database performance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Philippine Local Network Latency -->
+    <section class="latency-section">
+      <div class="container">
+        <div class="latency-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h3 style="font-size: 1.45rem; font-weight: 700; margin-bottom: 4px;">Philippine Local Speed &amp; Low Latency</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Hosted on Philippines with direct peering for fast project loading on school Wi-Fi and mobile data.</p>
+            </div>
+            <span class="badge badge-success">Philippines Node Active</span>
+          </div>
+
+          <div class="latency-grid">
+            <div class="latency-node">
+              <div class="node-info">
+                <h5>PLDT Home Fiber</h5>
+                <span>Nationwide Fiber &amp; Luzon</span>
+              </div>
+              <div class="node-ping">
+                <span class="status-dot"></span>
+                <span>8 ms</span>
+              </div>
+            </div>
+
+            <div class="latency-node">
+              <div class="node-info">
+                <h5>Globe Telecom</h5>
+                <span>Fiber &amp; 5G Mobile</span>
+              </div>
+              <div class="node-ping">
+                <span class="status-dot"></span>
+                <span>11 ms</span>
+              </div>
+            </div>
+
+            <div class="latency-node">
+              <div class="node-info">
+                <h5>Converge ICT</h5>
+                <span>Pure Fiber Backbone</span>
+              </div>
+              <div class="node-ping">
+                <span class="status-dot"></span>
+                <span>9 ms</span>
+              </div>
+            </div>
+
+            <div class="latency-node">
+              <div class="node-info">
+                <h5>DITO Telecommunity</h5>
+                <span>Local Data Route</span>
+              </div>
+              <div class="node-ping">
+                <span class="status-dot"></span>
+                <span>14 ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =================================================================
+       VIEW 2: CLIENT PORTAL / CONTROL PANEL DASHBOARD
+       ================================================================= -->
+  <main id="view-dashboard" class="view-section">
+    <div class="container dashboard-container">
+      
+      <!-- Sub-Navigation for Hosting Management (Mailbox Removed) -->
+      <nav class="dashboard-subnav">
+        <button class="subnav-btn active" data-tab="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Overview</span>
+        </button>
+        <button class="subnav-btn" data-tab="accounts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Accounts</span>
+          <span class="pill-count" id="pillAccountsCount">0</span>
+        </button>
+        <button class="subnav-btn" data-tab="domains">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Web Domain</span>
+          <span class="pill-count" id="pillDomainsCount">0</span>
+        </button>
+        <button class="subnav-btn" data-tab="databases">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span>Database</span>
+          <span class="pill-count" id="pillDatabasesCount">0</span>
+        </button>
+        <button class="subnav-btn" data-tab="dns">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          <span>DNS Records</span>
+        </button>
+        <button class="subnav-btn" data-tab="backups">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>Backups</span>
+          <span class="pill-count" id="pillBackupsCount">0</span>
+        </button>
+        <button class="subnav-btn" data-tab="settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Server Setup</span>
+        </button>
+        <button class="subnav-btn" data-tab="chat" style="margin-left: auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Chat Inbox</span>
+          <span class="pill-count" id="pillChatCount" style="display: none;">0</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: OVERVIEW -->
+      <div id="dash-overview" class="dash-view active">
+        <!-- Student Quotas Cards -->
+        <div class="stats-cards-grid">
+          <!-- 100MB Disk Quota -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">SSD Storage Quota</span>
+              <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+              </div>
+            </div>
+            <div class="stat-val-row">
+              <div class="stat-number" id="dashDiskPercentText">0%</div>
+              <div class="stat-subtext" id="dashDiskUsageText">0.0 MB / 50000 MB</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="dashDiskProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- 20GB Bandwidth Quota -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Monthly Bandwidth</span>
+              <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+            </div>
+            <div class="stat-val-row">
+              <div class="stat-number" id="dashBwPercentText">0%</div>
+              <div class="stat-subtext" id="dashBwUsageText">0.0 MB / 20480 MB</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="dashBwProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Active Web Domains -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Hosted Web Domain</span>
+              <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+            </div>
+            <div class="stat-val-row">
+              <div class="stat-number" id="dashDomainsCount">0 / 100</div>
+              <div class="stat-subtext">Active Project Domain</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- 1 MariaDB Database -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">MariaDB Database</span>
+              <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              </div>
+            </div>
+            <div class="stat-val-row">
+              <div class="stat-number" id="dashDatabasesCount">0 / 100</div>
+              <div class="stat-subtext">Database (phpMyAdmin)</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Quick Action Launchpad -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 30px;">
+          <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Quick Actions
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <button class="btn btn-outline btn-block" onclick="handleQuickAction('add-domain')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              <span>Add Web Domain</span>
+            </button>
+            <button class="btn btn-outline btn-block" onclick="handleQuickAction('add-database')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <span>Create Database</span>
+            </button>
+            <button class="btn btn-outline btn-block" onclick="handleQuickAction('create-backup')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Create Backup Now</span>
+            </button>
+            <button class="btn btn-outline btn-block" onclick="handleQuickAction('phpmyadmin')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <span>Open phpMyAdmin</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Account Info Details Card -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 24px;">
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Hosting Account Details</h4>
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">Package</span>
+                <strong style="color: var(--primary);" id="dashUserPlanTitle">Student Monthly Pass</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">Limits</span>
+                <span id="dashUserPlanLimits" style="font-weight: 600;">100 MB Storage • 20 GB Bandwidth • 1 DB</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">Web Server</span>
+                <span style="font-family: var(--font-mono);">Nginx + PHP-FPM</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Default Node</span>
+                <span style="color: var(--success); font-weight: 600;">Hosted in Philippines</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 24px;">
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Server Status &amp; Specs</h4>
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">OS / Node</span>
+                <span style="font-family: var(--font-mono);" id="sysInfoOs">Ubuntu 22.04 LTS (Philippines)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">HestiaCP Core</span>
+                <span style="font-family: var(--font-mono);" id="sysInfoVersion">v1.8.12</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="color: var(--text-muted);">Uptime</span>
+                <span id="sysInfoUptime">18 days, 9 hours</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Database Engine</span>
+                <span style="color: var(--primary); font-weight: 600;">MariaDB 10.11</span>
+              </div>
+            </div>
+      </div>
+
+      <!-- TAB 2: STUDENT ACCOUNTS -->
+      <div id="dash-accounts" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">Student Hosting Accounts</h3>
+            <p class="dash-heading-sub">Provision and manage student user profiles, hosting packages, disk quotas, and access control.</p>
+          </div>
+          <div class="dash-action-buttons">
+            <button class="btn btn-primary" onclick="openAddAccountModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>New Student Account</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Accounts Summary Metric Cards -->
+        <div class="accounts-summary-grid">
+          <div class="account-metric-card">
+            <div class="metric-num" id="metricTotalAccounts">0</div>
+            <div class="metric-label">Total Student Accounts</div>
+          </div>
+          <div class="account-metric-card">
+            <div class="metric-num text-success" id="metricActiveAccounts">0</div>
+            <div class="metric-label">Active / Enrolled</div>
+          </div>
+          <div class="account-metric-card">
+            <div class="metric-num text-warning" id="metricSuspendedAccounts">0</div>
+            <div class="metric-label">Suspended Accounts</div>
+          </div>
+          <div class="account-metric-card">
+            <div class="metric-num text-cyan" id="metricTotalStorage">0 MB</div>
+            <div class="metric-label">Allocated Storage</div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="table-toolbar">
+          <div class="toolbar-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="accountsSearchInput" placeholder="Filter by name, @username, or email..." class="toolbar-search-input">
+          </div>
+          <div class="toolbar-filters">
+            <select id="accountsFilterPackage" class="toolbar-select">
+              <option value="all">All Packages</option>
+              <option value="student-pass">Student Monthly Pass (₱150)</option>
+            </select>
+            <select id="accountsFilterStatus" class="toolbar-select">
+              <option value="all">All Statuses</option>
+              <option value="active">Active Only</option>
+              <option value="suspended">Suspended Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student / Account</th>
+                <th>Hosting Package</th>
+                <th>SSD Storage Quota</th>
+                <th>Monthly Bandwidth</th>
+                <th>Status</th>
+                <th>Enrolled</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: WEB DOMAINS -->
+      <div id="dash-domains" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">Student Web Domain</h3>
+            <p class="dash-heading-sub">Configure your school project website, PHP runtime, and free Let's Encrypt SSL.</p>
+          </div>
+          <div class="dash-action-buttons">
+            <button class="btn btn-primary" onclick="openModal('modalAddDomain')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add Web Domain</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Domain &amp; Aliases</th>
+                <th>SSL Security</th>
+                <th>PHP Stack</th>
+                <th>Disk &amp; Bandwidth</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="domainsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: DATABASES -->
+      <div id="dash-databases" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">MariaDB Database (1 Active Slot)</h3>
+            <p class="dash-heading-sub">Import your capstone tables and query database records via phpMyAdmin.</p>
+          </div>
+          <div class="dash-action-buttons">
+            <button class="btn btn-secondary" onclick="handleQuickAction('phpmyadmin')">
+              <span>Open phpMyAdmin</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+            <button class="btn btn-primary" onclick="openModal('modalAddDatabase')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Configure Database</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Database &amp; Charset</th>
+                <th>DB User</th>
+                <th>Host</th>
+                <th>Engine</th>
+                <th>Disk Size</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="databasesTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: DNS RECORDS -->
+      <div id="dash-dns" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">DNS Zone Editor</h3>
+            <p class="dash-heading-sub">Add and edit A, CNAME, and TXT records for your project domain.</p>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <select id="dnsDomainSelect" class="form-control" style="width: auto; min-width: 180px;">
+              <!-- Populated dynamically -->
+            </select>
+            <button class="btn btn-primary" onclick="openModal('modalAddDns')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add Record</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Record</th>
+                <th>Type</th>
+                <th>IP / Value</th>
+                <th>Priority</th>
+                <th>TTL</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dnsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 5: BACKUPS -->
+      <div id="dash-backups" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">Project Backup Archives</h3>
+            <p class="dash-heading-sub">Full snapshots of your web files and MySQL database before grading day.</p>
+          </div>
+          <div class="dash-action-buttons">
+            <button class="btn btn-primary" id="btnCreateBackup" onclick="triggerBackupCreation()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Generate Backup Now</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Archive Filename</th>
+                <th>Date Generated</th>
+                <th>Archive Size</th>
+                <th>Status</th>
+                <th>Download</th>
+              </tr>
+            </thead>
+            <tbody id="backupsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 6: HESTIACP SERVER CONFIGURATION & SETTINGS -->
+      <div id="dash-settings" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">HestiaCP Server Connection Hub</h3>
+            <p class="dash-heading-sub">Connect Hosta directly to your HestiaCP server via the Command API.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Configuration Form -->
+          <div class="settings-card">
+            <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 20px;">Connection Parameters</h4>
+
+            <form id="serverConfigForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="cfgHestiaHost">HestiaCP Server IP or Hostname</label>
+                  <input type="text" id="cfgHestiaHost" class="form-control" placeholder="https://119.92.128.45:8083 or https://hestia.yourdomain.ph:8083" required>
+                  <div class="form-help">Include https:// and your HestiaCP port (default: 8083).</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="cfgHestiaPort">Port</label>
+                  <input type="number" id="cfgHestiaPort" class="form-control" value="8083" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cfgAuthType">Authentication Method</label>
+                <select id="cfgAuthType" class="form-control">
+                  <option value="access_key">API Access Key &amp; Secret Key (Recommended)</option>
+                  <option value="user_pass">Admin Username &amp; Password</option>
+                </select>
+              </div>
+
+              <!-- Access Key Fields -->
+              <div id="groupAccessKeys">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="cfgAccessKey">API Access Key</label>
+                    <input type="text" id="cfgAccessKey" class="form-control" placeholder="e.g. 7f9a2b8c...">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="cfgSecretKey">API Secret Key</label>
+                    <input type="password" id="cfgSecretKey" class="form-control" placeholder="••••••••••••••••">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Username / Password Fields -->
+              <div id="groupUserPass" style="display: none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="cfgUsername">Admin Username</label>
+                    <input type="text" id="cfgUsername" class="form-control" value="admin">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="cfgPassword">Admin Password</label>
+                    <input type="password" id="cfgPassword" class="form-control" placeholder="••••••••">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="cfgDefaultUser">Default Managed User</label>
+                  <input type="text" id="cfgDefaultUser" class="form-control" value="admin">
+                  <div class="form-help">User under which student domains are managed.</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="cfgDefaultPackage">Default Hosting Package</label>
+                  <input type="text" id="cfgDefaultPackage" class="form-control" value="default">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="cfgAllowSelfSigned" checked>
+                  <div>
+                    <strong>Allow Self-Signed SSL Certificates</strong>
+                    <div class="form-help">Keep checked if port 8083 uses default self-signed cert.</div>
+                  </div>
+                </label>
+              </div>
+
+
+              <div style="display: flex; gap: 14px; margin-top: 24px;">
+                <button type="submit" class="btn btn-primary" id="btnSaveConfig">
+                  Save Server Settings
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnTestConnection">
+                  Test Server Connection
+                </button>
+              </div>
+
+              <div class="test-result-box" id="connectionTestResult"></div>
+            </form>
+          </div>
+
+          <!-- Setup Guide -->
+          <div class="settings-card">
+            <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 20px;">HestiaCP Quick Setup Guide</h4>
+
+            <div class="guide-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h5>Generate API Key in HestiaCP</h5>
+                <p>Log in to your HestiaCP Web Interface as <code>admin</code>, navigate to <strong>Server Settings &gt; Users &gt; API Access Keys</strong>, and click <strong>Add Access Key</strong>.</p>
+                <span class="code-snippet">Or CLI: v-add-access-key admin hosta-api</span>
+              </div>
+            </div>
+
+            <div class="guide-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h5>Open Port 8083 in Firewall</h5>
+                <p>Verify that incoming traffic on TCP port 8083 is allowed in your server's firewall.</p>
+                <span class="code-snippet">ufw allow 8083/tcp</span>
+              </div>
+            </div>
+
+            <div class="guide-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h5>Connect &amp; Test</h5>
+                <p>Input your server details, click <strong>Test Server Connection</strong> to verify, then save settings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 8: ADMIN CHAT INBOX -->
+      <div id="dash-chat" class="dash-view">
+        <div class="dash-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 class="dash-section-title" style="margin: 0;">Student Live Chat Inbox</h3>
+            <p class="dash-section-desc" style="margin: 4px 0 0 0;">Real-time messaging inbox for students and visitors chatting with admin support.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminChatThreads();">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-chat-layout">
+          <!-- Threads Sidebar -->
+          <div class="admin-chat-threads-panel">
+            <div class="chat-threads-filter-bar">
+              <span class="chat-threads-heading">Conversations</span>
+              <div class="chat-filter-pills">
+                <button class="chat-filter-pill active" data-filter="all" onclick="filterChatThreads('all', this)">All</button>
+                <button class="chat-filter-pill" data-filter="active" onclick="filterChatThreads('active', this)">Active</button>
+                <button class="chat-filter-pill" data-filter="resolved" onclick="filterChatThreads('resolved', this)">Resolved</button>
+              </div>
+            </div>
+            <div class="chat-threads-list" id="adminChatThreadsList">
+              <div style="padding: 28px; text-align: center; color: var(--text-muted); font-size: 0.88rem;">Loading chat threads...</div>
+            </div>
+          </div>
+
+          <!-- Active Conversation Pane -->
+          <div class="admin-chat-main-pane" id="adminChatMainPane">
+            <div class="chat-empty-state" id="adminChatEmptyState">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <h4>Select a Conversation</h4>
+              <p>Choose a student thread from the left list to view messages and reply in real time.</p>
+            </div>
+
+            <div class="chat-conversation-container" id="adminChatActiveContainer" style="display: none;">
+              <!-- Thread Header -->
+              <div class="admin-thread-header">
+                <div class="admin-thread-visitor-info">
+                  <div class="user-chip-avatar" id="adminActiveThreadAvatar">S</div>
+                  <div>
+                    <h4 id="adminActiveThreadName" style="margin: 0; font-size: 1rem;">Student Name</h4>
+                    <span id="adminActiveThreadEmail" style="font-size: 0.8rem; color: var(--text-muted);">student@school.ph</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="badge badge-success" id="adminActiveThreadStatusBadge">Active</span>
+                  <button class="btn btn-outline btn-sm" id="btnResolveThread" onclick="handleResolveCurrentThread();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Resolve Thread</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Message Stream -->
+              <div class="admin-chat-messages-stream" id="adminChatMessagesStream">
+                <!-- Message bubbles rendered by JS -->
+              </div>
+
+              <!-- Admin Reply Box -->
+              <form class="admin-chat-reply-form" id="adminChatReplyForm" onsubmit="handleAdminSendReply(event);">
+                <div class="admin-reply-input-wrap">
+                  <textarea id="adminChatReplyInput" rows="2" placeholder="Type your response to the student... (Press Enter to send, Shift+Enter for new line)" required></textarea>
+                  <button type="submit" class="btn btn-primary" id="adminChatSendBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <span>Send Reply</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =================================================================
+       MODALS
+       ================================================================= -->
+
+  <!-- Modal: Add Web Domain -->
+  <div class="modal-backdrop" id="modalAddDomain">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Web Domain</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formAddDomain">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="inputDomainName">Domain Name</label>
+            <input type="text" id="inputDomainName" class="form-control" placeholder="e.g. mycapstone-project.ph" required>
+            <div class="form-help">Enter without http:// or www prefix.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDomainAliases">Aliases</label>
+            <input type="text" id="inputDomainAliases" class="form-control" placeholder="e.g. www.mycapstone-project.ph">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="inputDomainPhp">PHP Version Stack</label>
+              <select id="inputDomainPhp" class="form-control">
+                <option value="8.3">PHP 8.3 (Latest)</option>
+                <option value="8.2" selected>PHP 8.2 (Recommended for school)</option>
+                <option value="8.1">PHP 8.1</option>
+                <option value="8.0">PHP 8.0</option>
+                <option value="7.4">PHP 7.4 (Legacy school code)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+              <label class="checkbox-row">
+                <input type="checkbox" id="inputDomainSsl" checked>
+                <span><strong>Auto Let's Encrypt SSL</strong></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Provision Domain</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Database -->
+  <div class="modal-backdrop" id="modalAddDatabase">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Create MariaDB Database</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formAddDatabase">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="inputDbName">Database Name</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: var(--font-mono); color: var(--text-muted);">admin_</span>
+              <input type="text" id="inputDbName" class="form-control" placeholder="capstonedb" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDbUser">Database User</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: var(--font-mono); color: var(--text-muted);">admin_</span>
+              <input type="text" id="inputDbUser" class="form-control" placeholder="dbuser" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDbPassword">Password</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputDbPassword" class="form-control" placeholder="Enter or generate password" required>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="generateSecurePassword('inputDbPassword')">
+                Generate
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDbCharset">Character Set</label>
+            <select id="inputDbCharset" class="form-control">
+              <option value="utf8mb4" selected>utf8mb4 (Recommended - Full Unicode &amp; Emoji)</option>
+              <option value="utf8">utf8</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Database</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add DNS Record -->
+  <div class="modal-backdrop" id="modalAddDns">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Add DNS Zone Record</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formAddDns">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="inputDnsRecord">Record Name</label>
+              <input type="text" id="inputDnsRecord" class="form-control" value="@" placeholder="@, www, api" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputDnsType">Type</label>
+              <select id="inputDnsType" class="form-control">
+                <option value="A" selected>A (IPv4 Address)</option>
+                <option value="AAAA">AAAA (IPv6 Address)</option>
+                <option value="CNAME">CNAME (Alias)</option>
+                <option value="TXT">TXT (Text Record)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDnsValue">IP or Target Value</label>
+            <input type="text" id="inputDnsValue" class="form-control" placeholder="e.g. 119.92.128.45" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDnsTtl">TTL (Seconds)</label>
+            <input type="number" id="inputDnsTtl" class="form-control" value="14400">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save DNS Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Order Plan / Provision Account -->
+  <div class="modal-backdrop" id="modalOrderPlan">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Order Student Hosting Plan</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formOrderPlan">
+        <input type="hidden" id="orderPlanId" value="student-monthly">
+        <div class="modal-body">
+          <div style="background: var(--bg-surface); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 20px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Selected Plan</span>
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--cyan);" id="orderPlanNameText">Student Monthly Pass (₱150/mo)</div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Includes 100MB SSD, 20 GB Bandwidth, 1 MariaDB DB &amp; Live Chat Support.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="orderDomainInput">Primary Project Domain or Subdomain</label>
+            <input type="text" id="orderDomainInput" class="form-control" placeholder="e.g. mycapstone.hosta.site" required>
+            <div class="form-help">Choose your free <strong>.hosta.site</strong> subdomain or custom domain.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="orderEmailInput">Student Contact Email</label>
+            <input type="email" id="orderEmailInput" class="form-control" placeholder="student@school.edu.ph" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Activate Student Pass (₱150)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Student Account -->
+  <div class="modal-backdrop" id="modalAddAccount">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Student Hosting Account</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formAddAccount">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="inputAccountUsername">Account Username *</label>
+            <div style="position: relative;">
+              <input type="text" id="inputAccountUsername" class="form-control" placeholder="e.g. maria_santos" required pattern="^[a-zA-Z0-9_-]{3,24}$">
+            </div>
+            <div class="form-help">3–24 alphanumeric characters, hyphens or underscores. Used for server FTP/SSH &amp; panel login.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputAccountName">Student Full Name *</label>
+            <input type="text" id="inputAccountName" class="form-control" placeholder="e.g. Maria Santos (BSIT Capstone)" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputAccountEmail">Student Email *</label>
+            <input type="email" id="inputAccountEmail" class="form-control" placeholder="maria.santos@student.ph" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectAccountPackage">Hosting Package</label>
+            <select id="selectAccountPackage" class="form-control">
+              <option value="student-pass" selected>Student Monthly Pass (100MB SSD, 20 GB BW, 1 DB • ₱150/mo)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputAccountPassword">Initial Password *</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="inputAccountPassword" class="form-control" placeholder="Create or generate password" required minlength="6">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnGenAccountPass">Generate</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnToggleAccountPass">Show</button>
+            </div>
+            <div class="form-help">Minimum 6 characters. Must be shared with student for panel login.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Student Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Student Account -->
+  <div class="modal-backdrop" id="modalEditAccount">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Student Account Details</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formEditAccount">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="editAccountUsername">Username (Immutable)</label>
+            <input type="text" id="editAccountUsername" class="form-control" disabled style="opacity: 0.7; cursor: not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editAccountName">Student Full Name *</label>
+            <input type="text" id="editAccountName" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editAccountEmail">Student Email *</label>
+            <input type="email" id="editAccountEmail" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editAccountPackage">Hosting Package</label>
+            <select id="editAccountPackage" class="form-control">
+              <option value="student-pass" selected>Student Monthly Pass (100MB SSD, 20 GB BW • ₱150/mo)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editAccountStatus">Account Status</label>
+            <select id="editAccountStatus" class="form-control">
+              <option value="active">Active (Full Server Access)</option>
+              <option value="suspended">Suspended (Access Disabled)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editAccountPassword">Reset Password (Optional)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="editAccountPassword" class="form-control" placeholder="Leave empty to retain current password">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnGenEditAccountPass">Generate</button>
+            </div>
+            <div class="form-help">Only fill this field if you want to reset this student's password.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Live User Authentication (Login & Register Tabs) -->
+  <div class="modal-backdrop" id="modalLogin" role="dialog" aria-modal="true" aria-labelledby="modalLoginTitle">
+    <div class="modal-window" style="max-width: 480px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalLoginTitle">Hosta Student Portal</h3>
+          <p class="modal-subtitle" style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--text-muted);">Sign in or create your student hosting account.</p>
+        </div>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Auth Switcher Tabs -->
+      <div class="auth-tabs-bar">
+        <button type="button" class="auth-tab-btn active" id="authTabLogin" onclick="switchAuthTab('login')">
+          Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="authTabRegister" onclick="switchAuthTab('register')">
+          Create Account
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="authPanelLogin">
+        <!-- Quick Admin Credentials Box -->
+        <div class="demo-creds-box" style="margin: 16px 24px 0 24px;">
+          <div class="demo-creds-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Quick Admin Fill:</span>
+          </div>
+          <div class="demo-creds-chips">
+            <button type="button" class="cred-chip admin" id="btnCredChipAdmin" onclick="fillLoginCredentials('admin', 'admin123');" title="Autofill Administrator credentials">
+              <span class="cred-chip-role">Admin:</span>
+              <code>admin / admin123</code>
+            </button>
+          </div>
+        </div>
+
+        <form id="formLogin" novalidate>
+          <div class="modal-body" style="padding: 16px 24px 20px 24px;">
+            <div id="loginErrorAlert" class="alert alert-danger" style="display: none; margin-bottom: 16px;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="loginUsername">Username or Email</label>
+              <div class="input-with-icon" style="position: relative;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="text" id="loginUsername" class="form-control" placeholder="e.g. admin or username" required autocomplete="username" style="padding-left: 38px;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" for="loginPassword" style="margin-bottom: 0;">Password</label>
+                <button type="button" class="btn-text" id="btnToggleLoginPass" style="font-size: 0.78rem; color: var(--text-muted); background: none; border: none; cursor: pointer;">Show password</button>
+              </div>
+              <div class="input-with-icon" style="position: relative;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••••••" required autocomplete="current-password" style="padding-left: 38px;">
+              </div>
+            </div>
+
+            <div class="form-row-checkbox" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; margin-bottom: 0;">
+                <input type="checkbox" id="loginRemember" checked style="accent-color: var(--primary); cursor: pointer;">
+                <span>Remember me</span>
+              </label>
+              <button type="button" class="btn-text" onclick="switchAuthTab('register')" style="font-size: 0.82rem; color: var(--primary); background: none; border: none; cursor: pointer; font-weight: 600;">Need an account? Register</button>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnLoginSubmit">
+              <span id="btnLoginText">Sign In to Hosta</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- REGISTRATION FORM -->
+      <div id="authPanelRegister" style="display: none;">
+        <form id="formRegister" novalidate>
+          <div class="modal-body" style="padding: 16px 24px 20px 24px;">
+            <div id="registerErrorAlert" class="alert alert-danger" style="display: none; margin-bottom: 16px;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="regFullName">Full Name *</label>
+              <input type="text" id="regFullName" class="form-control" placeholder="e.g. Maria Santos" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regUsername">Username *</label>
+              <input type="text" id="regUsername" class="form-control" placeholder="e.g. maria_santos" required pattern="^[a-zA-Z0-9_-]{3,24}$">
+              <div class="form-help">3-24 characters (letters, numbers, hyphens or underscores).</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Student Email *</label>
+              <input type="email" id="regEmail" class="form-control" placeholder="maria@student.ph" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Password *</label>
+              <input type="password" id="regPassword" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-top: 10px; background: var(--bg-surface); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              Includes <strong>Student Monthly Pass</strong> (₱150/mo) with 100MB SSD, 20 GB Bandwidth, 1 MariaDB DB &amp; free <code>.hosta.site</code> subdomain.
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+            <button type="button" class="btn-text" onclick="switchAuthTab('login')" style="font-size: 0.82rem; color: var(--primary); background: none; border: none; cursor: pointer; font-weight: 600;">Already registered? Sign in</button>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+              <button type="submit" class="btn btn-primary" id="btnRegisterSubmit">
+                <span id="btnRegisterText">Register &amp; Sign In</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Floating Live Chat Button & Widget -->
+  <button id="floatingChatBtn" class="floating-chat-btn" aria-label="Live Chat Support with Admin" onclick="toggleFloatingChat();" title="Chat with Admin">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="floating-chat-badge" id="floatingChatBadge" style="display: none;">1</span>
+  </button>
+
+  <div id="floatingChatWidget" class="floating-chat-widget">
+    <!-- Chat Widget Header -->
+    <div class="chat-widget-header">
+      <div class="chat-header-user">
+        <div class="status-dot online pulse"></div>
+        <div>
+          <div class="chat-header-title">Hosta Admin Support</div>
+          <div class="chat-header-status">Hosted on Philippines • Active</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button type="button" class="chat-header-btn" onclick="toggleFloatingChat();" title="Close chat window">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Screen 1: Captcha Screen -->
+    <div class="chat-widget-screen" id="chatScreenCaptcha">
+      <div class="chat-intro-card">
+        <div class="chat-intro-icon">
+          <img src="/assets/Hosta.jpg" alt="Hosta" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover;">
+        </div>
+        <h4>Chat with Hosta Admin</h4>
+        <p>Complete the quick security captcha below to start a live support session with our Philippines administrator.</p>
+      </div>
+
+      <form id="formStartChat" onsubmit="handleStartChat(event);" style="display: flex; flex-direction: column; gap: 12px;">
+        <div id="chatCaptchaError" class="alert alert-danger" style="display: none; font-size: 0.8rem; padding: 8px 12px;"></div>
+
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" for="chatVisitorName" style="font-size: 0.8rem;">Your Name *</label>
+          <input type="text" id="chatVisitorName" class="form-control" placeholder="e.g. Maria Santos" required style="font-size: 0.85rem; padding: 8px 12px;">
+        </div>
+
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" for="chatVisitorEmail" style="font-size: 0.8rem;">Your Email (Optional)</label>
+          <input type="email" id="chatVisitorEmail" class="form-control" placeholder="student@school.ph" style="font-size: 0.85rem; padding: 8px 12px;">
+        </div>
+
+        <!-- Captcha Challenge Box -->
+        <div class="chat-captcha-box">
+          <div class="chat-captcha-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Security Verification:</span>
+          </div>
+          <div class="chat-captcha-challenge" id="chatCaptchaQuestion">Loading challenge...</div>
+          <input type="hidden" id="chatCaptchaToken" value="">
+          <div style="margin-top: 8px;">
+            <input type="number" id="chatCaptchaAnswer" class="form-control" placeholder="Enter answer number" required style="font-size: 0.85rem; padding: 8px 12px;">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btnStartChatSubmit" style="margin-top: 6px;">
+          <span id="btnStartChatText">Start Live Chat</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Screen 2: Active Messages Screen -->
+    <div class="chat-widget-screen" id="chatScreenMessages" style="display: none; flex-direction: column; height: 100%;">
+      <div class="chat-messages-scroll" id="chatMessagesScroll">
+        <!-- Rendered chat bubbles -->
+      </div>
+
+      <form id="formSendVisitorMsg" onsubmit="handleSendVisitorMessage(event);" class="chat-composer-form">
+        <input type="text" id="chatVisitorInput" class="chat-composer-input" placeholder="Type a message to admin..." autocomplete="off" required>
+        <button type="submit" class="chat-composer-send-btn" id="btnVisitorSend" aria-label="Send Message">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Stack -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Global Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo-link" data-view-target="landing">
+            <div class="logo-icon">
+              <img src="/assets/Hosta.jpg" alt="Hosta Logo" class="brand-logo-img">
+            </div>
+            <span>Hosta</span>
+          </a>
+          <p>Affordable Philippine web hosting tailored for IT, CS &amp; engineering students. ₱150/mo with 100MB SSD, 20 GB bandwidth, 1 MariaDB database, and Live Chat support.</p>
+        </div>
+
+        <div class="footer-column">
+          <h5>Student Plans</h5>
+          <ul>
+            <li><a href="#plans" onclick="switchMainView('landing')">Monthly Pass (₱150)</a></li>
+            <li><a href="#subdomains" onclick="switchMainView('landing')">Free hosta.site Subdomain</a></li>
+            <li><a href="#features" onclick="switchMainView('landing')">Features &amp; Tech Stack</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h5>Student Area</h5>
+          <ul>
+            <li><a href="#" onclick="switchMainView('dashboard'); switchDashTab('overview');">Dashboard</a></li>
+            <li><a href="#" onclick="switchMainView('dashboard'); switchDashTab('domains');">Web Domain</a></li>
+            <li><a href="#" onclick="switchMainView('dashboard'); switchDashTab('databases');">MariaDB Database</a></li>
+            <li><a href="#" onclick="toggleFloatingChat()">Live Chat Support</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h5>Tools &amp; Help</h5>
+          <ul>
+            <li><a href="#" onclick="handleQuickAction('phpmyadmin')">phpMyAdmin</a></li>
+            <li><a href="#" onclick="toggleFloatingChat()">Live Chat with Admin</a></li>
+            <li><a href="#" onclick="switchMainView('dashboard'); switchDashTab('backups');">Daily Backups</a></li>
+            <li><a href="#" onclick="switchMainView('dashboard'); switchDashTab('settings');">Server Settings</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Hosta Webhosting Philippines. Designed for Students. Powered by HestiaCP.</div>
+        <div>Hosted on Philippines • Fast &amp; Affordable.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

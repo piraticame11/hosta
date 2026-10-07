@@ -1,0 +1,26 @@
+{
+  "name": "hosta",
+  "version": "1.0.0",
+  "description": "Hosta - Modern Web Hosting Platform with HestiaCP Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "webhosting",
+    "hestiacp",
+    "hosting",
+    "control-panel",
+    "hosta"
+  ],
+  "author": "Hosta Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.24.5",
+    "pg": "^8.23.1"
+  }
+}
