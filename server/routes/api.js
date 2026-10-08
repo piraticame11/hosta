@@ -531,9 +531,36 @@ router.get('/roles', (req, res) => {
 
 /**
  * =====================================================================
- * STATUS & CONFIG ROUTES
+ * STATUS & CONFIG & DOCS ROUTES
  * =====================================================================
  */
+
+router.get('/docs', (req, res) => {
+  if (req.accepts('html')) {
+    return res.redirect('/docs');
+  }
+  res.json({
+    success: true,
+    platform: 'Hosta Webhosting Platform',
+    documentation: 'https://hosta.site/docs',
+    endpoints: {
+      domains: {
+        list: 'GET /api/hosting/domains',
+        create: 'POST /api/hosting/domains'
+      },
+      databases: {
+        list: 'GET /api/hosting/databases',
+        create: 'POST /api/hosting/databases'
+      },
+      emails: {
+        create: 'POST /api/hosting/emails'
+      },
+      stats: {
+        get: 'GET /api/hosting/stats'
+      }
+    }
+  });
+});
 
 router.get('/status', optionalAuth, async (req, res) => {
   try {

@@ -20,6 +20,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/hosting', hostingRoutes);
 app.use('/api', apiRoutes);
 
+// Documentation & Guide routes
+app.get(['/docs', '/guides/hosting', '/help'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'docs.html'));
+});
+
 // Fallback to index.html for client-side navigation
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

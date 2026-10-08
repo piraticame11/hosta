@@ -1526,6 +1526,7 @@ input:checked + .slider:before {
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+  text-decoration: none;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
