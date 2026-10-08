@@ -191,39 +191,47 @@
         </div>
 
         <!-- Chapter Navigation Links -->
-        <nav class="space-y-1">
+        <nav class="space-y-1" id="chapterNav">
           <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Documentation Chapters</p>
           
-          <a href="#quick-start" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/50 border border-brand-200 dark:border-brand-800/60">
+          <a href="#quick-start" data-section="quick-start" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800/80 transition-all">
             <span class="flex items-center gap-2.5">
-              <span class="text-base">🚀</span>
+              <svg class="sidebar-icon w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
               <span>1. Upload &amp; Deploy Guide</span>
             </span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-200/50 dark:bg-brand-900/80 font-mono">01</span>
+            <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-200/70 dark:bg-brand-900/80 text-brand-700 dark:text-brand-300 font-bold font-mono">01</span>
           </a>
 
-          <a href="#custom-domains" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+          <a href="#custom-domains" data-section="custom-domains" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
-              <span class="text-base">🌐</span>
+              <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+              </svg>
               <span>2. Custom Domains &amp; DNS</span>
             </span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">02</span>
+            <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-normal font-mono">02</span>
           </a>
 
-          <a href="#database-management" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+          <a href="#database-management" data-section="database-management" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
-              <span class="text-base">🗄️</span>
+              <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+              </svg>
               <span>3. Databases (MySQL/PG)</span>
             </span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">03</span>
+            <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-normal font-mono">03</span>
           </a>
 
-          <a href="#developer-api" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+          <a href="#developer-api" data-section="developer-api" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
-              <span class="text-base">⚡</span>
+              <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+              </svg>
               <span>4. Developer REST API</span>
             </span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">04</span>
+            <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-normal font-mono">04</span>
           </a>
         </nav>
 
@@ -264,7 +272,10 @@
           
           <div class="relative z-10 space-y-3">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-xs font-medium text-brand-200">
-              <span>📖 Complete Hosting Onboarding Guide</span>
+              <svg class="w-3.5 h-3.5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+              <span>Complete Hosting Onboarding Guide</span>
             </div>
             <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">How to Host Your Site on <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-indigo-200 to-sky-300">Hosta</span></h1>
             <p class="text-sm sm:text-base text-gray-300 max-w-2xl leading-relaxed">
@@ -311,13 +322,13 @@
               <!-- Directory Template Tabs -->
               <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
                 <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchDirTab('static', this)">
-                  🌐 Template A: Static HTML / React SPA
+                  <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>Template A: Static HTML / React SPA
                 </button>
                 <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDirTab('node', this)">
-                  🟢 Template B: Node.js &amp; PM2
+                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>Template B: Node.js &amp; PM2
                 </button>
                 <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDirTab('laravel', this)">
-                  🐘 Template C: PHP / Laravel (Doc Root: public/)
+                  <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Template C: PHP / Laravel (Doc Root: public/)
                 </button>
               </div>
 
@@ -384,7 +395,7 @@
 │   │   └── cache/                   # [chmod 775] Framework service cache
 │   ├── config/                      # Configuration files (app.php, database.php)
 │   ├── database/                    # Migrations and seeders
-│   ├── public/                      # ★ WEB ROOT (Set Document Root here in Dashboard)
+│   ├── public/                      # Web Root (Set Document Root here in Dashboard)
 │   │   ├── index.php                # Front controller entry point
 │   │   ├── .htaccess                # Apache URL rewrite rules
 │   │   └── robots.txt
@@ -453,7 +464,9 @@ find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</co
 
             <!-- Note Callout Box -->
             <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/80 flex items-start gap-3 text-xs">
-              <span class="text-blue-600 dark:text-blue-400 text-lg leading-none">ℹ️</span>
+              <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
               <div class="space-y-1 text-blue-900 dark:text-blue-200">
                 <span class="font-bold">NOTE: Preventing 403 Forbidden Errors</span>
                 <p>Never set files to <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">777</code>. Full world-writable permissions pose an extreme security vulnerability and can trigger automated HestiaCP security blocks. Stick to <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">755</code> for folders and <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">644</code> for files.</p>
@@ -476,13 +489,13 @@ find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</co
             <!-- Upload Method Tabs Selector -->
             <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
               <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchUploadTab('filemanager', this)">
-                📁 Method A: Dashboard File Manager
+                <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>Method A: Dashboard File Manager
               </button>
               <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchUploadTab('sftp', this)">
-                🔌 Method B: SFTP / FileZilla &amp; VS Code
+                <span class="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5"></span>Method B: SFTP / FileZilla &amp; VS Code
               </button>
               <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchUploadTab('cli', this)">
-                ⚡ Method C: Git &amp; CLI (rsync / scp)
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>Method C: Git &amp; CLI (rsync / scp)
               </button>
             </div>
 
@@ -518,7 +531,9 @@ find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</co
 
               <!-- Pro Tip Box -->
               <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-3 text-xs">
-                <span class="text-amber-600 dark:text-amber-400 text-lg leading-none">💡</span>
+                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 <div class="space-y-1 text-amber-900 dark:text-amber-200">
                   <span class="font-bold">PRO TIP: Zip the Contents, Not the Parent Folder</span>
                   <p>When creating your ZIP archive, select the <em>contents inside</em> your build folder (e.g., select <code class="font-mono">index.html</code> and <code class="font-mono">assets/</code>) instead of right-clicking the parent folder itself. If you zip the folder, you will end up with an unwanted nested directory like <code class="font-mono">public_html/my-app/index.html</code>!</p>
@@ -662,13 +677,13 @@ scp -r ./dist/* your_username@hosta.site:/home/your_username/web/yourdomain.com/
             <!-- Stack Selector Tabs -->
             <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
               <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchDeployTab('static', this)">
-                🌐 Stack A: Static Sites (HTML/React/Vue)
+                <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>Stack A: Static Sites (HTML/React)
               </button>
               <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDeployTab('node', this)">
-                🟢 Stack B: Node.js (Express / PM2)
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>Stack B: Node.js (Express / PM2)
               </button>
               <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDeployTab('laravel', this)">
-                🐘 Stack C: PHP &amp; Laravel Web Apps
+                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Stack C: PHP &amp; Laravel Web Apps
               </button>
             </div>
 
@@ -700,7 +715,9 @@ scp -r ./dist/* your_username@hosta.site:/home/your_username/web/yourdomain.com/
 
               <!-- Cache Refresh Tip -->
               <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
+                <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
                   <span class="font-bold">PRO TIP: Clearing Browser &amp; Edge Cache</span>
                   <p>If newly uploaded assets don't appear immediately, perform a hard refresh in your browser with <kbd class="px-1.5 py-0.5 rounded bg-emerald-200 dark:bg-emerald-800 font-mono text-[10px]">Ctrl + F5</kbd> (Windows) or <kbd class="px-1.5 py-0.5 rounded bg-emerald-200 dark:bg-emerald-800 font-mono text-[10px]">Cmd + Shift + R</kbd> (Mac) to bypass local cache.</p>
@@ -767,7 +784,9 @@ pm2 startup</code></pre>
 
               <!-- Pro Tip Box -->
               <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
+                <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
                   <span class="font-bold">PRO TIP: Port Binding in server.js</span>
                   <p>In your Express code, always listen to <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">process.env.PORT || 3000</code>: <br><code class="font-mono">const PORT = process.env.PORT || 3000; app.listen(PORT, '0.0.0.0', () => console.log(`Server on ${PORT}`));</code></p>
@@ -880,7 +899,9 @@ php artisan view:cache</code></pre>
 
               <!-- Common Error Box -->
               <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-3 text-xs">
-                <span class="text-amber-600 dark:text-amber-400 text-lg leading-none">⚠️</span>
+                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
                 <div class="space-y-1 text-amber-900 dark:text-amber-200">
                   <span class="font-bold">PRO TIP: Refreshing Cached Configuration</span>
                   <p>Whenever you edit database credentials or keys in your <code class="font-mono">.env</code> on the server, you must refresh the config cache by running: <br><code class="font-mono font-bold">php artisan config:clear &amp;&amp; php artisan config:cache</code>. Otherwise, Laravel continues executing old cached settings!</p>
@@ -905,7 +926,9 @@ php artisan view:cache</code></pre>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1.5">
                 <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-emerald-500">🔒</span>
+                  <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
                   <span>SSL &amp; HTTPS Verification</span>
                 </span>
                 <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -915,7 +938,9 @@ php artisan view:cache</code></pre>
 
               <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1.5">
                 <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-brand-500">⚡</span>
+                  <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
                   <span>Cloudflare CDN &amp; DDoS Shield</span>
                 </span>
                 <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -965,8 +990,9 @@ php artisan view:cache</code></pre>
                 <!-- Recipe 1: 502 Bad Gateway -->
                 <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-red-200 dark:border-red-900/60 space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-red-600 dark:text-red-400 text-sm flex items-center gap-1.5">
-                      <span>🔴</span> 502 Bad Gateway
+                    <span class="font-bold text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block shrink-0"></span>
+                      <span>502 Bad Gateway</span>
                     </span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 font-semibold">Node.js / PM2</span>
                   </div>
@@ -1003,8 +1029,9 @@ pm2 restart all</code></pre>
                 <!-- Recipe 2: 500 Internal Server Error -->
                 <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-amber-200 dark:border-amber-900/60 space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-amber-600 dark:text-amber-400 text-sm flex items-center gap-1.5">
-                      <span>🟠</span> 500 Internal Server Error
+                    <span class="font-bold text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shrink-0"></span>
+                      <span>500 Internal Server Error</span>
                     </span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold">PHP / Laravel</span>
                   </div>
@@ -1041,8 +1068,9 @@ php artisan config:clear &amp;&amp; php artisan cache:clear</code></pre>
                 <!-- Recipe 3: 404 Not Found -->
                 <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-blue-200 dark:border-blue-900/60 space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-blue-600 dark:text-blue-400 text-sm flex items-center gap-1.5">
-                      <span>🔵</span> 404 Not Found
+                    <span class="font-bold text-blue-600 dark:text-blue-400 text-sm flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shrink-0"></span>
+                      <span>404 Not Found</span>
                     </span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-semibold">Web Root Path</span>
                   </div>
@@ -1063,8 +1091,9 @@ rmdir public_html/nested-folder</code></pre>
                 <!-- Recipe 4: MODULE_NOT_FOUND -->
                 <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-purple-200 dark:border-purple-900/60 space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-purple-600 dark:text-purple-400 text-sm flex items-center gap-1.5">
-                      <span>🟣</span> Error: Cannot find module 'express'
+                    <span class="font-bold text-purple-600 dark:text-purple-400 text-sm flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block shrink-0"></span>
+                      <span>Error: Cannot find module 'express'</span>
                     </span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-semibold">Node.js NPM</span>
                   </div>
@@ -1150,7 +1179,9 @@ pm2 restart all</code></pre>
           <!-- Cloudflare Routing & Tunnels Architecture Note -->
           <div class="p-5 rounded-xl bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/30 space-y-3">
             <h3 class="font-semibold text-sm text-blue-200 flex items-center gap-2">
-              <span class="text-base">🛡️</span>
+              <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
               <span>Cloudflare Edge Proxy &amp; SSL Handshake</span>
             </h3>
             <p class="text-xs text-gray-300 leading-relaxed">
@@ -1178,7 +1209,9 @@ pm2 restart all</code></pre>
 
             <!-- Warning Callout -->
             <div class="p-3.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
-              <span class="text-amber-500 text-base">⚠️</span>
+              <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
               <p><strong>Note on DNS Propagation:</strong> External domain updates at registrars like GoDaddy or Namecheap can take anywhere from 5 minutes to 24 hours to spread worldwide. Do not request Let's Encrypt certificates until the <code class="font-bold">A</code> record resolves to our IP address.</p>
             </div>
           </div>
@@ -1187,7 +1220,9 @@ pm2 restart all</code></pre>
           <div id="email-architecture" class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <div class="flex items-center gap-2.5">
-                <span class="text-xl">📧</span>
+                <svg class="w-5 h-5 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
                 <h3 class="font-bold text-sm text-gray-900 dark:text-white">Email Architecture: Inbound Forwarding &amp; Transactional SMTP</h3>
               </div>
               <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-300">Cloud-Native Setup</span>
@@ -1201,7 +1236,9 @@ pm2 restart all</code></pre>
               <!-- Inbound Routing -->
               <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-2">
                 <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-brand-500">📥</span>
+                  <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                  </svg>
                   <span>Inbound Forwarding: Cloudflare Email Routing</span>
                 </span>
                 <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -1215,7 +1252,9 @@ pm2 restart all</code></pre>
               <!-- Outbound Transactional SMTP -->
               <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-2">
                 <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-emerald-500">📤</span>
+                  <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                  </svg>
                   <span>Outbound System Mail: Brevo / SMTP Relay</span>
                 </span>
                 <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -1253,7 +1292,11 @@ MAIL_PASSWORD=your_smtp_key</code></pre>
             <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                  <span class="text-xl">🐬</span>
+                  <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                    </svg>
+                  </span>
                   <h3 class="font-bold text-base text-gray-900 dark:text-white">MySQL / MariaDB 10.11</h3>
                 </div>
                 <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">Port 3306</span>
@@ -1289,7 +1332,11 @@ MAIL_PASSWORD=your_smtp_key</code></pre>
             <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                  <span class="text-xl">🐘</span>
+                  <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                  </span>
                   <h3 class="font-bold text-base text-gray-900 dark:text-white">PostgreSQL (Neon Cloud)</h3>
                 </div>
                 <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Port 5432</span>
@@ -1612,7 +1659,7 @@ print(response.json())</code></pre>
       if (!codeBlock) return;
       navigator.clipboard.writeText(codeBlock.innerText).then(() => {
         const originalText = btn.innerText;
-        btn.innerText = 'Copied! ✓';
+        btn.innerText = 'Copied!';
         btn.classList.add('bg-emerald-600', 'text-white');
         setTimeout(() => {
           btn.innerText = originalText;
@@ -1620,6 +1667,125 @@ print(response.json())</code></pre>
         }, 2000);
       });
     }
+
+    // Sidebar Active Link Highlighter & ScrollSpy
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    const docSections = Array.from(document.querySelectorAll('section.doc-section[id]'));
+    let isManualScroll = false;
+    let manualScrollTimer = null;
+
+    const ACTIVE_LINK_CLASSES = ['text-brand-600', 'dark:text-brand-400', 'bg-brand-50', 'dark:bg-brand-950/60', 'border-brand-200', 'dark:border-brand-800/80', 'font-semibold', 'shadow-xs'];
+    const INACTIVE_LINK_CLASSES = ['text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white', 'hover:bg-gray-100', 'dark:hover:bg-gray-800/60', 'border-transparent', 'font-medium'];
+    const ACTIVE_ICON_CLASSES = ['text-brand-600', 'dark:text-brand-400'];
+    const INACTIVE_ICON_CLASSES = ['text-gray-400', 'dark:text-gray-500'];
+    const ACTIVE_BADGE_CLASSES = ['bg-brand-200/70', 'dark:bg-brand-900/80', 'text-brand-700', 'dark:text-brand-300', 'font-bold'];
+    const INACTIVE_BADGE_CLASSES = ['bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'font-normal'];
+
+    function setActiveSidebarLink(sectionId) {
+      if (!sectionId) return;
+
+      sidebarLinks.forEach(link => {
+        const sec = link.getAttribute('data-section') || (link.getAttribute('href') || '').replace('#', '');
+        const icon = link.querySelector('.sidebar-icon');
+        const badge = link.querySelector('.sidebar-badge');
+
+        if (sec === sectionId) {
+          link.classList.remove(...INACTIVE_LINK_CLASSES);
+          link.classList.add(...ACTIVE_LINK_CLASSES);
+
+          if (icon) {
+            icon.classList.remove(...INACTIVE_ICON_CLASSES);
+            icon.classList.add(...ACTIVE_ICON_CLASSES);
+          }
+          if (badge) {
+            badge.classList.remove(...INACTIVE_BADGE_CLASSES);
+            badge.classList.add(...ACTIVE_BADGE_CLASSES);
+          }
+        } else {
+          link.classList.remove(...ACTIVE_LINK_CLASSES);
+          link.classList.add(...INACTIVE_LINK_CLASSES);
+
+          if (icon) {
+            icon.classList.remove(...ACTIVE_ICON_CLASSES);
+            icon.classList.add(...INACTIVE_ICON_CLASSES);
+          }
+          if (badge) {
+            badge.classList.remove(...ACTIVE_BADGE_CLASSES);
+            badge.classList.add(...INACTIVE_BADGE_CLASSES);
+          }
+        }
+      });
+    }
+
+    // Click handling for sidebar links
+    const docSidebar = document.getElementById('docSidebar');
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('data-section') || (link.getAttribute('href') || '').replace('#', '');
+        if (!targetId) return;
+
+        setActiveSidebarLink(targetId);
+        isManualScroll = true;
+        clearTimeout(manualScrollTimer);
+        manualScrollTimer = setTimeout(() => {
+          isManualScroll = false;
+        }, 900);
+
+        // Auto close mobile drawer if open
+        if (docSidebar && !docSidebar.classList.contains('hidden') && window.innerWidth < 1024) {
+          docSidebar.classList.add('hidden');
+        }
+      });
+    });
+
+    // ScrollSpy to highlight the active section on scroll
+    function updateScrollSpy() {
+      if (isManualScroll) return;
+
+      // Bottom of page detection (highlights the final chapter)
+      if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 80)) {
+        if (docSections.length > 0) {
+          const lastSection = docSections[docSections.length - 1];
+          setActiveSidebarLink(lastSection.id);
+          return;
+        }
+      }
+
+      // Check section bounding rects
+      let currentSectionId = '';
+      const triggerOffset = 180; // Distance from top of viewport
+
+      for (let i = 0; i < docSections.length; i++) {
+        const sec = docSections[i];
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= triggerOffset) {
+          currentSectionId = sec.id;
+        }
+      }
+
+      if (currentSectionId) {
+        setActiveSidebarLink(currentSectionId);
+      } else if (docSections.length > 0 && window.scrollY < 200) {
+        setActiveSidebarLink(docSections[0].id);
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      requestAnimationFrame(updateScrollSpy);
+    }, { passive: true });
+
+    // Initial load check
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        const targetLink = Array.from(sidebarLinks).find(l => l.getAttribute('data-section') === hash);
+        if (targetLink) {
+          setActiveSidebarLink(hash);
+          return;
+        }
+      }
+      updateScrollSpy();
+    });
 
     // Quick Search & Filter in Documentation
     const searchInput = document.getElementById('docSearchInput');
@@ -1649,7 +1815,6 @@ print(response.json())</code></pre>
 
     // Mobile Navigation Drawer Toggle
     const mobileToggle = document.getElementById('mobileNavToggle');
-    const docSidebar = document.getElementById('docSidebar');
     if (mobileToggle && docSidebar) {
       mobileToggle.addEventListener('click', () => {
         docSidebar.classList.toggle('hidden');
