@@ -8,6 +8,9 @@
   <link rel="icon" type="image/svg+xml" href="/assets/web_assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/web_assets/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/web_assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/web_assets/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/assets/web_assets/favicon.ico">
+  <link rel="manifest" href="/assets/web_assets/site.webmanifest">
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,10 +79,10 @@
   </style>
 
   <script>
-    // Sync theme with existing Hosta preference
+    // Initialize theme immediately to prevent flashing (Default: white/light)
     (function() {
-      const savedTheme = localStorage.getItem('hosta_theme') || 'dark';
-      if (savedTheme === 'dark' || (!('hosta_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      const savedTheme = localStorage.getItem('hosta_theme') || 'light';
+      if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
@@ -99,13 +102,11 @@
       <!-- Brand & Title -->
       <div class="flex items-center gap-3">
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
-            <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta Logo" class="w-6 h-6 object-contain filter brightness-110">
-          </div>
+          <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta Logo" class="w-9 h-9 object-contain group-hover:scale-105 transition-transform">
           <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Hosta<span class="text-brand-500 font-semibold text-sm ml-1 px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800">Docs</span></span>
         </a>
         <span class="hidden md:inline-block text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">
-          v1.4 API Active
+          v1.0
         </span>
       </div>
 
@@ -130,12 +131,6 @@
           </svg>
           <span class="hidden sm:inline">Student Portal</span>
         </a>
-
-        <!-- Live Server Status Indicator -->
-        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="font-medium text-emerald-700 dark:text-emerald-300">Cluster: Online</span>
-        </div>
 
         <!-- Theme Switcher -->
         <button id="themeToggleBtn" aria-label="Toggle Theme" class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
