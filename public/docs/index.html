@@ -128,12 +128,12 @@
 
       <!-- Header Action Items -->
       <div class="flex items-center gap-3">
-        <!-- Back to Student Portal -->
+        <!-- Back to Dashboard -->
         <a href="/#dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 transition-colors">
           <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
-          <span class="hidden sm:inline">Student Portal</span>
+          <span class="hidden sm:inline">Dashboard</span>
         </a>
 
         <!-- Theme Switcher -->
@@ -230,11 +230,12 @@
         <!-- Quick Jump Reference -->
         <div class="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
           <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Cheat Sheet &amp; Tools</p>
-          <a href="#step-workspace" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Directory &amp; Permissions</a>
+          <a href="#step-workspace" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Directory Templates &amp; Permissions</a>
           <a href="#step-upload" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ File Upload (ZIP/SFTP/Git)</a>
           <a href="#step-stacks" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Stacks (Static/Node/Laravel)</a>
           <a href="#step-troubleshoot" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Server Logs &amp; 502/500 Fixes</a>
           <a href="#dns-records-table" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Required DNS Records</a>
+          <a href="#email-architecture" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Inbound &amp; Outbound Email</a>
           <a href="#api-curl-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ cURL / Bash Automation</a>
           <a href="#api-node-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Node.js Axios Example</a>
           <a href="#api-python-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Python Requests Example</a>
@@ -243,7 +244,7 @@
         <!-- Help & Contact Box -->
         <div class="p-4 rounded-xl bg-gray-100 dark:bg-darkbg-card border border-gray-200 dark:border-gray-800">
           <h4 class="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white mb-1">Need Fast Support?</h4>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Our admins help student developers directly on live chat.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Our support team assists developers and website owners directly on live chat.</p>
           <a href="/#dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
             <span>Open Support Chat</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -300,17 +301,109 @@
               When a web domain is created in Hosta, our server provisions an isolated directory tree under your Linux user account. All public web traffic from Nginx and Cloudflare is directed to your website's dedicated directory.
             </p>
 
-            <!-- Production Directory Hierarchy Diagram -->
-            <div class="p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
-              <div class="text-gray-400"># Standard Hosta Site Production Hierarchy</div>
-              <div>/home/<span class="text-brand-400">&lt;username&gt;</span>/web/<span class="text-amber-400">&lt;your-domain.com&gt;</span>/</div>
-              <div class="pl-4">├── <span class="text-emerald-400 font-bold">public_html/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default web root (Static sites, Node.js entry, PHP)</span></div>
-              <div class="pl-8">├── <span class="text-sky-300">index.html</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default landing or SPA entry point</span></div>
-              <div class="pl-8">├── <span class="text-sky-300">server.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Node.js backend entry (Express / Nest / Fastify)</span></div>
-              <div class="pl-8">├── <span class="text-amber-300 font-bold">public/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Laravel Document Root (contains index.php)</span></div>
-              <div class="pl-8">└── <span class="text-sky-300">assets/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Bundled CSS, JS, images, media</span></div>
-              <div class="pl-4">├── <span class="text-purple-400 font-bold">logs/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Nginx &amp; Apache access.log and error.log</span></div>
-              <div class="pl-4">└── <span class="text-gray-400">stats/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Traffic statistics and AWStats analytics</span></div>
+            <!-- Three Separate Stack Directory Templates -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Choose Stack Directory Template:</span>
+                <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">Isolated path: /home/&lt;user&gt;/web/&lt;domain&gt;/</span>
+              </div>
+
+              <!-- Directory Template Tabs -->
+              <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
+                <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchDirTab('static', this)">
+                  🌐 Template A: Static HTML / React SPA
+                </button>
+                <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDirTab('node', this)">
+                  🟢 Template B: Node.js &amp; PM2
+                </button>
+                <button class="dir-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDirTab('laravel', this)">
+                  🐘 Template C: PHP / Laravel (Doc Root: public/)
+                </button>
+              </div>
+
+              <!-- TEMPLATE A: STATIC SITE -->
+              <div id="dir-static" class="dir-panel space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2 text-xs px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200">
+                  <span><strong>Web Root:</strong> <code class="font-mono bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">public_html/</code> (Nginx direct static serving)</span>
+                  <span class="font-medium">Entry File: <code class="font-mono bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">public_html/index.html</code></span>
+                </div>
+                <div class="relative p-4 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>/home/&lt;username&gt;/web/&lt;your-domain.com&gt;/
+├── public_html/                     # Web root served directly by Nginx
+│   ├── index.html                   # Primary entry point (HTML or compiled React/Vue/Vite)
+│   ├── favicon.ico                  # Site favicon
+│   ├── robots.txt                   # Search crawler directives
+│   └── assets/                      # Bundled CSS, JS, images, media
+│       ├── index-Df82a.js           # Compiled JavaScript bundle
+│       └── style-Aa94c.css          # Compiled stylesheets
+├── logs/                            # Nginx access.log and error.log
+└── stats/                           # Web visitor analytics (AWStats)</code></pre>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <strong>How it works:</strong> For plain HTML/CSS/JS or Single Page Apps (React/Vue/Vite), upload files directly into <code class="font-mono text-brand-500">public_html/</code> with <code class="font-mono">index.html</code> at the root. Nginx automatically handles gzip/brotli compression and browser caching.
+                </p>
+              </div>
+
+              <!-- TEMPLATE B: NODE.JS -->
+              <div id="dir-node" class="dir-panel hidden space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2 text-xs px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-200">
+                  <span><strong>Application Directory:</strong> <code class="font-mono bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">public_html/</code></span>
+                  <span class="font-medium">Daemon Entry: <code class="font-mono bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">public_html/server.js</code> (PM2)</span>
+                </div>
+                <div class="relative p-4 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>/home/&lt;username&gt;/web/&lt;your-domain.com&gt;/
+├── public_html/                     # Application folder managed by PM2
+│   ├── server.js                    # Node.js backend entry (Express / Nest / Fastify)
+│   ├── package.json                 # Project dependencies & npm run scripts
+│   ├── package-lock.json            # Deterministic dependency lockfile
+│   ├── .env                         # Secrets (PORT=3000, DB_HOST, DB_PASSWORD)
+│   ├── node_modules/                # Server-installed dependencies (run: npm install)
+│   └── public/                      # Static client assets served by Express static middleware
+├── logs/                            # Nginx reverse proxy access & error logs
+└── stats/                           # Web bandwidth and visitor metrics</code></pre>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <strong>How it works:</strong> The Node.js application runs as a persistent background process using <strong>PM2</strong> listening on port 3000. Nginx acts as a high-speed reverse proxy routing public HTTPS web requests to your application.
+                </p>
+              </div>
+
+              <!-- TEMPLATE C: PHP & LARAVEL -->
+              <div id="dir-laravel" class="dir-panel hidden space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2 text-xs px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-200">
+                  <span><strong>Document Root:</strong> <code class="font-mono bg-amber-100 dark:bg-amber-900/60 px-1 py-0.5 rounded font-bold">public_html/public</code></span>
+                  <span class="font-medium">Front Controller: <code class="font-mono bg-amber-100 dark:bg-amber-900/60 px-1 py-0.5 rounded">public_html/public/index.php</code></span>
+                </div>
+                <div class="relative p-4 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>/home/&lt;username&gt;/web/&lt;your-domain.com&gt;/
+├── public_html/                     # Laravel Project Root
+│   ├── app/                         # Application models, controllers, middleware
+│   ├── bootstrap/
+│   │   └── cache/                   # [chmod 775] Framework service cache
+│   ├── config/                      # Configuration files (app.php, database.php)
+│   ├── database/                    # Migrations and seeders
+│   ├── public/                      # ★ WEB ROOT (Set Document Root here in Dashboard)
+│   │   ├── index.php                # Front controller entry point
+│   │   ├── .htaccess                # Apache URL rewrite rules
+│   │   └── robots.txt
+│   ├── resources/                   # Blade templates, CSS, JS source files
+│   ├── routes/                      # web.php, api.php
+│   ├── storage/                     # [chmod 775] Logs, uploaded files, session cache
+│   │   ├── framework/               # Compiled blade views and sessions
+│   │   └── logs/laravel.log         # Laravel runtime exception log
+│   ├── .env                         # Secrets (APP_KEY, DB_DATABASE, DB_PASSWORD)
+│   ├── artisan                      # Artisan CLI runner (php artisan)
+│   ├── composer.json                # PHP package dependencies
+│   └── vendor/                      # Composer installed packages (run: composer install)
+├── logs/                            # Nginx web server access & error logs
+└── stats/                           # Traffic analytics</code></pre>
+                </div>
+                <p class="text-xs text-amber-600 dark:text-amber-400">
+                  <strong>Security Requirement:</strong> In the Control Panel, point <strong>Custom Document Root</strong> to <code class="font-mono font-bold">public_html/public</code>. This protects your <code class="font-mono">.env</code> secret database credentials and source code from public web access!
+                </p>
+              </div>
             </div>
 
             <!-- Linux Permissions Standards Table -->
@@ -404,7 +497,7 @@ find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</co
 
               <ol class="space-y-3 text-xs text-gray-700 dark:text-gray-300 list-decimal list-inside leading-relaxed">
                 <li>
-                  <strong>Open File Manager:</strong> Sign into the Student Portal &rarr; navigate to <strong>Files</strong> or click the folder icon next to your domain.
+                  <strong>Open File Manager:</strong> Sign into the <strong>Dashboard</strong> &rarr; navigate to <strong>Files</strong> or click the folder icon next to your domain.
                 </li>
                 <li>
                   <strong>Browse to Web Root:</strong> Double-click <code class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono text-brand-500">web &rarr; yourdomain.com &rarr; public_html</code>.
@@ -467,7 +560,7 @@ find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</co
                 <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">FileZilla Quick Setup:</h4>
                 <ol class="space-y-2 text-xs text-gray-700 dark:text-gray-300 list-decimal list-inside leading-relaxed">
                   <li>Open FileZilla &rarr; enter <strong>Host:</strong> <code class="font-mono text-brand-500">sftp://hosta.site</code> (or server IP).</li>
-                  <li>Enter your Hosta student username and account password, with <strong>Port:</strong> <code class="font-mono">22</code>.</li>
+                  <li>Enter your Hosta account username and password, with <strong>Port:</strong> <code class="font-mono">22</code>.</li>
                   <li>Click <strong>Quickconnect</strong>. When prompted for unknown host key, verify and accept.</li>
                   <li>In the <strong>Remote site</strong> pane (right), browse to <code class="font-mono">/home/&lt;user&gt;/web/&lt;domain&gt;/public_html</code>.</li>
                   <li>Drag and drop your local files from the left pane into <code class="font-mono">public_html</code>.</li>
@@ -688,65 +781,100 @@ pm2 startup</code></pre>
                 <span>Stack C: PHP &amp; Laravel Web Applications (PHP-FPM + Composer + Artisan)</span>
               </div>
               <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                Laravel uses PHP-FPM managed through HestiaCP. Because Laravel's front controller (<code class="font-mono text-brand-500">index.php</code>) lives in the <code class="font-mono">public/</code> subdirectory, configuring the custom web document root is mandatory.
+                Laravel uses PHP-FPM managed through the Hosta Control Panel. Follow these 5 explicit steps to ensure your application starts cleanly, securely, and without 500 server errors.
               </p>
 
-              <!-- Critical Callout: Custom Web Document Root -->
-              <div class="p-4 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/80 flex items-start gap-3 text-xs">
-                <span class="text-red-600 dark:text-red-400 text-lg leading-none">⚠️</span>
-                <div class="space-y-1 text-red-900 dark:text-red-200">
-                  <span class="font-bold">CRITICAL: Setting Laravel Web Document Root</span>
-                  <p>In the Hosta Student Portal / HestiaCP &rarr; go to <strong>Web Domain</strong> &rarr; click <strong>Edit Domain</strong> &rarr; expand <strong>Advanced Options</strong> &rarr; set <strong>Custom Document Root</strong> to: <br><code class="font-mono font-bold text-red-600 dark:text-red-300 bg-red-100 dark:bg-red-900/60 px-1 py-0.5 rounded">/home/&lt;user&gt;/web/&lt;domain&gt;/public_html/public</code>.<br>Exposing the root <code class="font-mono">public_html</code> directory directly exposes your <code class="font-mono">.env</code> secret database credentials to anyone browsing your site!</p>
+              <!-- Step 3.1: Document Root -->
+              <div class="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 space-y-2 text-xs">
+                <div class="flex items-center gap-2 font-bold text-red-700 dark:text-red-300">
+                  <span class="px-2 py-0.5 rounded bg-red-200 dark:bg-red-900/80 text-[11px] font-mono">STEP 3.1</span>
+                  <span>Set Web Root to public_html/public (Mandatory Security Step)</span>
+                </div>
+                <p class="text-red-900 dark:text-red-200 leading-relaxed">
+                  In Laravel, your front controller (<code class="font-mono bg-red-100 dark:bg-red-900/80 px-1 py-0.5 rounded">index.php</code>) lives inside the <code class="font-mono bg-red-100 dark:bg-red-900/80 px-1 py-0.5 rounded">public/</code> directory. Setting this custom document root prevents visitors from directly accessing your sensitive <code class="font-mono bg-red-100 dark:bg-red-900/80 px-1 py-0.5 rounded">.env</code> database credentials and source code:
+                </p>
+                <ol class="list-decimal list-inside space-y-1 text-red-800 dark:text-red-300 font-medium">
+                  <li>In the Hosta <strong>Dashboard</strong>, navigate to <strong>Web Domains</strong>.</li>
+                  <li>Click <strong>Edit Domain</strong> (pencil icon) next to your domain.</li>
+                  <li>Expand the <strong>Advanced Options</strong> accordion.</li>
+                  <li>Check <strong>Custom Document Root</strong> and set the path to: <code class="font-mono font-bold bg-white dark:bg-gray-950 text-red-600 dark:text-red-300 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">/home/&lt;user&gt;/web/&lt;domain&gt;/public_html/public</code></li>
+                  <li>Click <strong>Save</strong> to reload Nginx configuration.</li>
+                </ol>
+              </div>
+
+              <!-- Step 3.2: Composer Install -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white">
+                  <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 text-[11px] font-mono">STEP 3.2</span>
+                  <span>Install Composer Dependencies on Server:</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Run inside your application directory to download production packages without heavy development test suites:
+                </p>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>cd /home/your_username/web/yourdomain.com/public_html
+composer install --no-dev --optimize-autoloader</code></pre>
                 </div>
               </div>
 
-              <!-- Laravel Step by Step Walkthrough -->
-              <div class="space-y-4">
-                <div class="space-y-2">
-                  <span class="text-xs font-bold text-gray-900 dark:text-white">1. Upload Codebase &amp; Install Composer Dependencies:</span>
-                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
-                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
-                    <pre><code>cd /home/your_username/web/yourdomain.com/public_html
-composer install --no-dev --optimize-autoloader</code></pre>
-                  </div>
+              <!-- Step 3.3: Environment & App Key -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white">
+                  <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 text-[11px] font-mono">STEP 3.3</span>
+                  <span>Configure .env &amp; Generate Application Encryption Key:</span>
                 </div>
-
-                <div class="space-y-2">
-                  <span class="text-xs font-bold text-gray-900 dark:text-white">2. Environment Configuration &amp; Key Generation:</span>
-                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
-                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
-                    <pre><code># Copy production environment template
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Laravel requires an AES-256 encryption key. If <code class="font-mono text-brand-500">APP_KEY</code> is missing, every page will crash with a 500 error:
+                </p>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># 1. Create production environment file
 cp .env.example .env
 
-# Generate encryption app key
+# 2. Generate unique cryptographic application key
 php artisan key:generate</code></pre>
-                  </div>
                 </div>
+              </div>
 
-                <div class="space-y-2">
-                  <span class="text-xs font-bold text-gray-900 dark:text-white">3. Grant Write Permissions to Storage and Bootstrap Cache:</span>
-                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
-                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
-                    <pre><code>chmod -R 775 storage bootstrap/cache
+              <!-- Step 3.4: Permissions 775 -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white">
+                  <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[11px] font-mono">STEP 3.4</span>
+                  <span>Set 775 Permissions on Storage &amp; Bootstrap Cache:</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  The PHP-FPM web engine needs permission to write session states, rendered Blade views, and log files:
+                </p>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># Grant web worker write access
+chmod -R 775 storage bootstrap/cache
 chown -R $USER:$USER storage bootstrap/cache</code></pre>
-                  </div>
                 </div>
+              </div>
 
-                <div class="space-y-2">
-                  <span class="text-xs font-bold text-gray-900 dark:text-white">4. Run Migrations &amp; Cache for Production Performance:</span>
-                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
-                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
-                    <pre><code># Execute database migrations
+              <!-- Step 3.5: Migrations & Optimization Cache -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-gray-900 dark:text-white">
+                  <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[11px] font-mono">STEP 3.5</span>
+                  <span>Run Migrations &amp; Build Production Cache:</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Apply database schema migrations and compile routes/views for 10x faster response times:
+                </p>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># 1. Run database schema migrations
 php artisan migrate --force
 
-# Create public storage symlink for uploaded files
+# 2. Create public storage symlink for uploaded files
 php artisan storage:link
 
-# Cache config, routes, and views for 10x faster response time
+# 3. Cache routes, configuration, and views
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache</code></pre>
-                  </div>
                 </div>
               </div>
 
@@ -754,8 +882,8 @@ php artisan view:cache</code></pre>
               <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-3 text-xs">
                 <span class="text-amber-600 dark:text-amber-400 text-lg leading-none">⚠️</span>
                 <div class="space-y-1 text-amber-900 dark:text-amber-200">
-                  <span class="font-bold">COMMON ERROR: Stale Cached Configurations</span>
-                  <p>Whenever you edit your <code class="font-mono">.env</code> credentials on the server, you must refresh the config cache by running: <br><code class="font-mono">php artisan config:clear &amp;&amp; php artisan config:cache</code>. Otherwise, Laravel continues executing old cached database credentials!</p>
+                  <span class="font-bold">PRO TIP: Refreshing Cached Configuration</span>
+                  <p>Whenever you edit database credentials or keys in your <code class="font-mono">.env</code> on the server, you must refresh the config cache by running: <br><code class="font-mono font-bold">php artisan config:clear &amp;&amp; php artisan config:cache</code>. Otherwise, Laravel continues executing old cached settings!</p>
                 </div>
               </div>
             </div>
@@ -830,60 +958,128 @@ php artisan view:cache</code></pre>
             </div>
 
             <!-- Troubleshooting Recipes Grid -->
-            <div class="space-y-3">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Common Errors &amp; Instant Fix Recipes</h4>
+            <div class="space-y-4">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Common Errors &amp; Step-by-Step Fix Recipes</h4>
               
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <!-- Recipe 1: 502 Bad Gateway -->
-                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-red-200 dark:border-red-900/40 space-y-2">
-                  <div class="flex items-center gap-2 font-bold text-red-600 dark:text-red-400">
-                    <span>🔴 502 Bad Gateway</span>
+                <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-red-200 dark:border-red-900/60 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-red-600 dark:text-red-400 text-sm flex items-center gap-1.5">
+                      <span>🔴</span> 502 Bad Gateway
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 font-semibold">Node.js / PM2</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <strong>Cause:</strong> Nginx cannot connect to the backend service. Usually means your Node.js application is stopped, crashed on startup, or listening on the wrong port.
-                  </p>
-                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
-                    Fix: Run <code class="text-brand-500 font-bold">pm2 status</code> &rarr; check crash errors with <code class="text-brand-500 font-bold">pm2 logs</code> &rarr; ensure your app listens on <code class="text-brand-500 font-bold">PORT 3000</code>.
-                  </p>
+                  <div class="p-2.5 rounded-lg bg-red-100/50 dark:bg-red-950/40 border border-red-200/60 dark:border-red-900/40 text-red-950 dark:text-red-200 text-[11px] leading-relaxed">
+                    <strong>Beginner Analogy:</strong> Nginx (the front door receptionist) answered the visitor, but the backend application in the kitchen (your Node.js process) didn't answer the internal phone at <code class="font-mono">127.0.0.1:3000</code> because it crashed, stopped, or is listening on the wrong port.
+                  </div>
+                  <div class="space-y-1 text-gray-600 dark:text-gray-300">
+                    <span class="font-semibold text-gray-900 dark:text-white">Probable Causes:</span>
+                    <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                      <li>Node.js app has not been started with PM2 or crashed on startup.</li>
+                      <li>App is listening on wrong port (must listen on <code class="font-mono text-brand-500">process.env.PORT || 3000</code>).</li>
+                      <li>Missing environment variables in <code class="font-mono">.env</code> causing fatal exception.</li>
+                    </ul>
+                  </div>
+                  <div class="space-y-1">
+                    <span class="font-semibold text-gray-900 dark:text-white block">Terminal Fix Sequence:</span>
+                    <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-[11px] border border-gray-800">
+                      <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[10px] transition" onclick="copySnippet(this)">Copy</button>
+                      <pre><code># 1. Check if process is online or errored
+pm2 status
+
+# 2. View runtime crash stack traces
+pm2 logs --lines 50
+
+# 3. Test starting manually to see startup errors
+node server.js
+
+# 4. Restart process once resolved
+pm2 restart all</code></pre>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Recipe 2: 500 Internal Server Error -->
-                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-amber-200 dark:border-amber-900/40 space-y-2">
-                  <div class="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400">
-                    <span>🟠 500 Internal Server Error</span>
+                <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-amber-200 dark:border-amber-900/60 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-amber-600 dark:text-amber-400 text-sm flex items-center gap-1.5">
+                      <span>🟠</span> 500 Internal Server Error
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold">PHP / Laravel</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <strong>Cause:</strong> Common in Laravel and PHP apps. Caused by missing encryption <code class="font-mono">APP_KEY</code>, incorrect database credentials in <code class="font-mono">.env</code>, or permission denied in <code class="font-mono">storage/</code>.
-                  </p>
-                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
-                    Fix: Run <code class="text-amber-500 font-bold">php artisan key:generate</code> &amp;&amp; <code class="text-amber-500 font-bold">chmod -R 775 storage bootstrap/cache</code>. Check <code class="text-amber-500 font-bold">storage/logs/laravel.log</code>.
-                  </p>
+                  <div class="p-2.5 rounded-lg bg-amber-100/50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/40 text-amber-950 dark:text-amber-200 text-[11px] leading-relaxed">
+                    <strong>Beginner Analogy:</strong> Nginx successfully reached your PHP backend, but the PHP script encountered a fatal syntax exception, missing secret key, or write permission refusal before sending any HTML.
+                  </div>
+                  <div class="space-y-1 text-gray-600 dark:text-gray-300">
+                    <span class="font-semibold text-gray-900 dark:text-white">Probable Causes:</span>
+                    <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                      <li>Missing Laravel encryption key (<code class="font-mono text-amber-500">APP_KEY</code> empty in <code class="font-mono">.env</code>).</li>
+                      <li>PHP-FPM web worker cannot write to <code class="font-mono">storage/</code> or <code class="font-mono">bootstrap/cache/</code>.</li>
+                      <li>Incorrect database username, database name, or password in <code class="font-mono">.env</code>.</li>
+                    </ul>
+                  </div>
+                  <div class="space-y-1">
+                    <span class="font-semibold text-gray-900 dark:text-white block">Terminal Fix Sequence:</span>
+                    <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-[11px] border border-gray-800">
+                      <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[10px] transition" onclick="copySnippet(this)">Copy</button>
+                      <pre><code># 1. View the exact Laravel error trace
+tail -n 50 public_html/storage/logs/laravel.log
+
+# 2. Generate missing application encryption key
+php artisan key:generate
+
+# 3. Fix folder write permissions (mode 775)
+chmod -R 775 storage bootstrap/cache
+
+# 4. Clear old configuration cache
+php artisan config:clear &amp;&amp; php artisan cache:clear</code></pre>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Recipe 3: 404 Not Found -->
-                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-blue-200 dark:border-blue-900/40 space-y-2">
-                  <div class="flex items-center gap-2 font-bold text-blue-600 dark:text-blue-400">
-                    <span>🔵 404 Not Found</span>
+                <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-blue-200 dark:border-blue-900/60 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-blue-600 dark:text-blue-400 text-sm flex items-center gap-1.5">
+                      <span>🔵</span> 404 Not Found
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-semibold">Web Root Path</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <strong>Cause:</strong> Missing <code class="font-mono">index.html</code> in <code class="font-mono">public_html</code>, or files were unpacked into a nested subfolder (e.g. <code class="font-mono">public_html/my-project/index.html</code>).
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-[11px]">
+                    <strong>Cause:</strong> Nginx looked for <code class="font-mono">index.html</code> inside <code class="font-mono">public_html</code> but found nothing. Most often happens when extracting a ZIP containing a root folder (e.g. <code class="font-mono">public_html/my-app/index.html</code>), or when Laravel Document Root is not pointed to <code class="font-mono">public_html/public</code>.
                   </p>
-                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
-                    Fix: Move files up one level: <code class="text-blue-500 font-bold">mv public_html/my-project/* public_html/</code>. For Laravel, ensure Document Root points to <code class="text-blue-500 font-bold">public_html/public</code>.
-                  </p>
+                  <div class="space-y-1">
+                    <span class="font-semibold text-gray-900 dark:text-white block">Terminal Fix:</span>
+                    <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-[11px] border border-gray-800">
+                      <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[10px] transition" onclick="copySnippet(this)">Copy</button>
+                      <pre><code># Move nested files up one level to web root:
+mv public_html/nested-folder/* public_html/
+rmdir public_html/nested-folder</code></pre>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Recipe 4: MODULE_NOT_FOUND -->
-                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-purple-200 dark:border-purple-900/40 space-y-2">
-                  <div class="flex items-center gap-2 font-bold text-purple-600 dark:text-purple-400">
-                    <span>🟣 Error: Cannot find module 'express'</span>
+                <div class="p-5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-purple-200 dark:border-purple-900/60 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-purple-600 dark:text-purple-400 text-sm flex items-center gap-1.5">
+                      <span>🟣</span> Error: Cannot find module 'express'
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-semibold">Node.js NPM</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <strong>Cause:</strong> In Node.js, dependencies were excluded during Git / rsync upload (which is standard practice) but were not installed on the server.
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-[11px]">
+                    <strong>Cause:</strong> Dependencies were excluded during upload or Git clone (which is standard practice), but <code class="font-mono">npm install</code> was not yet executed on the server container.
                   </p>
-                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
-                    Fix: Navigate into <code class="font-mono">public_html</code> &rarr; run <code class="text-purple-500 font-bold">npm install --production</code> &rarr; restart app with <code class="text-purple-500 font-bold">pm2 restart my-app</code>.
-                  </p>
+                  <div class="space-y-1">
+                    <span class="font-semibold text-gray-900 dark:text-white block">Terminal Fix:</span>
+                    <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-[11px] border border-gray-800">
+                      <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[10px] transition" onclick="copySnippet(this)">Copy</button>
+                      <pre><code>cd /home/$USER/web/yourdomain.com/public_html
+npm install --production
+pm2 restart all</code></pre>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -958,7 +1154,7 @@ php artisan view:cache</code></pre>
               <span>Cloudflare Edge Proxy &amp; SSL Handshake</span>
             </h3>
             <p class="text-xs text-gray-300 leading-relaxed">
-              When using our default free subdomains (<code class="text-brand-300">*.hosta.site</code>), traffic routes through Cloudflare's global edge network before reaching our server cluster on port <code class="text-brand-300">8083 / 443</code>. This gives your student applications immediate DDoS protection, HTTP/3 protocol support, and automatic wildcard SSL.
+              When using our default free subdomains (<code class="text-brand-300">*.hosta.site</code>), traffic routes through Cloudflare's global edge network before reaching our server cluster on port <code class="text-brand-300">8083 / 443</code>. This gives your applications immediate DDoS protection, HTTP/3 protocol support, and automatic wildcard SSL.
             </p>
           </div>
 
@@ -984,6 +1180,57 @@ php artisan view:cache</code></pre>
             <div class="p-3.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
               <span class="text-amber-500 text-base">⚠️</span>
               <p><strong>Note on DNS Propagation:</strong> External domain updates at registrars like GoDaddy or Namecheap can take anywhere from 5 minutes to 24 hours to spread worldwide. Do not request Let's Encrypt certificates until the <code class="font-bold">A</code> record resolves to our IP address.</p>
+            </div>
+          </div>
+
+          <!-- Email Architecture Section: Inbound Forwarding & Outbound Transactional Mail -->
+          <div id="email-architecture" class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">📧</span>
+                <h3 class="font-bold text-sm text-gray-900 dark:text-white">Email Architecture: Inbound Forwarding &amp; Transactional SMTP</h3>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-300">Cloud-Native Setup</span>
+            </div>
+
+            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              To deliver maximum web performance and protect IP deliverability against spam blacklisting, Hosta does not operate local mailbox daemons (POP3/IMAP). Instead, we recommend modern, zero-maintenance cloud email architectures:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <!-- Inbound Routing -->
+              <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-2">
+                <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <span class="text-brand-500">📥</span>
+                  <span>Inbound Forwarding: Cloudflare Email Routing</span>
+                </span>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Receive professional email at your custom domain (e.g. <code class="font-mono text-brand-500">contact@yourdomain.com</code>) at zero cost. Cloudflare forwards incoming emails straight to your personal Gmail, Outlook, or iCloud address without using any server disk quota.
+                </p>
+                <div class="pt-1">
+                  <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400">Setup: Cloudflare Dashboard &rarr; Email &rarr; Email Routing &rarr; Enable</span>
+                </div>
+              </div>
+
+              <!-- Outbound Transactional SMTP -->
+              <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-2">
+                <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <span class="text-emerald-500">📤</span>
+                  <span>Outbound System Mail: Brevo / SMTP Relay</span>
+                </span>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  For user registration, password resets, and contact forms in Node.js or Laravel, use Brevo (free 300 emails/day), Resend, or SendGrid via standard SMTP relay on Port 587 (TLS).
+                </p>
+                <div class="relative p-2 rounded bg-gray-950 text-gray-200 font-mono text-[10px] border border-gray-800">
+                  <button class="copy-code-btn absolute right-2 top-2 px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[9px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>MAIL_MAILER=smtp
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_USERNAME=your_brevo_login
+MAIL_PASSWORD=your_smtp_key</code></pre>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -1075,9 +1322,9 @@ php artisan view:cache</code></pre>
 
           <!-- phpMyAdmin SQL Import Guide -->
           <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
-            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">How to Import Your School SQL Dump (.sql file)</h3>
+            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">How to Import Your SQL Dump (.sql file)</h3>
             <ol class="list-decimal list-inside space-y-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              <li>Log in to your <strong>Student Portal</strong> and navigate to the <strong>Databases</strong> tab.</li>
+              <li>Log in to your <strong>Dashboard</strong> and navigate to the <strong>Databases</strong> tab.</li>
               <li>Click <strong>New Database</strong>, choose a name (e.g. <code class="font-mono text-brand-500">hostb_capstone</code>), and note the generated password.</li>
               <li>Click the <strong>Open phpMyAdmin</strong> link in your dashboard.</li>
               <li>Log in using your full database username (e.g. <code class="font-mono text-brand-500">hostb_capstone</code>) and password.</li>
@@ -1143,7 +1390,7 @@ php artisan view:cache</code></pre>
                   <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
                     <td class="p-3 font-bold text-blue-500">GET</td>
                     <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/stats</td>
-                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Returns disk, bandwidth, database, and email metrics</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Returns disk, bandwidth, and database metrics</td>
                     <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
                   </tr>
                 </tbody>
@@ -1248,7 +1495,8 @@ print(response.json())</code></pre>
             <h3 class="font-semibold text-sm text-gray-900 dark:text-white">Standard API JSON Response Schema</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">All Hosta hosting endpoints consistently return the following structure:</p>
 
-            <div class="p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll border border-gray-800">
+            <div class="relative p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll border border-gray-800">
+              <button class="copy-code-btn absolute right-2.5 top-2.5 px-2.5 py-1 rounded bg-gray-800 text-[10px] text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
               <pre><code>{
   "success": true,
   "data": {
@@ -1276,7 +1524,7 @@ print(response.json())</code></pre>
       <div class="flex items-center gap-2">
         <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta" class="w-5 h-5 object-contain">
         <span class="font-semibold text-gray-900 dark:text-white">Hosta Webhosting Platform</span>
-        <span>• Dedicated to Philippine IT, CS &amp; Engineering Students</span>
+        <span>• High-Performance Cloud Webhosting &amp; Developer Platform</span>
       </div>
       <div class="flex items-center gap-4">
         <a href="/" class="hover:underline">Home</a>
@@ -1337,6 +1585,21 @@ print(response.json())</code></pre>
       });
 
       const activePanel = document.getElementById(`upload-${method}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+
+      btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+      btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    }
+
+    // Directory Template Tab Switcher (Step 1)
+    function switchDirTab(template, btn) {
+      document.querySelectorAll('.dir-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.dir-tab-btn').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+        b.classList.add('text-gray-600', 'dark:text-gray-400');
+      });
+
+      const activePanel = document.getElementById(`dir-${template}`);
       if (activePanel) activePanel.classList.remove('hidden');
 
       btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
