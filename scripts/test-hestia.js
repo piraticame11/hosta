@@ -131,18 +131,29 @@ async function runTests() {
         console.error(`   Error Code: ${apiErr.code} (${hestiaService.mapHestiaError(apiErr.code)})`);
       }
       console.log('\n   💡 Troubleshooting & Solution:');
-      if (apiErr.message.includes('IP is not allowed') || apiErr.message.includes('401')) {
+      if (apiErr.message.includes('IP is not allowed')) {
         console.log('   👉 HestiaCP rejected the connection because your current IP address is not whitelisted for this Access Key.');
         console.log('      To resolve:');
         console.log('      1. Log in to HestiaCP: https://panel.hosta.site');
         console.log('      2. Go to Server Settings (gear icon) > API');
         console.log('      3. Edit your Access Key (YjEa0WyNXRquZuhSbM3i)');
         console.log('      4. In "Allowed IP Addresses", append your current public IP or subnet:');
-        console.log('         - Your public IP: 180.191.79.17 (or enter 0.0.0.0/0 to allow all IPs during development)');
-        console.log('         - On the production server (/home/hostb/web/hosta.site/public_html), localhost (127.0.0.1) will be used.');
+        console.log('         - 0.0.0.0/0 (allows all IPs), 127.0.0.1, ::1');
+      } else if (apiErr.message.includes('permission') || apiErr.message.includes('permission to run')) {
+        console.log('   👉 HestiaCP rejected the command because this Access Key does not have permission to execute it.');
+        console.log('      To resolve:');
+        console.log('      1. Log in to HestiaCP as admin: https://panel.hosta.site');
+        console.log('      2. Go to Server Settings (gear icon) > API');
+        console.log('      3. Edit your Access Key (or create a new Access Key under user "admin")');
+        console.log('      4. Under "Permissions", select "Administrator" / "Full Access" or check:');
+        console.log('         • Users (v-list-user, v-add-user)');
+        console.log('         • Web Domains (v-list-web-domains, v-add-web-domain, v-add-letsencrypt-domain)');
+        console.log('         • Databases (v-list-databases, v-add-database)');
+        console.log('         • Mail (v-add-mail-account, v-add-mail-domain)');
+        console.log('      5. Save and re-run: node scripts/test-hestia.js');
       } else {
         console.log('   - Verify that HestiaCP is running and accessible');
-        console.log('   - Verify HESTIA_API_URL includes https:// (e.g. https://panel.hosta.site/api/)');
+        console.log('   - Verify HESTIA_API_URL includes https:// (e.g. https://panel.hosta.site/api/ or https://127.0.0.1:8083/api/)');
         console.log('   - Verify the system user exists in HestiaCP');
       }
       console.log('');
