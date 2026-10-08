@@ -2739,6 +2739,14 @@ function initFloatingChatWidget() {
   if (AppState.chatSessionId) {
     checkVisitorChatSession();
   }
+
+  // Auto-open live chat if requested via query parameter (?openChat=true) or hash (#chat)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('openChat') === 'true' || window.location.hash === '#chat') {
+    setTimeout(() => {
+      toggleFloatingChat();
+    }, 400);
+  }
 }
 
 async function toggleFloatingChat() {

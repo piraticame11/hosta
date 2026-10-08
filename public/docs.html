@@ -80,6 +80,213 @@
     .badge-glow {
       box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
     }
+
+    /* Floating Live Chat Widget */
+    .floating-chat-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 52px;
+      height: 52px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+      cursor: pointer;
+      z-index: 50;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .floating-chat-btn:hover {
+      transform: scale(1.08) translateY(-2px);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.5);
+    }
+    .floating-chat-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+    .floating-chat-widget {
+      position: fixed;
+      bottom: 88px;
+      right: 24px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 520px;
+      max-height: calc(100vh - 110px);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: chatPop 0.24s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .dark .floating-chat-widget {
+      background: #111827;
+      border-color: #1f2937;
+    }
+    .floating-chat-widget.active {
+      display: flex;
+    }
+    @keyframes chatPop {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .chat-widget-header {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-header-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+    .chat-header-status {
+      font-size: 0.72rem;
+      opacity: 0.88;
+    }
+    .chat-header-btn {
+      background: rgba(255, 255, 255, 0.16);
+      border: none;
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .chat-header-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .chat-widget-screen {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-messages-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+    .chat-msg-row.visitor {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .chat-msg-row.admin {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+    .chat-bubble {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .chat-msg-row.visitor .chat-bubble {
+      background: #4f46e5;
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+    .chat-msg-row.admin .chat-bubble {
+      background: #f3f4f6;
+      color: #111827;
+      border-bottom-left-radius: 2px;
+    }
+    .dark .chat-msg-row.admin .chat-bubble {
+      background: #1f2937;
+      color: #f9fafb;
+    }
+    .chat-msg-time {
+      font-size: 0.65rem;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+    .chat-composer-form {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .dark .chat-composer-form {
+      border-top-color: #1f2937;
+    }
+    .chat-composer-input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 9999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.8rem;
+      background: #ffffff;
+      color: #111827;
+      outline: none;
+    }
+    .dark .chat-composer-input {
+      background: #1f2937;
+      border-color: #374151;
+      color: #ffffff;
+    }
+    .chat-composer-send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #4f46e5;
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .chat-composer-send-btn:hover {
+      background: #4338ca;
+    }
   </style>
 
   <script>
@@ -101,7 +308,7 @@
        TOP NAVBAR
        ================================================================= -->
   <header class="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-darkbg-base/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-4">
       
       <!-- Brand & Title -->
       <div class="flex items-center gap-3">
@@ -109,7 +316,7 @@
           <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta Logo" class="w-9 h-9 object-contain group-hover:scale-105 transition-transform">
           <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Hosta<span class="text-brand-500 font-semibold text-sm ml-1 px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800">Docs</span></span>
         </a>
-        <span class="hidden md:inline-block text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">
+        <span class="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">
           v1.0
         </span>
       </div>
@@ -155,7 +362,7 @@
         </button>
 
         <!-- Mobile Drawer Toggle -->
-        <button id="mobileNavToggle" aria-label="Open Navigation" class="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <button id="mobileNavToggle" aria-label="Open Navigation" class="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
@@ -168,42 +375,51 @@
   <!-- =================================================================
        MAIN DOCUMENTATION LAYOUT
        ================================================================= -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex flex-col md:flex-row gap-8 items-start">
+  <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
+    <div class="flex flex-col lg:flex-row gap-8 xl:gap-10 items-start">
 
       <!-- =============================================================
-           SIDEBAR NAVIGATION (STICKY)
+           SIDEBAR NAVIGATION (STICKY LEFT)
            ============================================================= -->
-      <aside id="docSidebar" class="w-full md:w-64 shrink-0 md:sticky md:top-24 space-y-6 hidden md:block">
-        
-        <!-- Platform Badge Card -->
-        <div class="p-4 rounded-xl bg-gradient-to-br from-brand-900/40 to-indigo-950/40 border border-brand-500/20 text-white">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="flex h-2 w-2 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-            </span>
-            <span class="text-xs font-semibold text-brand-300 uppercase tracking-wider">Hosta Stack</span>
-          </div>
-          <p class="text-xs text-gray-300 leading-relaxed">
-            HestiaCP Engine • MariaDB 10.11 • PostgreSQL Neon • Cloudflare Edge Proxy.
-          </p>
-        </div>
+      <aside id="docSidebar" class="w-full lg:w-72 xl:w-80 shrink-0 lg:sticky lg:top-20 space-y-5 hidden lg:block">
 
         <!-- Chapter Navigation Links -->
         <nav class="space-y-1" id="chapterNav">
           <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Documentation Chapters</p>
           
-          <a href="#quick-start" data-section="quick-start" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800/80 transition-all">
-            <span class="flex items-center gap-2.5">
-              <svg class="sidebar-icon w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-              </svg>
-              <span>1. Upload &amp; Deploy Guide</span>
-            </span>
-            <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-200/70 dark:bg-brand-900/80 text-brand-700 dark:text-brand-300 font-bold font-mono">01</span>
-          </a>
+          <!-- Chapter 1 -->
+          <div>
+            <a href="#quick-start" data-section="quick-start" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800/80 transition-all">
+              <span class="flex items-center gap-2.5">
+                <svg class="sidebar-icon w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <span>1. Upload &amp; Deploy Guide</span>
+              </span>
+              <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-brand-200/70 dark:bg-brand-900/80 text-brand-700 dark:text-brand-300 font-bold font-mono">01</span>
+            </a>
+            <!-- Sub-steps under Chapter 1 -->
+            <div id="substeps-quick-start" class="pl-3 ml-3 my-1 border-l-2 border-brand-200 dark:border-brand-800/80 space-y-0.5">
+              <a href="#step-workspace" data-step="step-workspace" class="step-nav-link flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded transition-all text-brand-600 dark:text-brand-400 font-semibold bg-brand-50/80 dark:bg-brand-950/40">
+                <span>Step 1: Workspace &amp; Trees</span>
+                <span class="font-mono text-[10px] opacity-70">1.1</span>
+              </a>
+              <a href="#step-upload" data-step="step-upload" class="step-nav-link flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <span>Step 2: Upload Files</span>
+                <span class="font-mono text-[10px] opacity-70">1.2</span>
+              </a>
+              <a href="#step-stacks" data-step="step-stacks" class="step-nav-link flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <span>Step 3: Deployment Stacks</span>
+                <span class="font-mono text-[10px] opacity-70">1.3</span>
+              </a>
+              <a href="#step-troubleshoot" data-step="step-troubleshoot" class="step-nav-link flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <span>Step 4: Logs &amp; Diagnostics</span>
+                <span class="font-mono text-[10px] opacity-70">1.4</span>
+              </a>
+            </div>
+          </div>
 
+          <!-- Chapter 2 -->
           <a href="#custom-domains" data-section="custom-domains" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
               <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,6 +430,7 @@
             <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-normal font-mono">02</span>
           </a>
 
+          <!-- Chapter 3 -->
           <a href="#database-management" data-section="database-management" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
               <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,6 +441,7 @@
             <span class="sidebar-badge text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-normal font-mono">03</span>
           </a>
 
+          <!-- Chapter 4 -->
           <a href="#developer-api" data-section="developer-api" class="sidebar-link flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 border border-transparent transition-all">
             <span class="flex items-center gap-2.5">
               <svg class="sidebar-icon w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,10 +471,10 @@
         <div class="p-4 rounded-xl bg-gray-100 dark:bg-darkbg-card border border-gray-200 dark:border-gray-800">
           <h4 class="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white mb-1">Need Fast Support?</h4>
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Our support team assists developers and website owners directly on live chat.</p>
-          <a href="/#dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+          <button type="button" onclick="toggleFloatingChat();" class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-xs transition cursor-pointer">
             <span>Open Support Chat</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </a>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </button>
         </div>
 
       </aside>
@@ -1567,7 +1785,7 @@ print(response.json())</code></pre>
        FOOTER
        ================================================================= -->
   <footer class="mt-20 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-darkbg-card py-8 text-xs text-gray-500 dark:text-gray-400">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta" class="w-5 h-5 object-contain">
         <span class="font-semibold text-gray-900 dark:text-white">Hosta Webhosting Platform</span>
@@ -1577,10 +1795,81 @@ print(response.json())</code></pre>
         <a href="/" class="hover:underline">Home</a>
         <a href="/#plans" class="hover:underline">Pricing</a>
         <a href="/docs" class="text-brand-500 font-medium">Docs</a>
-        <a href="https://panel.hosta.site" target="_blank" class="hover:underline">Server Panel</a>
       </div>
     </div>
   </footer>
+
+  <!-- Floating Live Chat Button & Widget -->
+  <button id="floatingChatBtn" class="floating-chat-btn" aria-label="Live Chat Support with Admin" onclick="toggleFloatingChat();" title="Chat with Admin">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="floating-chat-badge" id="floatingChatBadge" style="display: none;">1</span>
+  </button>
+
+  <div id="floatingChatWidget" class="floating-chat-widget">
+    <!-- Chat Widget Header -->
+    <div class="chat-widget-header">
+      <div class="chat-header-user">
+        <div class="status-dot"></div>
+        <div>
+          <div class="chat-header-title">Hosta Admin Support</div>
+          <div class="chat-header-status">Hosted on Philippines • Active</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button type="button" class="chat-header-btn" onclick="toggleFloatingChat();" title="Close chat window">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Screen 1: Captcha Screen -->
+    <div class="chat-widget-screen" id="chatScreenCaptcha">
+      <div class="text-center py-2">
+        <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta" class="w-11 h-11 object-contain mx-auto">
+        <h4 class="text-sm font-bold text-gray-900 dark:text-white mt-2">Chat with Hosta Admin</h4>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Complete the security challenge below to start a live support chat with our Philippines administrator.</p>
+      </div>
+
+      <form id="formStartChat" onsubmit="handleStartChat(event);" class="space-y-3 mt-2">
+        <div id="chatCaptchaError" class="p-2 rounded bg-red-100 dark:bg-red-950/80 text-red-800 dark:text-red-200 text-xs hidden"></div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" for="chatVisitorName">Your Name *</label>
+          <input type="text" id="chatVisitorName" class="w-full px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500" placeholder="e.g. Maria Santos" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" for="chatVisitorEmail">Your Email (Optional)</label>
+          <input type="email" id="chatVisitorEmail" class="w-full px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500" placeholder="student@school.ph">
+        </div>
+
+        <div class="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 space-y-1.5">
+          <div class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Security Verification:</span>
+          </div>
+          <div class="text-xs font-bold text-gray-900 dark:text-white" id="chatCaptchaQuestion">Loading challenge...</div>
+          <input type="hidden" id="chatCaptchaToken" value="">
+          <input type="number" id="chatCaptchaAnswer" class="w-full px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500" placeholder="Enter answer number" required>
+        </div>
+
+        <button type="submit" class="w-full py-2 px-3 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow transition mt-1" id="btnStartChatSubmit">
+          <span id="btnStartChatText">Start Live Chat</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Screen 2: Active Messages Screen -->
+    <div class="chat-widget-screen" id="chatScreenMessages" style="display: none; flex-direction: column; height: 100%;">
+      <div class="chat-messages-scroll" id="chatMessagesScroll"></div>
+      <form id="formSendVisitorMsg" onsubmit="handleSendVisitorMessage(event);" class="chat-composer-form">
+        <input type="text" id="chatVisitorInput" class="chat-composer-input" placeholder="Type a message to admin..." autocomplete="off" required>
+        <button type="submit" class="chat-composer-send-btn" id="btnVisitorSend" aria-label="Send Message">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- =================================================================
        INTERACTIVE CLIENT-SIDE JAVASCRIPT
@@ -1668,9 +1957,11 @@ print(response.json())</code></pre>
       });
     }
 
-    // Sidebar Active Link Highlighter & ScrollSpy
+    // ===================================================================
+    // BIDIRECTIONAL DYNAMIC SCROLLSPY & CHAPTER / STEP HIGHLIGHTER
+    // ===================================================================
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    const docSections = Array.from(document.querySelectorAll('section.doc-section[id]'));
+    const stepLinks = document.querySelectorAll('.step-nav-link');
     let isManualScroll = false;
     let manualScrollTimer = null;
 
@@ -1681,15 +1972,26 @@ print(response.json())</code></pre>
     const ACTIVE_BADGE_CLASSES = ['bg-brand-200/70', 'dark:bg-brand-900/80', 'text-brand-700', 'dark:text-brand-300', 'font-bold'];
     const INACTIVE_BADGE_CLASSES = ['bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'font-normal'];
 
-    function setActiveSidebarLink(sectionId) {
-      if (!sectionId) return;
+    // Trackable steps and chapters in strict DOM order
+    const trackableNav = [
+      { id: 'quick-start', chapter: 'quick-start', step: 'step-workspace' },
+      { id: 'step-workspace', chapter: 'quick-start', step: 'step-workspace' },
+      { id: 'step-upload', chapter: 'quick-start', step: 'step-upload' },
+      { id: 'step-stacks', chapter: 'quick-start', step: 'step-stacks' },
+      { id: 'step-troubleshoot', chapter: 'quick-start', step: 'step-troubleshoot' },
+      { id: 'custom-domains', chapter: 'custom-domains', step: null },
+      { id: 'database-management', chapter: 'database-management', step: null },
+      { id: 'developer-api', chapter: 'developer-api', step: null }
+    ];
 
+    function setActiveState(chapterId, stepId) {
+      // 1. Update Chapter Sidebar Links
       sidebarLinks.forEach(link => {
         const sec = link.getAttribute('data-section') || (link.getAttribute('href') || '').replace('#', '');
         const icon = link.querySelector('.sidebar-icon');
         const badge = link.querySelector('.sidebar-badge');
 
-        if (sec === sectionId) {
+        if (sec === chapterId) {
           link.classList.remove(...INACTIVE_LINK_CLASSES);
           link.classList.add(...ACTIVE_LINK_CLASSES);
 
@@ -1715,77 +2017,318 @@ print(response.json())</code></pre>
           }
         }
       });
+
+      // 2. Update Sub-step Links
+      stepLinks.forEach(link => {
+        const curStep = link.getAttribute('data-step') || (link.getAttribute('href') || '').replace('#', '');
+        if (chapterId === 'quick-start' && curStep === stepId) {
+          link.classList.remove('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white');
+          link.classList.add('text-brand-600', 'dark:text-brand-400', 'font-semibold', 'bg-brand-50/80', 'dark:bg-brand-950/40');
+        } else {
+          link.classList.remove('text-brand-600', 'dark:text-brand-400', 'font-semibold', 'bg-brand-50/80', 'dark:bg-brand-950/40');
+          link.classList.add('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-white');
+        }
+      });
     }
 
-    // Click handling for sidebar links
+    // Click handler for Chapter links
     const docSidebar = document.getElementById('docSidebar');
     sidebarLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
+      link.addEventListener('click', () => {
         const targetId = link.getAttribute('data-section') || (link.getAttribute('href') || '').replace('#', '');
         if (!targetId) return;
 
-        setActiveSidebarLink(targetId);
+        setActiveState(targetId, targetId === 'quick-start' ? 'step-workspace' : null);
         isManualScroll = true;
         clearTimeout(manualScrollTimer);
-        manualScrollTimer = setTimeout(() => {
-          isManualScroll = false;
-        }, 900);
+        manualScrollTimer = setTimeout(() => { isManualScroll = false; }, 900);
 
-        // Auto close mobile drawer if open
         if (docSidebar && !docSidebar.classList.contains('hidden') && window.innerWidth < 1024) {
           docSidebar.classList.add('hidden');
         }
       });
     });
 
-    // ScrollSpy to highlight the active section on scroll
+    // Click handler for Step links
+    stepLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const targetStep = link.getAttribute('data-step') || (link.getAttribute('href') || '').replace('#', '');
+        if (!targetStep) return;
+
+        setActiveState('quick-start', targetStep);
+        isManualScroll = true;
+        clearTimeout(manualScrollTimer);
+        manualScrollTimer = setTimeout(() => { isManualScroll = false; }, 900);
+
+        if (docSidebar && !docSidebar.classList.contains('hidden') && window.innerWidth < 1024) {
+          docSidebar.classList.add('hidden');
+        }
+      });
+    });
+
+    // Bidirectional Dynamic ScrollSpy
     function updateScrollSpy() {
       if (isManualScroll) return;
 
-      // Bottom of page detection (highlights the final chapter)
-      if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 80)) {
-        if (docSections.length > 0) {
-          const lastSection = docSections[docSections.length - 1];
-          setActiveSidebarLink(lastSection.id);
-          return;
+      const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+
+      // When reaching near bottom of document, automatically select last chapter
+      if ((scrollY + windowHeight) >= (docHeight - 60)) {
+        setActiveState('developer-api', null);
+        return;
+      }
+
+      // Find the element currently crossed past the top trigger line
+      let activeItem = trackableNav[0];
+      const triggerThreshold = 160; // offset in px below sticky topbar
+
+      for (let i = 0; i < trackableNav.length; i++) {
+        const entry = trackableNav[i];
+        const el = document.getElementById(entry.id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= triggerThreshold) {
+          activeItem = entry;
         }
       }
 
-      // Check section bounding rects
-      let currentSectionId = '';
-      const triggerOffset = 180; // Distance from top of viewport
-
-      for (let i = 0; i < docSections.length; i++) {
-        const sec = docSections[i];
-        const rect = sec.getBoundingClientRect();
-        if (rect.top <= triggerOffset) {
-          currentSectionId = sec.id;
-        }
-      }
-
-      if (currentSectionId) {
-        setActiveSidebarLink(currentSectionId);
-      } else if (docSections.length > 0 && window.scrollY < 200) {
-        setActiveSidebarLink(docSections[0].id);
-      }
+      setActiveState(activeItem.chapter, activeItem.step);
     }
 
     window.addEventListener('scroll', () => {
       requestAnimationFrame(updateScrollSpy);
     }, { passive: true });
 
-    // Initial load check
-    window.addEventListener('DOMContentLoaded', () => {
+    // Initial check on page load & hash change
+    function initScrollState() {
       const hash = window.location.hash.replace('#', '');
       if (hash) {
-        const targetLink = Array.from(sidebarLinks).find(l => l.getAttribute('data-section') === hash);
-        if (targetLink) {
-          setActiveSidebarLink(hash);
+        const match = trackableNav.find(t => t.id === hash || t.step === hash);
+        if (match) {
+          setActiveState(match.chapter, match.step);
           return;
         }
       }
       updateScrollSpy();
-    });
+    }
+    initScrollState();
+    window.addEventListener('hashchange', initScrollState);
+
+    // ===================================================================
+    // FLOATING LIVE CHAT CLIENT CONTROLLER
+    // ===================================================================
+    let docsChatSessionId = localStorage.getItem('hosta_chat_session') || null;
+    let docsChatPollTimer = null;
+
+    async function toggleFloatingChat() {
+      const widget = document.getElementById('floatingChatWidget');
+      if (!widget) return;
+
+      const isActive = widget.classList.contains('active');
+      if (isActive) {
+        widget.classList.remove('active');
+        if (docsChatPollTimer) {
+          clearInterval(docsChatPollTimer);
+          docsChatPollTimer = null;
+        }
+      } else {
+        widget.classList.add('active');
+        const badge = document.getElementById('floatingChatBadge');
+        if (badge) badge.style.display = 'none';
+
+        // Check if user is logged in
+        const userJson = localStorage.getItem('hosta_user');
+        if (userJson) {
+          try {
+            const user = JSON.parse(userJson);
+            docsChatSessionId = `hosta_user_${user.id}`;
+            localStorage.setItem('hosta_chat_session', docsChatSessionId);
+
+            document.getElementById('chatScreenCaptcha').style.display = 'none';
+            document.getElementById('chatScreenMessages').style.display = 'flex';
+
+            await fetch('/api/chat/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionId: docsChatSessionId,
+                visitorName: user.name || user.username || 'User',
+                visitorEmail: user.email || ''
+              })
+            });
+
+            await loadVisitorMessages();
+            startChatPolling();
+            return;
+          } catch(e) {}
+        }
+
+        if (docsChatSessionId) {
+          document.getElementById('chatScreenCaptcha').style.display = 'none';
+          document.getElementById('chatScreenMessages').style.display = 'flex';
+          await loadVisitorMessages();
+          startChatPolling();
+        } else {
+          document.getElementById('chatScreenCaptcha').style.display = 'block';
+          document.getElementById('chatScreenMessages').style.display = 'none';
+          fetchChatCaptcha();
+        }
+      }
+    }
+    window.toggleFloatingChat = toggleFloatingChat;
+
+    async function fetchChatCaptcha() {
+      try {
+        const res = await fetch('/api/chat/captcha');
+        const data = await res.json();
+        if (data.success) {
+          const qEl = document.getElementById('chatCaptchaQuestion');
+          const tEl = document.getElementById('chatCaptchaToken');
+          if (qEl) qEl.innerText = data.question;
+          if (tEl) tEl.value = data.token;
+        }
+      } catch (err) {
+        console.error('[Chat Captcha Error]', err);
+      }
+    }
+
+    async function handleStartChat(e) {
+      e.preventDefault();
+      const name = document.getElementById('chatVisitorName').value.trim();
+      const email = document.getElementById('chatVisitorEmail').value.trim();
+      const answer = document.getElementById('chatCaptchaAnswer').value.trim();
+      const token = document.getElementById('chatCaptchaToken').value;
+      const errBox = document.getElementById('chatCaptchaError');
+
+      if (!docsChatSessionId) {
+        docsChatSessionId = 'guest_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('hosta_chat_session', docsChatSessionId);
+      }
+
+      const submitBtn = document.getElementById('btnStartChatSubmit');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/chat/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: docsChatSessionId,
+            visitorName: name,
+            visitorEmail: email,
+            captchaToken: token,
+            captchaAnswer: answer
+          })
+        });
+        const result = await res.json();
+        if (!result.success) {
+          if (errBox) {
+            errBox.innerText = result.error || 'Verification failed. Please retry.';
+            errBox.classList.remove('hidden');
+          }
+          if (submitBtn) submitBtn.disabled = false;
+          fetchChatCaptcha();
+          return;
+        }
+
+        document.getElementById('chatScreenCaptcha').style.display = 'none';
+        document.getElementById('chatScreenMessages').style.display = 'flex';
+        await loadVisitorMessages();
+        startChatPolling();
+      } catch (err) {
+        if (errBox) {
+          errBox.innerText = 'Network error starting chat session.';
+          errBox.classList.remove('hidden');
+        }
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    }
+    window.handleStartChat = handleStartChat;
+
+    async function loadVisitorMessages() {
+      if (!docsChatSessionId) return;
+      try {
+        const res = await fetch(`/api/chat/messages?sessionId=${encodeURIComponent(docsChatSessionId)}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.messages)) {
+          renderChatMessages(data.messages);
+        }
+      } catch (err) {
+        console.error('[Chat Messages Error]', err);
+      }
+    }
+
+    function renderChatMessages(messages) {
+      const scrollPane = document.getElementById('chatMessagesScroll');
+      if (!scrollPane) return;
+
+      if (messages.length === 0) {
+        scrollPane.innerHTML = `
+          <div class="text-center py-6 text-gray-400 text-xs">
+            <p class="font-medium text-gray-600 dark:text-gray-300">Live Support Connected</p>
+            <p class="mt-1 text-[11px]">Ask any question about hosting, domains, or database setup!</p>
+          </div>
+        `;
+        return;
+      }
+
+      scrollPane.innerHTML = messages.map(m => {
+        const isVisitor = m.sender === 'visitor';
+        const time = new Date(m.timestamp || m.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="chat-msg-row ${isVisitor ? 'visitor' : 'admin'}">
+            <div class="chat-bubble">${escapeHtml(m.text || m.message)}</div>
+            <span class="chat-msg-time">${time}</span>
+          </div>
+        `;
+      }).join('');
+
+      scrollPane.scrollTop = scrollPane.scrollHeight;
+    }
+
+    function startChatPolling() {
+      if (docsChatPollTimer) clearInterval(docsChatPollTimer);
+      docsChatPollTimer = setInterval(loadVisitorMessages, 4000);
+    }
+
+    async function handleSendVisitorMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatVisitorInput');
+      const text = input.value.trim();
+      if (!text || !docsChatSessionId) return;
+
+      input.value = '';
+      try {
+        const res = await fetch('/api/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: docsChatSessionId,
+            sender: 'visitor',
+            text
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadVisitorMessages();
+        }
+      } catch (err) {
+        console.error('[Send Msg Error]', err);
+      }
+    }
+    window.handleSendVisitorMessage = handleSendVisitorMessage;
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
     // Quick Search & Filter in Documentation
     const searchInput = document.getElementById('docSearchInput');
