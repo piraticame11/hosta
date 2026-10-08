@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Documentation & Guide routes (mounted before static to avoid trailing slash redirects)
 app.get(['/docs', '/docs/', '/docs.html', '/guides/hosting', '/help'], (req, res) => {

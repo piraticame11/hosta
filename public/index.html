@@ -541,6 +541,11 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span>Profile</span>
         </button>
+        <button class="subnav-btn" data-tab="payments" id="subnavPaymentsBtn" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>Payment Approvals</span>
+          <span class="pill-count" id="pillPaymentsCount" style="display: none; background: #ef4444; color: #fff;">0</span>
+        </button>
         <button class="subnav-btn" data-tab="settings" id="subnavSettingsBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>Server Setup</span>
@@ -558,6 +563,9 @@
 
       <!-- TAB 1: OVERVIEW -->
       <div id="dash-overview" class="dash-view active">
+        <!-- Student Pass Activation & Payment Status Alert Banner -->
+        <div id="studentPassAlertBanner" style="display: none; margin-bottom: 24px;"></div>
+
         <!-- Student Quotas Cards -->
         <div class="stats-cards-grid">
           <!-- 100MB Disk Quota -->
@@ -1272,6 +1280,47 @@
         </div>
       </div>
 
+      <!-- TAB 8: GCASH PAYMENT APPROVALS (ADMIN ONLY) -->
+      <div id="dash-payments" class="dash-view">
+        <div class="dash-action-bar">
+          <div>
+            <h3 class="dash-heading">GCash Payment Approvals</h3>
+            <p class="dash-heading-sub">Cross-reference uploaded receipts and reference numbers against your GCash transaction history to approve or deactivate student accounts.</p>
+          </div>
+          <div class="dash-action-buttons">
+            <div class="payment-filter-pills" id="paymentFilterPills">
+              <button class="filter-pill active" data-filter="all" onclick="filterPayments('all', this)">All</button>
+              <button class="filter-pill" data-filter="pending" onclick="filterPayments('pending', this)">Pending</button>
+              <button class="filter-pill" data-filter="approved" onclick="filterPayments('approved', this)">Approved</button>
+              <button class="filter-pill" data-filter="rejected" onclick="filterPayments('rejected', this)">Rejected</button>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminPayments(true)" title="Refresh Payments Table">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Plan &amp; Amount</th>
+                <th>Reference No.</th>
+                <th>Receipt Screenshot</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -1290,42 +1339,221 @@
       </div>
       <form id="formAddDomain">
         <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label" for="inputDomainName">Domain Name</label>
-            <input type="text" id="inputDomainName" class="form-control" placeholder="e.g. mycapstone-project.ph" required>
-            <div class="form-help">Enter without http:// or www prefix.</div>
+
+          <!-- Domain Type Switcher Pills -->
+          <div class="form-group mb-3">
+            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Domain Type</span>
+              <span class="badge-tag required">Required</span>
+            </label>
+            <div class="domain-switch-pills">
+              <button type="button" class="domain-switch-btn active" id="btnSwitchSubdomain" onclick="switchDomainType('subdomain')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>Free Subdomain (.hosta.site)</span>
+              </button>
+              <button type="button" class="domain-switch-btn" id="btnSwitchCustom" onclick="switchDomainType('custom')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span>Custom Domain</span>
+              </button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="inputDomainAliases">Aliases</label>
-            <input type="text" id="inputDomainAliases" class="form-control" placeholder="e.g. www.mycapstone-project.ph">
+          <!-- Section A: Free Subdomain -->
+          <div id="sectionSubdomain" class="domain-type-section">
+            <div class="form-group mb-2">
+              <label class="form-label" for="inputSubdomainPrefix">
+                Subdomain Prefix <span class="badge-tag required">Required</span>
+              </label>
+              <div class="input-addon-group">
+                <input type="text" id="inputSubdomainPrefix" class="form-control" placeholder="portfolio" autocomplete="off" oninput="handleSubdomainInput(this.value)">
+                <span class="input-addon-badge">.hosta.site</span>
+              </div>
+              <div class="form-help">Enter prefix only (e.g. portfolio). No dots, www, or http.</div>
+            </div>
+
+            <!-- Live Domain Preview Card -->
+            <div class="domain-preview-box">
+              <div class="domain-preview-header">
+                <span class="live-dot"></span>
+                <span>Live URL Preview:</span>
+              </div>
+              <div class="domain-preview-link" id="previewSubdomainLink">
+                https://<strong id="previewSubdomainText">portfolio</strong>.hosta.site
+              </div>
+              <div class="domain-preview-sub">Instant wildcard DNS and Cloudflare Edge protection included.</div>
+            </div>
           </div>
 
-          <div class="form-row">
+          <!-- Section B: Custom Domain -->
+          <div id="sectionCustomDomain" class="domain-type-section" style="display: none;">
+            <div class="form-group mb-3">
+              <label class="form-label" for="inputCustomDomain">
+                Custom Domain Name <span class="badge-tag required">Required</span>
+              </label>
+              <input type="text" id="inputCustomDomain" class="form-control" placeholder="e.g. mycapstone-project.ph or yourname.com" autocomplete="off">
+              <div class="form-help">Enter your registered domain name without http:// or https://.</div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label" for="inputCustomAliases">
+                Aliases <span class="badge-tag optional">Optional</span>
+              </label>
+              <input type="text" id="inputCustomAliases" class="form-control" placeholder="e.g. www.mycapstone-project.ph" autocomplete="off">
+              <div class="form-help">Secondary hostnames routing to this same website directory.</div>
+            </div>
+
+            <div class="dns-reminder-callout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div>
+                <strong>DNS Setup Required:</strong> At your domain registrar, add an <code>A</code> record pointing <code>@</code> (and optional <code>www</code>) to server IP <code>142.91.97.73</code>.
+              </div>
+            </div>
+          </div>
+
+          <!-- PHP & SSL Options -->
+          <div class="form-row mt-3">
             <div class="form-group">
-              <label class="form-label" for="inputDomainPhp">PHP Version Stack</label>
+              <label class="form-label" for="inputDomainPhp">PHP Stack <span class="badge-tag optional">Optional</span></label>
               <select id="inputDomainPhp" class="form-control">
                 <option value="8.3">PHP 8.3 (Latest)</option>
-                <option value="8.2" selected>PHP 8.2 (Recommended for school)</option>
+                <option value="8.2" selected>PHP 8.2 (Recommended for projects)</option>
                 <option value="8.1">PHP 8.1</option>
                 <option value="8.0">PHP 8.0</option>
-                <option value="7.4">PHP 7.4 (Legacy school code)</option>
+                <option value="7.4">PHP 7.4 (Legacy code)</option>
               </select>
             </div>
 
             <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 8px;">
               <label class="checkbox-row">
                 <input type="checkbox" id="inputDomainSsl" checked>
-                <span><strong>Auto Let's Encrypt SSL</strong></span>
+                <span><strong>Auto Let's Encrypt SSL</strong> <span class="badge-tag optional" style="color: var(--success); font-weight: bold;">Free</span></span>
               </label>
             </div>
           </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
-          <button type="submit" class="btn btn-primary">Provision Domain</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitDomain">Provision Domain</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Student Pass Activation & GCash Payment -->
+  <div class="modal-backdrop" id="modalStudentPayment">
+    <div class="modal-window modal-lg">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 class="modal-title">Activate Student Monthly Pass</h3>
+          <span class="badge badge-success" style="font-size: 0.82rem; padding: 4px 10px;">₱150.00 / Month</span>
+        </div>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="formSubmitPayment" onsubmit="handlePaymentSubmit(event);">
+        <div class="modal-body">
+          
+          <div class="payment-split-grid">
+            <!-- Left: QR Code & Instructions -->
+            <div class="payment-qr-col">
+              <div class="payment-qr-frame">
+                <div class="payment-qr-tag">Scan via GCash / InstaPay</div>
+                <img src="/assets/web_assets/hosta-qr-code-raw.png" alt="GCash InstaPay QR Code" class="payment-qr-img">
+                <div class="payment-qr-amount">Exact Amount: <strong>₱150.00</strong></div>
+              </div>
+              
+              <div class="payment-guide-steps">
+                <h5>How to Pay:</h5>
+                <ol>
+                  <li>Open <strong>GCash</strong> (or any bank app).</li>
+                  <li>Tap <strong>Scan QR</strong> and scan the code above.</li>
+                  <li>Transfer <strong>₱150.00</strong>.</li>
+                  <li>Copy the <strong>Reference Number</strong> or save a <strong>Receipt Screenshot</strong>.</li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Right: Proof Submission Form -->
+            <div class="payment-form-col">
+              <div class="payment-notice-card">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <div>
+                  <strong>Manual Verification:</strong> The administrator will manually verify your transfer in GCash transaction records before activating your account.
+                </div>
+              </div>
+
+              <div class="either-or-indicator">
+                <span>Provide either Option A, Option B, or both:</span>
+              </div>
+
+              <!-- Option A: Reference Number -->
+              <div class="form-group mb-3">
+                <label class="form-label" for="inputPaymentRef">
+                  Option A: GCash Reference Number
+                  <span class="badge-tag optional">Either 1 Required</span>
+                </label>
+                <input type="text" id="inputPaymentRef" class="form-control" placeholder="e.g. 1002 9481 0291" autocomplete="off">
+                <div class="form-help">Found in your GCash SMS or transaction receipt.</div>
+              </div>
+
+              <div class="or-separator">
+                <span>OR</span>
+              </div>
+
+              <!-- Option B: Upload Receipt Screenshot -->
+              <div class="form-group mb-3">
+                <label class="form-label" for="inputPaymentReceipt">
+                  Option B: Upload Receipt Screenshot
+                  <span class="badge-tag optional">Either 1 Required</span>
+                </label>
+                <input type="file" id="inputPaymentReceipt" class="form-control" accept="image/*" onchange="handleReceiptFileChange(event)">
+                <div class="form-help">Upload PNG, JPG, or screenshot of your successful GCash transfer.</div>
+
+                <!-- Preview Area -->
+                <div id="receiptUploadPreviewWrap" style="display: none; margin-top: 10px;">
+                  <div style="position: relative; display: inline-block;">
+                    <img id="receiptUploadPreviewImg" src="" alt="Receipt Preview" style="max-height: 130px; border-radius: 8px; border: 1px solid var(--border-subtle); display: block;">
+                    <button type="button" class="btn btn-sm btn-outline danger" onclick="clearReceiptUpload()" style="margin-top: 6px; padding: 4px 8px; font-size: 0.75rem;">Remove Image</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="verification-note">
+                Once submitted, an automatic notification will be sent to the administrator to verify your payment and activate your workspace.
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitPaymentForm">
+            <span>Submit Payment Proof</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Receipt Viewer Lightbox (Admin) -->
+  <div class="modal-backdrop" id="modalReceiptViewer">
+    <div class="modal-window modal-md">
+      <div class="modal-header">
+        <h3 class="modal-title" id="receiptViewerTitle">Payment Receipt Screenshot</h3>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: center; background: #0b0f19; padding: 20px; border-radius: 8px;">
+        <img id="receiptViewerImage" src="" alt="Receipt" style="max-width: 100%; max-height: 75vh; border-radius: 6px; object-fit: contain;">
+        <div id="receiptViewerRef" style="margin-top: 12px; font-family: var(--font-mono); font-size: 0.9rem; color: #94a3b8;"></div>
+      </div>
+      <div class="modal-footer">
+        <a id="receiptViewerDownloadLink" href="#" target="_blank" download class="btn btn-secondary">Open Full Image</a>
+        <button type="button" class="btn btn-primary" data-modal-close>Close</button>
+      </div>
     </div>
   </div>
 

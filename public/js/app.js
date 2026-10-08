@@ -45,7 +45,11 @@ const AppState = {
   // Registration flow state
   pendingRegisterEmail: '',
   pendingDevCode: null,
-  resendCountdownTimer: null
+  resendCountdownTimer: null,
+  // Domain creation & payment state
+  currentDomainType: 'subdomain',
+  currentReceiptBase64: null,
+  userPassStatus: null
 };
 
 // --- DOM Ready Initialization ---
@@ -242,6 +246,7 @@ function switchDashTab(tabName) {
   if (targetView) targetView.classList.add('active');
 
   // Trigger data loading for specific tab
+  if (tabName === 'overview') loadStudentPassStatus();
   if (tabName === 'accounts') loadAccounts();
   if (tabName === 'domains') loadWebDomains();
   if (tabName === 'databases') loadDatabases();
@@ -250,14 +255,25 @@ function switchDashTab(tabName) {
   if (tabName === 'profile') loadUserProfileForm();
   if (tabName === 'settings') loadSettingsForm();
   if (tabName === 'chat') loadAdminChatThreads();
+  if (tabName === 'payments') loadAdminPayments();
 }
 
 function handleQuickAction(action) {
   switch (action) {
     case 'add-domain':
+      if (AppState.currentUser && AppState.currentUser.role !== 'admin' && AppState.userPassStatus && AppState.userPassStatus.package_status !== 'active') {
+        openStudentPaymentModal();
+        showToast('Activation Required', 'Please activate your Student Pass to create web domains.', 'warning');
+        return;
+      }
       openModal('modalAddDomain');
       break;
     case 'add-database':
+      if (AppState.currentUser && AppState.currentUser.role !== 'admin' && AppState.userPassStatus && AppState.userPassStatus.package_status !== 'active') {
+        openStudentPaymentModal();
+        showToast('Activation Required', 'Please activate your Student Pass to create databases.', 'warning');
+        return;
+      }
       openModal('modalAddDatabase');
       break;
     case 'create-backup':
@@ -1394,8 +1410,12 @@ function updateAuthUI() {
   const mobileUserAvatar = document.getElementById('mobileUserAvatar');
   const subnavAccountsBtn = document.querySelector('[data-tab="accounts"]');
   const subnavChatBtn = document.querySelector('[data-tab="chat"]');
+  const subnavPaymentsBtn = document.getElementById('subnavPaymentsBtn');
   const subnavSettingsBtn = document.getElementById('subnavSettingsBtn');
   const subnavProfileBtn = document.getElementById('subnavProfileBtn');
+  const mobileNavAccounts = document.getElementById('mobileNavAccounts');
+  const mobileNavChat = document.getElementById('mobileNavChat');
+  const mobileNavPayments = document.getElementById('mobileNavPayments');
 
   if (AppState.isAuthenticated && AppState.currentUser) {
     const user = AppState.currentUser;
@@ -1437,6 +1457,9 @@ function updateAuthUI() {
     if (subnavChatBtn) {
       subnavChatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
+    if (subnavPaymentsBtn) {
+      subnavPaymentsBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
     if (subnavSettingsBtn) {
       subnavSettingsBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
@@ -1446,14 +1469,19 @@ function updateAuthUI() {
 
     const mobileNavAccounts = document.getElementById('mobileNavAccounts');
     const mobileNavChat = document.getElementById('mobileNavChat');
+    const mobileNavPayments = document.getElementById('mobileNavPayments');
     if (mobileNavAccounts) mobileNavAccounts.style.display = isAdmin ? 'flex' : 'none';
     if (mobileNavChat) mobileNavChat.style.display = isAdmin ? 'flex' : 'none';
+    if (mobileNavPayments) mobileNavPayments.style.display = isAdmin ? 'flex' : 'none';
 
     const quickChatText = document.getElementById('btnQuickLiveChatText');
     if (quickChatText) quickChatText.textContent = isAdmin ? 'Chat Inbox' : 'Live Chat Support';
 
     if (isAdmin) {
       loadAdminChatThreads(false);
+      updatePendingPaymentsBadge();
+    } else {
+      loadStudentPassStatus();
     }
   } else {
     if (guestGroup) guestGroup.style.display = 'flex';
@@ -1464,13 +1492,20 @@ function updateAuthUI() {
 
     if (subnavAccountsBtn) subnavAccountsBtn.style.display = 'none';
     if (subnavChatBtn) subnavChatBtn.style.display = 'none';
+    const subnavPaymentsBtn = document.getElementById('subnavPaymentsBtn');
+    if (subnavPaymentsBtn) subnavPaymentsBtn.style.display = 'none';
     if (subnavSettingsBtn) subnavSettingsBtn.style.display = 'none';
     if (subnavProfileBtn) subnavProfileBtn.style.display = 'none';
 
     const mobileNavAccounts = document.getElementById('mobileNavAccounts');
     const mobileNavChat = document.getElementById('mobileNavChat');
+    const mobileNavPayments = document.getElementById('mobileNavPayments');
     if (mobileNavAccounts) mobileNavAccounts.style.display = 'none';
     if (mobileNavChat) mobileNavChat.style.display = 'none';
+    if (mobileNavPayments) mobileNavPayments.style.display = 'none';
+
+    const banner = document.getElementById('studentPassAlertBanner');
+    if (banner) banner.style.display = 'none';
   }
 }
 
@@ -2394,12 +2429,37 @@ function initForms() {
   if (formAddDomain) {
     formAddDomain.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const domain = getValue('inputDomainName').trim();
-      const aliases = getValue('inputDomainAliases').trim();
-      const ssl = getCheckbox('inputDomainSsl');
-      const phpVersion = getValue('inputDomainPhp');
 
-      if (!domain) return;
+      // Check if user pass is active
+      if (AppState.currentUser && AppState.currentUser.role !== 'admin' && AppState.userPassStatus && AppState.userPassStatus.package_status !== 'active') {
+        closeAllModals();
+        openStudentPaymentModal();
+        showToast('Approval Required', 'Your Student Pass must be verified and approved by the admin before adding domains.', 'warning');
+        return;
+      }
+
+      let domain = '';
+      let aliases = '';
+
+      if (AppState.currentDomainType === 'custom') {
+        domain = getValue('inputCustomDomain').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        aliases = getValue('inputCustomAliases').trim();
+        if (!domain) {
+          showToast('Domain Name Required', 'Please enter your custom domain name (e.g. myproject.ph)', 'error');
+          return;
+        }
+      } else {
+        const prefix = (getValue('inputSubdomainPrefix') || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        if (!prefix) {
+          showToast('Subdomain Required', 'Please enter a subdomain prefix (e.g. portfolio)', 'error');
+          return;
+        }
+        domain = `${prefix}.hosta.site`;
+        aliases = `www.${domain}`;
+      }
+
+      const ssl = getCheckbox('inputDomainSsl');
+      const phpVersion = getValue('inputDomainPhp') || '8.2';
 
       showToast('Creating Domain', `Adding ${domain} to HestiaCP...`, 'info');
 
@@ -2414,9 +2474,14 @@ function initForms() {
           showToast('Domain Added', `Domain ${domain} is now active on the server!`, 'success');
           closeAllModals();
           formAddDomain.reset();
+          handleSubdomainInput('portfolio');
           loadWebDomains();
           refreshDashboardData();
         } else {
+          if (data.requiresApproval || data.error?.includes('Student Pass is') || data.error?.includes('Approval Required')) {
+            closeAllModals();
+            openStudentPaymentModal();
+          }
           showToast('Error', data.error || 'Failed to add domain', 'error');
         }
       } catch (err) {
@@ -2430,6 +2495,15 @@ function initForms() {
   if (formAddDb) {
     formAddDb.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Check if user pass is active
+      if (AppState.currentUser && AppState.currentUser.role !== 'admin' && AppState.userPassStatus && AppState.userPassStatus.package_status !== 'active') {
+        closeAllModals();
+        openStudentPaymentModal();
+        showToast('Approval Required', 'Your Student Pass must be verified and approved by the admin before creating databases.', 'warning');
+        return;
+      }
+
       const database = getValue('inputDbName').trim();
       const dbuser = getValue('inputDbUser').trim();
       const password = getValue('inputDbPassword').trim();
@@ -2453,6 +2527,10 @@ function initForms() {
           loadDatabases();
           refreshDashboardData();
         } else {
+          if (data.requiresApproval || data.error?.includes('Student Pass is') || data.error?.includes('Approval Required')) {
+            closeAllModals();
+            openStudentPaymentModal();
+          }
           showToast('Error', data.error || 'Failed to create database', 'error');
         }
       } catch (err) {
@@ -3321,4 +3399,466 @@ async function handleResolveCurrentThread() {
   }
 }
 window.handleResolveCurrentThread = handleResolveCurrentThread;
+
+// =====================================================================
+// DOMAIN TYPE SWITCHER & LIVE PREVIEW
+// =====================================================================
+
+function switchDomainType(type) {
+  AppState.currentDomainType = type;
+  const btnSub = document.getElementById('btnSwitchSubdomain');
+  const btnCust = document.getElementById('btnSwitchCustom');
+  const secSub = document.getElementById('sectionSubdomain');
+  const secCust = document.getElementById('sectionCustomDomain');
+
+  if (type === 'subdomain') {
+    if (btnSub) btnSub.classList.add('active');
+    if (btnCust) btnCust.classList.remove('active');
+    if (secSub) secSub.style.display = 'block';
+    if (secCust) secCust.style.display = 'none';
+  } else {
+    if (btnSub) btnSub.classList.remove('active');
+    if (btnCust) btnCust.classList.add('active');
+    if (secSub) secSub.style.display = 'none';
+    if (secCust) secCust.style.display = 'block';
+  }
+}
+window.switchDomainType = switchDomainType;
+
+function handleSubdomainInput(val) {
+  const clean = (val || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const previewText = document.getElementById('previewSubdomainText');
+  const previewLink = document.getElementById('previewSubdomainLink');
+  const displayVal = clean || 'portfolio';
+  
+  if (previewText) {
+    previewText.textContent = displayVal;
+  }
+  if (previewLink) {
+    previewLink.innerHTML = `https://<strong id="previewSubdomainText">${displayVal}</strong>.hosta.site`;
+  }
+}
+window.handleSubdomainInput = handleSubdomainInput;
+
+// =====================================================================
+// STUDENT PASS & GCASH PAYMENT PROOF SUBMISSION
+// =====================================================================
+
+async function loadStudentPassStatus() {
+  const banner = document.getElementById('studentPassAlertBanner');
+  if (!banner) return;
+
+  if (!AppState.isAuthenticated || !AppState.currentUser) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  // Admin users are always active and don't need a student payment alert
+  if (AppState.currentUser.role === 'admin') {
+    banner.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/payments/my-status');
+    const data = await res.json();
+    if (!data.success) return;
+
+    AppState.userPassStatus = data;
+    const status = data.package_status || 'unpaid';
+
+    if (status === 'active') {
+      banner.style.display = 'none';
+    } else if (status === 'pending') {
+      const ref = data.latest_payment?.reference_number || 'Under Review';
+      banner.innerHTML = `
+        <div class="student-pass-banner warning">
+          <div class="pass-banner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="pass-banner-content">
+            <div class="pass-banner-title">
+              <span>Student Pass Payment Under Review</span>
+              <span class="badge badge-warning" style="margin-left: 8px;">Pending Admin Approval</span>
+            </div>
+            <div class="pass-banner-desc">
+              Your GCash transfer (Ref: <strong>${escapeHtml(ref)}</strong>) was submitted and is queued for verification. The admin will cross-check transaction records shortly to unlock domain &amp; database provisioning.
+            </div>
+          </div>
+          <div class="pass-banner-action">
+            <button class="btn btn-sm btn-outline" onclick="openStudentPaymentModal()">View Proof</button>
+          </div>
+        </div>
+      `;
+      banner.style.display = 'block';
+    } else if (status === 'rejected') {
+      const note = data.latest_payment?.admin_notes || 'Transaction proof could not be verified.';
+      banner.innerHTML = `
+        <div class="student-pass-banner danger">
+          <div class="pass-banner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="pass-banner-content">
+            <div class="pass-banner-title">
+              <span>Payment Verification Rejected</span>
+              <span class="badge badge-danger" style="margin-left: 8px;">Action Required</span>
+            </div>
+            <div class="pass-banner-desc">
+              Note from Admin: <em>${escapeHtml(note)}</em>. Please submit a valid reference number or receipt screenshot.
+            </div>
+          </div>
+          <div class="pass-banner-action">
+            <button class="btn btn-sm btn-primary" onclick="openStudentPaymentModal()">Resubmit Proof</button>
+          </div>
+        </div>
+      `;
+      banner.style.display = 'block';
+    } else {
+      // unpaid or deactivated
+      banner.innerHTML = `
+        <div class="student-pass-banner unpaid">
+          <div class="pass-banner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="pass-banner-content">
+            <div class="pass-banner-title">
+              <span>Activate Your Student Monthly Pass (₱150/mo)</span>
+              <span class="badge badge-secondary" style="margin-left: 8px;">Unpaid</span>
+            </div>
+            <div class="pass-banner-desc">
+              To provision your free <code>.hosta.site</code> subdomain, upload web code, and create MariaDB databases, scan our GCash QR code and submit your reference number or receipt.
+            </div>
+          </div>
+          <div class="pass-banner-action">
+            <button class="btn btn-sm btn-primary" onclick="openStudentPaymentModal()">
+              <span>Pay &amp; Activate Pass</span>
+            </button>
+          </div>
+        </div>
+      `;
+      banner.style.display = 'block';
+    }
+  } catch (err) {
+    console.warn('Could not load student pass status:', err);
+  }
+}
+window.loadStudentPassStatus = loadStudentPassStatus;
+
+function openStudentPaymentModal() {
+  if (AppState.userPassStatus?.latest_payment?.reference_number) {
+    setValue('inputPaymentRef', AppState.userPassStatus.latest_payment.reference_number);
+  }
+  openModal('modalStudentPayment');
+}
+window.openStudentPaymentModal = openStudentPaymentModal;
+
+function handleReceiptFileChange(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 12 * 1024 * 1024) {
+    showToast('File Too Large', 'Please upload an image smaller than 12MB', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    AppState.currentReceiptBase64 = e.target.result;
+    const previewWrap = document.getElementById('receiptUploadPreviewWrap');
+    const previewImg = document.getElementById('receiptUploadPreviewImg');
+    if (previewImg) previewImg.src = e.target.result;
+    if (previewWrap) previewWrap.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+window.handleReceiptFileChange = handleReceiptFileChange;
+
+function clearReceiptUpload() {
+  AppState.currentReceiptBase64 = null;
+  const input = document.getElementById('inputPaymentReceipt');
+  if (input) input.value = '';
+  const previewWrap = document.getElementById('receiptUploadPreviewWrap');
+  if (previewWrap) previewWrap.style.display = 'none';
+}
+window.clearReceiptUpload = clearReceiptUpload;
+
+async function handlePaymentSubmit(e) {
+  if (e) e.preventDefault();
+  const refNumber = (getValue('inputPaymentRef') || '').trim();
+  const receiptData = AppState.currentReceiptBase64;
+
+  // Validation: Either Reference Number OR Receipt Screenshot is required (at least 1, other optional)
+  if (!refNumber && !receiptData) {
+    showToast('Missing Proof', 'Please provide either a GCash Reference Number or upload a Receipt Screenshot (or both).', 'error');
+    return;
+  }
+
+  const submitBtn = document.getElementById('btnSubmitPaymentForm');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Submitting Proof...</span>';
+  }
+
+  try {
+    const res = await fetch('/api/payments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        referenceNumber: refNumber,
+        receiptData: receiptData,
+        planId: 'student_monthly'
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Payment Submitted', 'Your payment proof has been submitted! Admin will verify and activate your pass shortly.', 'success');
+      closeModal('modalStudentPayment');
+      clearReceiptUpload();
+      setValue('inputPaymentRef', '');
+      await loadStudentPassStatus();
+    } else {
+      showToast('Submission Failed', data.error || 'Failed to submit payment proof', 'error');
+    }
+  } catch (err) {
+    showToast('Error', err.message, 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Submit Payment Proof</span>';
+    }
+  }
+}
+window.handlePaymentSubmit = handlePaymentSubmit;
+
+// =====================================================================
+// ADMIN GCASH PAYMENT APPROVALS MANAGEMENT
+// =====================================================================
+
+let currentPaymentsFilter = 'all';
+
+async function loadAdminPayments(showToastOnRefresh = false) {
+  const tbody = document.getElementById('paymentsTableBody');
+  if (!tbody) return;
+
+  if (showToastOnRefresh) {
+    showToast('Refreshing', 'Loading latest payment submissions...', 'info');
+  }
+
+  try {
+    const url = currentPaymentsFilter === 'all' 
+      ? '/api/admin/payments' 
+      : `/api/admin/payments?status=${currentPaymentsFilter}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.success) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 24px;">Failed to load payments: ${escapeHtml(data.error)}</td></tr>`;
+      return;
+    }
+
+    const payments = data.payments || [];
+    renderPaymentsTable(payments);
+    updatePendingPaymentsBadge();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 24px;">Error: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+window.loadAdminPayments = loadAdminPayments;
+
+async function updatePendingPaymentsBadge() {
+  try {
+    const res = await fetch('/api/admin/payments?status=pending');
+    const data = await res.json();
+    const count = data.success ? (data.payments || []).length : 0;
+    
+    const badge = document.getElementById('pillPaymentsCount');
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+function filterPayments(status, btn) {
+  currentPaymentsFilter = status;
+  document.querySelectorAll('#paymentFilterPills .filter-pill').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  loadAdminPayments(false);
+}
+window.filterPayments = filterPayments;
+
+function renderPaymentsTable(payments) {
+  const tbody = document.getElementById('paymentsTableBody');
+  if (!tbody) return;
+
+  if (!payments || payments.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">No payment submissions found matching "${currentPaymentsFilter}".</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = payments.map(p => {
+    const userDisplay = p.username ? `<strong>@${escapeHtml(p.username)}</strong><br><small style="color: var(--text-muted);">${escapeHtml(p.user_email || '')}</small>` : `User #${p.user_id}`;
+    const dateStr = p.created_at ? new Date(p.created_at).toLocaleString() : 'N/A';
+    
+    let statusBadge = '';
+    if (p.status === 'pending') {
+      statusBadge = '<span class="badge badge-warning">Pending Review</span>';
+    } else if (p.status === 'approved') {
+      statusBadge = '<span class="badge badge-success">Approved</span>';
+    } else if (p.status === 'rejected') {
+      statusBadge = `<span class="badge badge-danger" title="${escapeHtml(p.admin_notes || '')}">Rejected</span>`;
+    }
+
+    const refHtml = p.reference_number 
+      ? `<code class="copyable-badge" onclick="copyToClipboard('${escapeHtml(p.reference_number)}')" title="Click to copy">${escapeHtml(p.reference_number)}</code>`
+      : '<span style="color: var(--text-muted); font-size: 0.82rem;">None provided</span>';
+
+    const receiptHtml = p.receipt_url
+      ? `<button type="button" class="btn btn-sm btn-outline" onclick="openReceiptViewer('${escapeHtml(p.receipt_url)}', '${escapeHtml(p.reference_number || '')}')" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;">
+           <img src="${escapeHtml(p.receipt_url)}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 4px;">
+           <span>View Receipt</span>
+         </button>`
+      : '<span style="color: var(--text-muted); font-size: 0.82rem;">No image</span>';
+
+    let actionButtons = '';
+    if (p.status === 'pending') {
+      actionButtons = `
+        <div style="display: flex; gap: 6px; justify-content: flex-end;">
+          <button class="btn btn-sm btn-primary" onclick="adminApprovePayment(${p.id})">
+            <span>Approve</span>
+          </button>
+          <button class="btn btn-sm btn-outline danger" onclick="adminRejectPayment(${p.id})">
+            <span>Reject</span>
+          </button>
+        </div>
+      `;
+    } else if (p.status === 'approved') {
+      actionButtons = `
+        <div style="display: flex; gap: 6px; justify-content: flex-end;">
+          <button class="btn btn-sm btn-outline danger" onclick="adminDeactivatePass('${escapeHtml(p.username)}')">
+            <span>Deactivate Pass</span>
+          </button>
+        </div>
+      `;
+    } else {
+      actionButtons = `
+        <div style="display: flex; gap: 6px; justify-content: flex-end;">
+          <button class="btn btn-sm btn-outline" onclick="adminApprovePayment(${p.id})">
+            <span>Re-Approve</span>
+          </button>
+        </div>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>${userDisplay}</td>
+        <td>
+          <strong>₱${escapeHtml(p.amount || '150.00')}</strong>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(p.plan_id || 'student_monthly')}</div>
+        </td>
+        <td>${refHtml}</td>
+        <td>${receiptHtml}</td>
+        <td><small style="color: var(--text-secondary);">${dateStr}</small></td>
+        <td>${statusBadge}</td>
+        <td style="text-align: right;">${actionButtons}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openReceiptViewer(url, ref) {
+  const img = document.getElementById('receiptViewerImage');
+  const refEl = document.getElementById('receiptViewerRef');
+  const link = document.getElementById('receiptViewerDownloadLink');
+
+  if (img) img.src = url;
+  if (refEl) refEl.textContent = ref ? `Reference Number: ${ref}` : '';
+  if (link) link.href = url;
+
+  openModal('modalReceiptViewer');
+}
+window.openReceiptViewer = openReceiptViewer;
+
+async function adminApprovePayment(id) {
+  if (!confirm('Approve this GCash payment and activate student pass?')) return;
+
+  try {
+    const res = await fetch(`/api/admin/payments/${id}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminNotes: 'Verified against GCash history' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Payment Approved', 'Student pass has been activated and confirmation email sent!', 'success');
+      loadAdminPayments(false);
+    } else {
+      showToast('Error', data.error || 'Failed to approve payment', 'error');
+    }
+  } catch (err) {
+    showToast('Error', err.message, 'error');
+  }
+}
+window.adminApprovePayment = adminApprovePayment;
+
+async function adminRejectPayment(id) {
+  const reason = prompt('Enter rejection reason for student (e.g. Reference number not found in GCash transactions):');
+  if (reason === null) return;
+
+  try {
+    const res = await fetch(`/api/admin/payments/${id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: reason || 'Invalid or unverifiable payment proof' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Payment Rejected', 'Student notified with rejection reason.', 'info');
+      loadAdminPayments(false);
+    } else {
+      showToast('Error', data.error || 'Failed to reject payment', 'error');
+    }
+  } catch (err) {
+    showToast('Error', err.message, 'error');
+  }
+}
+window.adminRejectPayment = adminRejectPayment;
+
+async function adminDeactivatePass(username) {
+  if (!confirm(`Deactivate student pass for @${username}? This will restrict their domain/database operations.`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(username)}/deactivate-pass`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'Pass deactivated by administrator' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Pass Deactivated', `@${username}'s pass has been deactivated.`, 'warning');
+      loadAdminPayments(false);
+    } else {
+      showToast('Error', data.error || 'Failed to deactivate pass', 'error');
+    }
+  } catch (err) {
+    showToast('Error', err.message, 'error');
+  }
+}
+window.adminDeactivatePass = adminDeactivatePass;
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied', `Copied "${text}" to clipboard`, 'info');
+  }).catch(() => {});
+}
+window.copyToClipboard = copyToClipboard;
+
 

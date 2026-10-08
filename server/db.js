@@ -211,9 +211,26 @@ async function initSchema() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS payment_submissions (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        plan_id VARCHAR(50) NOT NULL DEFAULT 'student-monthly',
+        amount DOUBLE PRECISION NOT NULL DEFAULT 150.00,
+        reference_number VARCHAR(100),
+        receipt_url TEXT,
+        receipt_filename VARCHAR(255),
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        admin_notes TEXT,
+        reviewed_by INT REFERENCES users(id) ON DELETE SET NULL,
+        reviewed_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR(100);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR(100);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS birthdate VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS package_status VARCHAR(50) DEFAULT 'unpaid';
     `);
 
     // 1. Seed Roles
@@ -291,6 +308,9 @@ async function initSchema() {
       `, ['admin', hash, salt, 'admin@hosta.ph', 'System Administrator', adminRoleId]);
     }
 
+    // Ensure all admin users have active package status
+    await client.query("UPDATE users SET package_status = 'active' WHERE role_id = (SELECT id FROM roles WHERE name = 'admin')");
+
     isInitialized = true;
     console.log('✅ Neon PostgreSQL database schema verified.');
   } finally {
@@ -323,6 +343,7 @@ function formatUser(row) {
     roleId: row.role_id,
     permissions: typeof row.permissions === 'string' ? JSON.parse(row.permissions) : (row.permissions || []),
     package: row.package,
+    packageStatus: row.package_status || (row.role_name === 'admin' ? 'active' : 'unpaid'),
     suspended: Boolean(row.suspended),
     created: row.created_at ? new Date(row.created_at).toISOString().substring(0, 10) : new Date().toISOString().substring(0, 10),
     quota: {
@@ -457,7 +478,7 @@ const dbService = {
     return formatUser(res.rows[0]);
   },
 
-  async createUser({ username, password, email, fullName, firstName, lastName, birthdate, role = 'student', package: packageId = 'student-pass' }) {
+  async createUser({ username, password, email, fullName, firstName, lastName, birthdate, role = 'student', package: packageId = 'student-pass', packageStatus }) {
     if (!username || !password || !email) {
       throw new Error('Username, password, and email are required.');
     }
@@ -481,14 +502,17 @@ const dbService = {
     const domainsLimit = 1;
     const dbsLimit = 1;
 
+    // By default: admins are active, students start as unpaid pending verification
+    const finalPackageStatus = packageStatus || (role === 'admin' ? 'active' : 'unpaid');
+
     const computedFullName = fullName ? fullName.trim() : ([firstName, lastName].filter(Boolean).join(' ') || cleanUsername);
     const { salt, hash } = hashPassword(password);
     const result = await pool.query(`
       INSERT INTO users (
         username, password_hash, salt, email, full_name, first_name, last_name, birthdate, role_id, 
-        package, suspended, disk_limit_mb, disk_used_mb, bw_limit_mb, bw_used_mb,
+        package, package_status, suspended, disk_limit_mb, disk_used_mb, bw_limit_mb, bw_used_mb,
         web_domains_limit, databases_limit, cron_jobs_limit, backups_limit
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, FALSE, $11, 0, $12, 0, $13, $14, 2, 3)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, FALSE, $12, 0, $13, 0, $14, $15, 2, 3)
       RETURNING id
     `, [
       cleanUsername,
@@ -501,6 +525,7 @@ const dbService = {
       birthdate ? String(birthdate).trim() : null,
       roleId,
       packageId || 'student-pass',
+      finalPackageStatus,
       diskMB,
       bwMB,
       domainsLimit,
@@ -1209,6 +1234,170 @@ const dbService = {
     await ensureInitialized();
     const cleanEmail = email.trim().toLowerCase();
     await pool.query('DELETE FROM registration_verifications WHERE LOWER(email) = $1', [cleanEmail]);
+  },
+
+  // --- Payment & Student Pass Verification System ---
+  async submitPayment({ userId, planId = 'student-monthly', amount = 150.00, referenceNumber, receiptUrl, receiptFilename }) {
+    await ensureInitialized();
+    const cleanRef = referenceNumber ? String(referenceNumber).trim() : null;
+    
+    const res = await pool.query(`
+      INSERT INTO payment_submissions (
+        user_id, plan_id, amount, reference_number, receipt_url, receipt_filename, status, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, 'pending', NOW(), NOW())
+      RETURNING *
+    `, [userId, planId, amount, cleanRef, receiptUrl || null, receiptFilename || null]);
+
+    // Update user's package_status to 'pending'
+    await pool.query('UPDATE users SET package_status = $1, updated_at = NOW() WHERE id = $2', ['pending', userId]);
+
+    const submission = res.rows[0];
+    const user = await this.getUser(userId);
+    return { ...submission, user };
+  },
+
+  async listPayments({ status, limit = 100 } = {}) {
+    await ensureInitialized();
+    let sql = `
+      SELECT p.*, 
+             u.username, u.full_name as user_full_name, u.email as user_email, u.package as user_package, u.package_status as user_package_status
+      FROM payment_submissions p
+      JOIN users u ON p.user_id = u.id
+    `;
+    const params = [];
+    if (status && status !== 'all') {
+      sql += ' WHERE p.status = $1';
+      params.push(status);
+    }
+    sql += ' ORDER BY p.id DESC';
+    if (limit) {
+      params.push(limit);
+      sql += ` LIMIT $${params.length}`;
+    }
+
+    const res = await pool.query(sql, params);
+    return res.rows.map(r => ({
+      id: r.id,
+      userId: r.user_id,
+      username: r.username,
+      fullName: r.user_full_name,
+      email: r.user_email,
+      planId: r.plan_id,
+      amount: Number(r.amount),
+      referenceNumber: r.reference_number,
+      receiptUrl: r.receipt_url,
+      receiptFilename: r.receipt_filename,
+      status: r.status,
+      adminNotes: r.admin_notes,
+      reviewedBy: r.reviewed_by,
+      reviewedAt: r.reviewed_at,
+      createdAt: r.created_at,
+      userPackageStatus: r.user_package_status
+    }));
+  },
+
+  async getPaymentById(id) {
+    await ensureInitialized();
+    const res = await pool.query(`
+      SELECT p.*, u.username, u.full_name as user_full_name, u.email as user_email
+      FROM payment_submissions p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.id = $1
+    `, [Number(id)]);
+    if (res.rowCount === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      userId: r.user_id,
+      username: r.username,
+      fullName: r.user_full_name,
+      email: r.user_email,
+      planId: r.plan_id,
+      amount: Number(r.amount),
+      referenceNumber: r.reference_number,
+      receiptUrl: r.receipt_url,
+      receiptFilename: r.receipt_filename,
+      status: r.status,
+      adminNotes: r.admin_notes,
+      reviewedBy: r.reviewed_by,
+      reviewedAt: r.reviewed_at,
+      createdAt: r.created_at
+    };
+  },
+
+  async getLatestUserPayment(userId) {
+    await ensureInitialized();
+    const res = await pool.query(`
+      SELECT * FROM payment_submissions
+      WHERE user_id = $1
+      ORDER BY id DESC LIMIT 1
+    `, [userId]);
+    return res.rowCount > 0 ? res.rows[0] : null;
+  },
+
+  async approvePayment({ paymentId, adminUserId }) {
+    await ensureInitialized();
+    const payment = await this.getPaymentById(paymentId);
+    if (!payment) throw new Error(`Payment #${paymentId} not found.`);
+
+    await pool.query(`
+      UPDATE payment_submissions
+      SET status = 'approved', reviewed_by = $1, reviewed_at = NOW(), updated_at = NOW()
+      WHERE id = $2
+    `, [adminUserId || null, Number(paymentId)]);
+
+    // Activate the user
+    await pool.query(`
+      UPDATE users
+      SET package = 'student-pass',
+          package_status = 'active',
+          suspended = FALSE,
+          web_domains_limit = 1,
+          databases_limit = 1,
+          disk_limit_mb = 100,
+          bw_limit_mb = 20480,
+          updated_at = NOW()
+      WHERE id = $1
+    `, [payment.userId]);
+
+    const updatedUser = await this.getUser(payment.userId);
+    return { payment: await this.getPaymentById(paymentId), user: updatedUser };
+  },
+
+  async rejectPayment({ paymentId, adminUserId, reason = 'Payment verification failed' }) {
+    await ensureInitialized();
+    const payment = await this.getPaymentById(paymentId);
+    if (!payment) throw new Error(`Payment #${paymentId} not found.`);
+
+    await pool.query(`
+      UPDATE payment_submissions
+      SET status = 'rejected', admin_notes = $1, reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
+      WHERE id = $3
+    `, [reason, adminUserId || null, Number(paymentId)]);
+
+    await pool.query(`
+      UPDATE users
+      SET package_status = 'rejected', updated_at = NOW()
+      WHERE id = $1
+    `, [payment.userId]);
+
+    const updatedUser = await this.getUser(payment.userId);
+    return { payment: await this.getPaymentById(paymentId), user: updatedUser };
+  },
+
+  async deactivateUserPass({ username, adminUserId, reason = 'Deactivated by administrator' }) {
+    await ensureInitialized();
+    const userRes = await pool.query('SELECT id FROM users WHERE LOWER(username) = LOWER($1)', [username]);
+    if (userRes.rowCount === 0) throw new Error(`User "${username}" not found.`);
+    const userId = userRes.rows[0].id;
+
+    await pool.query(`
+      UPDATE users
+      SET package_status = 'deactivated', updated_at = NOW()
+      WHERE id = $1
+    `, [userId]);
+
+    return this.getUser(userId);
   }
 };
 

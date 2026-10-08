@@ -46,6 +46,13 @@ function getTargetUser(req) {
  */
 router.post('/domains', async (req, res) => {
   try {
+    if (req.user && req.user.role !== 'admin' && req.user.packageStatus !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Your Student Pass has not been activated yet. Please apply for the Student Pass or wait for administrator verification.'
+      });
+    }
+
     const { domain, enableSsl = true } = req.body;
 
     if (!domain) {
@@ -131,6 +138,13 @@ router.get('/domains', async (req, res) => {
  */
 router.post('/databases', async (req, res) => {
   try {
+    if (req.user && req.user.role !== 'admin' && req.user.packageStatus !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Your Student Pass has not been activated yet. Please apply for the Student Pass or wait for administrator verification.'
+      });
+    }
+
     const { database, dbUser, dbPass, password, type = 'mysql' } = req.body;
     const finalPassword = dbPass || password;
 

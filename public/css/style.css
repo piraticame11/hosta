@@ -3508,3 +3508,468 @@ input:checked + .slider:before {
   text-align: right;
 }
 
+/* ===================================================================
+   Domain Switcher & Live Preview
+   =================================================================== */
+
+.domain-switch-pills {
+  display: flex;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.domain-switch-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.domain-switch-btn:hover {
+  color: var(--text-main);
+}
+
+.domain-switch-btn.active {
+  background: var(--bg-card);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.input-addon-group {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+
+.input-addon-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.input-addon-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-left: none;
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 600;
+  user-select: none;
+  letter-spacing: -0.02em;
+}
+
+.domain-preview-box {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.domain-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.domain-preview-header .live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary);
+}
+
+.domain-preview-link {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.domain-preview-link strong {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.domain-preview-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.badge-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-tag.required {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-tag.optional {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.dns-reminder-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-top: 10px;
+}
+
+.dns-reminder-callout svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dns-reminder-callout code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: var(--text-main);
+}
+
+/* ===================================================================
+   Student Pass Alert Banner
+   =================================================================== */
+
+.student-pass-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.student-pass-banner.warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.student-pass-banner.warning .pass-banner-icon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.student-pass-banner.danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.student-pass-banner.danger .pass-banner-icon {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.student-pass-banner.unpaid {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02));
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.student-pass-banner.unpaid .pass-banner-icon {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--primary);
+}
+
+.pass-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pass-banner-content {
+  flex: 1;
+}
+
+.pass-banner-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.pass-banner-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.pass-banner-action {
+  flex-shrink: 0;
+}
+
+/* ===================================================================
+   GCash Payment Modal & Proof Submission
+   =================================================================== */
+
+.payment-split-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .payment-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payment-qr-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.payment-qr-frame {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.payment-qr-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0b57d0;
+  margin-bottom: 10px;
+}
+
+.payment-qr-img {
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.payment-qr-amount {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+.payment-qr-amount strong {
+  font-size: 1.1rem;
+  color: #059669;
+}
+
+.payment-guide-steps {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.payment-guide-steps h5 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.payment-guide-steps ol {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.payment-form-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-notice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.payment-notice-card svg {
+  color: #0ea5e9;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.either-or-indicator {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg-hover);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.or-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 4px 0 12px;
+}
+
+.or-separator::before,
+.or-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.or-separator span {
+  padding: 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.verification-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ===================================================================
+   Admin Payment Approvals Table & Filters
+   =================================================================== */
+
+.payment-filter-pills {
+  display: inline-flex;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 3px;
+}
+
+.filter-pill {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill:hover {
+  color: var(--text-main);
+}
+
+.filter-pill.active {
+  background: var(--bg-card);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.copyable-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  transition: all var(--transition-fast);
+}
+
+.copyable-badge:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.modal-window.modal-lg {
+  max-width: 820px;
+  width: 95%;
+}
+
+.modal-window.modal-md {
+  max-width: 620px;
+  width: 95%;
+}
+
+

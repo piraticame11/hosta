@@ -1,10 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const { loadConfig, saveConfig } = require('../config-manager');
 const HestiaClient = require('../hestia-client');
 const db = require('../db');
 const emailService = require('../email-service');
 const crypto = require('crypto');
+
+const UPLOADS_DIR = path.join(__dirname, '../../public/uploads/receipts');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || 'hosta_ph_chat_secret_2026';
 
@@ -655,6 +662,176 @@ router.post('/order', optionalAuth, async (req, res) => {
 
 /**
  * =====================================================================
+ * PAYMENTS & STUDENT PASS APPROVAL SYSTEM
+ * =====================================================================
+ */
+
+// Student submits payment proof (Reference number, receipt screenshot, or both)
+router.post('/payments/submit', requireAuth, async (req, res) => {
+  try {
+    const { referenceNumber, receiptData, receiptName, planId = 'student-monthly' } = req.body;
+    const cleanRef = referenceNumber ? String(referenceNumber).trim() : '';
+
+    if (!cleanRef && !receiptData) {
+      return res.status(400).json({
+        success: false,
+        error: 'Either a GCash Reference Number OR a Receipt Screenshot must be provided.'
+      });
+    }
+
+    let receiptUrl = null;
+    let receiptFilename = null;
+
+    if (receiptData && typeof receiptData === 'string' && receiptData.startsWith('data:image/')) {
+      const matches = receiptData.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+      if (matches) {
+        let ext = matches[1].toLowerCase();
+        if (ext === 'jpeg') ext = 'jpg';
+        if (ext === 'svg+xml') ext = 'svg';
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        receiptFilename = `receipt_${req.user.id}_${Date.now()}.${ext}`;
+        const savePath = path.join(UPLOADS_DIR, receiptFilename);
+        fs.writeFileSync(savePath, buffer);
+        receiptUrl = `/uploads/receipts/${receiptFilename}`;
+      }
+    }
+
+    const submission = await db.submitPayment({
+      userId: req.user.id,
+      planId,
+      amount: 150.00,
+      referenceNumber: cleanRef || null,
+      receiptUrl,
+      receiptFilename
+    });
+
+    // Notify Administrator via email
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@hosta.ph';
+      emailService.sendAdminPaymentNotification({
+        adminEmail,
+        student: req.user,
+        referenceNumber: cleanRef,
+        receiptUrl,
+        amount: 150.00
+      }).catch(e => console.error('[Email Notification Error]', e.message));
+    } catch (mailErr) {
+      console.warn('[Admin Notify Error]', mailErr.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Your payment submission has been received! The administrator will review your GCash transaction.',
+      submission
+    });
+  } catch (err) {
+    console.error('[Payment Submit Error]', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Student checks their latest pass/payment status
+router.get('/payments/my-status', requireAuth, async (req, res) => {
+  try {
+    const latest = await db.getLatestUserPayment(req.user.id);
+    res.json({
+      success: true,
+      packageStatus: req.user.packageStatus || 'unpaid',
+      latestPayment: latest
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin lists all payment submissions
+router.get('/admin/payments', requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const payments = await db.listPayments({ status });
+    res.json({ success: true, payments });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin approves a student payment
+router.post('/admin/payments/:id/approve', requireAdmin, async (req, res) => {
+  try {
+    const paymentId = parseInt(req.params.id, 10);
+    const result = await db.approvePayment({
+      paymentId,
+      adminUserId: req.user.id
+    });
+
+    // Notify Student of approval
+    try {
+      emailService.sendStudentPaymentApproval({
+        student: result.user
+      }).catch(e => console.error('[Student Notify Error]', e.message));
+    } catch (e) {}
+
+    res.json({
+      success: true,
+      message: `Payment #${paymentId} approved! Student account '${result.user.username}' is now active.`,
+      result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin rejects a student payment
+router.post('/admin/payments/:id/reject', requireAdmin, async (req, res) => {
+  try {
+    const paymentId = parseInt(req.params.id, 10);
+    const { reason } = req.body;
+    const result = await db.rejectPayment({
+      paymentId,
+      adminUserId: req.user.id,
+      reason: reason || 'Transaction could not be verified in GCash history.'
+    });
+
+    // Notify Student of rejection
+    try {
+      emailService.sendStudentPaymentRejection({
+        student: result.user,
+        reason: reason || 'Reference number not found in GCash history.'
+      }).catch(e => console.error('[Student Notify Error]', e.message));
+    } catch (e) {}
+
+    res.json({
+      success: true,
+      message: `Payment #${paymentId} rejected.`,
+      result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin deactivates student pass
+router.post('/admin/users/:username/deactivate-pass', requireAdmin, async (req, res) => {
+  try {
+    const { username } = req.params;
+    const updated = await db.deactivateUserPass({
+      username,
+      adminUserId: req.user.id
+    });
+    res.json({
+      success: true,
+      message: `Student pass for '${username}' has been deactivated.`,
+      user: updated
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * =====================================================================
  * STUDENT / HOSTING USER ACCOUNTS CRUD
  * =====================================================================
  */
@@ -769,6 +946,12 @@ router.get('/domains', optionalAuth, async (req, res) => {
 
 router.post('/domains', optionalAuth, async (req, res) => {
   try {
+    if (req.user && req.user.role !== 'admin' && req.user.packageStatus !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Your Student Pass has not been activated yet. Please apply for the Student Pass or wait for administrator verification.'
+      });
+    }
     const { domain, aliases, ssl, phpVersion } = req.body;
     if (!domain) return res.status(400).json({ success: false, error: 'Domain is required.' });
     const targetUser = req.user ? req.user.username : client.defaultUser;
@@ -820,6 +1003,12 @@ router.get('/databases', optionalAuth, async (req, res) => {
 
 router.post('/databases', optionalAuth, async (req, res) => {
   try {
+    if (req.user && req.user.role !== 'admin' && req.user.packageStatus !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Your Student Pass has not been activated yet. Please apply for the Student Pass or wait for administrator verification.'
+      });
+    }
     const { database, dbuser, password, charset } = req.body;
     if (!database) return res.status(400).json({ success: false, error: 'Database name is required.' });
     const targetUser = req.user ? req.user.username : client.defaultUser;
