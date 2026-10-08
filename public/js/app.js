@@ -130,8 +130,9 @@ function initNavigation() {
 
   // Client Area Dashboard sub-navigation
   document.querySelectorAll('.subnav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
       const tab = btn.getAttribute('data-tab');
+      if (!tab) return; // Allow normal link navigation for docs and external links
       switchDashTab(tab);
     });
   });

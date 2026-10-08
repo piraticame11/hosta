@@ -13,17 +13,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Documentation & Guide routes (mounted before static to avoid trailing slash redirects)
+app.get(['/docs', '/docs/', '/docs.html', '/guides/hosting', '/help'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'docs.html'));
+});
+
 // Serve static frontend assets
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 // Mount API routes
 app.use('/api/hosting', hostingRoutes);
 app.use('/api', apiRoutes);
-
-// Documentation & Guide routes
-app.get(['/docs', '/guides/hosting', '/help'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'docs.html'));
-});
 
 // Fallback to index.html for client-side navigation
 app.get('*', (req, res) => {

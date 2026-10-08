@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hosting Documentation &amp; Developer Guide - Hosta Webhosting Platform</title>
+  <meta name="description" content="Comprehensive onboarding guide, custom domain setup, database management, and developer API reference for the Hosta Webhosting Platform.">
+  <link rel="icon" type="image/svg+xml" href="/assets/web_assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/web_assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/web_assets/favicon-16x16.png">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+              950: '#1e1b4b',
+            },
+            darkbg: {
+              base: '#0B0F19',
+              card: '#111827',
+              border: '#1F2937',
+              elevated: '#1E293B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.35);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.6);
+    }
+    .code-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .code-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+  </style>
+
+  <script>
+    // Sync theme with existing Hosta preference
+    (function() {
+      const savedTheme = localStorage.getItem('hosta_theme') || 'dark';
+      if (savedTheme === 'dark' || (!('hosta_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-darkbg-base text-gray-800 dark:text-gray-100 font-sans transition-colors duration-200 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- =================================================================
+       TOP NAVBAR
+       ================================================================= -->
+  <header class="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-darkbg-base/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta Logo" class="w-6 h-6 object-contain filter brightness-110">
+          </div>
+          <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Hosta<span class="text-brand-500 font-semibold text-sm ml-1 px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800">Docs</span></span>
+        </a>
+        <span class="hidden md:inline-block text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">
+          v1.4 API Active
+        </span>
+      </div>
+
+      <!-- Quick Search Bar -->
+      <div class="flex-1 max-w-md hidden sm:block relative">
+        <div class="relative">
+          <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" id="docSearchInput" placeholder="Search guides, DNS, MySQL, API endpoints... (Ctrl+K)" 
+            class="w-full pl-10 pr-12 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all placeholder-gray-400">
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700">⌘K</span>
+        </div>
+      </div>
+
+      <!-- Header Action Items -->
+      <div class="flex items-center gap-3">
+        <!-- Back to Student Portal -->
+        <a href="/#dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 transition-colors">
+          <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span class="hidden sm:inline">Student Portal</span>
+        </a>
+
+        <!-- Live Server Status Indicator -->
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-medium text-emerald-700 dark:text-emerald-300">Cluster: Online</span>
+        </div>
+
+        <!-- Theme Switcher -->
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+          <svg id="themeSunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="themeMoonIcon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Drawer Toggle -->
+        <button id="mobileNavToggle" aria-label="Open Navigation" class="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =================================================================
+       MAIN DOCUMENTATION LAYOUT
+       ================================================================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col md:flex-row gap-8 items-start">
+
+      <!-- =============================================================
+           SIDEBAR NAVIGATION (STICKY)
+           ============================================================= -->
+      <aside id="docSidebar" class="w-full md:w-64 shrink-0 md:sticky md:top-24 space-y-6 hidden md:block">
+        
+        <!-- Platform Badge Card -->
+        <div class="p-4 rounded-xl bg-gradient-to-br from-brand-900/40 to-indigo-950/40 border border-brand-500/20 text-white">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+            </span>
+            <span class="text-xs font-semibold text-brand-300 uppercase tracking-wider">Hosta Stack</span>
+          </div>
+          <p class="text-xs text-gray-300 leading-relaxed">
+            HestiaCP Engine • MariaDB 10.11 • PostgreSQL Neon • Cloudflare Edge Proxy.
+          </p>
+        </div>
+
+        <!-- Chapter Navigation Links -->
+        <nav class="space-y-1">
+          <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Documentation Chapters</p>
+          
+          <a href="#quick-start" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/50 border border-brand-200 dark:border-brand-800/60">
+            <span class="flex items-center gap-2.5">
+              <span class="text-base">🚀</span>
+              <span>1. Quick Start Guide</span>
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-200/50 dark:bg-brand-900/80 font-mono">01</span>
+          </a>
+
+          <a href="#custom-domains" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+            <span class="flex items-center gap-2.5">
+              <span class="text-base">🌐</span>
+              <span>2. Custom Domains &amp; DNS</span>
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">02</span>
+          </a>
+
+          <a href="#database-management" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+            <span class="flex items-center gap-2.5">
+              <span class="text-base">🗄️</span>
+              <span>3. Databases (MySQL/PG)</span>
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">03</span>
+          </a>
+
+          <a href="#developer-api" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+            <span class="flex items-center gap-2.5">
+              <span class="text-base">⚡</span>
+              <span>4. Developer REST API</span>
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 font-mono">04</span>
+          </a>
+        </nav>
+
+        <!-- Quick Jump Reference -->
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
+          <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Cheat Sheet &amp; Tools</p>
+          <a href="#dns-records-table" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Required DNS Records</a>
+          <a href="#sftp-credentials" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ SFTP &amp; File Manager</a>
+          <a href="#api-curl-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ cURL / Bash Automation</a>
+          <a href="#api-node-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Node.js Axios Example</a>
+          <a href="#api-python-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Python Requests Example</a>
+        </div>
+
+        <!-- Help & Contact Box -->
+        <div class="p-4 rounded-xl bg-gray-100 dark:bg-darkbg-card border border-gray-200 dark:border-gray-800">
+          <h4 class="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white mb-1">Need Fast Support?</h4>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Our admins help student developers directly on live chat.</p>
+          <a href="/#dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+            <span>Open Support Chat</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+
+      </aside>
+
+      <!-- =============================================================
+           MAIN DOCUMENTATION CONTENT AREA
+           ============================================================= -->
+      <main class="flex-1 min-w-0 space-y-16">
+
+        <!-- Header Hero Banner -->
+        <div class="relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-indigo-900 via-brand-900 to-slate-900 text-white overflow-hidden shadow-xl shadow-brand-950/20">
+          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="relative z-10 space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-xs font-medium text-brand-200">
+              <span>📖 Complete Hosting Onboarding Guide</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">How to Host Your Site on <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-indigo-200 to-sky-300">Hosta</span></h1>
+            <p class="text-sm sm:text-base text-gray-300 max-w-2xl leading-relaxed">
+              Step-by-step instructions for deploying modern websites, configuring custom DNS, provisioning MySQL and PostgreSQL databases, and automating infrastructure via our developer API.
+            </p>
+          </div>
+        </div>
+
+        <!-- =============================================================
+             CHAPTER 1: QUICK START GUIDE
+             ============================================================= -->
+        <section id="quick-start" class="doc-section scroll-mt-24 space-y-6">
+          <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 font-bold text-sm">01</span>
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Quick Start: Deploying Your First Web Domain</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Launch a live web domain in under 60 seconds with automated Let's Encrypt SSL.</p>
+            </div>
+          </div>
+
+          <!-- Walkthrough Steps -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
+              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 1</span>
+              <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-brand-500 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </div>
+              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Provision Domain</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                Open the Student Portal &rarr; <strong>Web Domain</strong> tab, enter your desired domain name (e.g. <code class="text-brand-500">mysite.hosta.site</code>), and click <strong>Create Domain</strong>.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
+              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 2</span>
+              <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              </div>
+              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Upload Web Files</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                Connect via SFTP or Web File Manager. Put your HTML/CSS/JS or Node.js assets into the generated <code class="text-brand-500">public_html</code> directory.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
+              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 3</span>
+              <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Auto-SSL Activated</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                Let's Encrypt certificates are automatically requested and bound to Nginx. Your website is immediately accessible via secure <code class="text-emerald-500">https://</code>.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Directory Structure Explanation -->
+          <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-4">
+            <h3 class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+              <span>Automated Linux Directory Structure</span>
+            </h3>
+            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              When a domain is added to Hosta via the dashboard or API, our HestiaCP automation provisions an isolated root directory structure under your system user profile:
+            </p>
+
+            <div class="p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
+              <div class="text-gray-400"># Production Directory Layout</div>
+              <div>/home/<span class="text-brand-400">{username}</span>/web/<span class="text-amber-400">{your-domain.com}</span>/</div>
+              <div class="pl-4">├── <span class="text-emerald-400 font-bold">public_html/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Web root served to visitors</span></div>
+              <div class="pl-8">├── <span class="text-sky-300">index.html</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default landing or SPA entrance</span></div>
+              <div class="pl-8">├── <span class="text-sky-300">assets/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># CSS, Javascript bundles, images</span></div>
+              <div class="pl-8">└── <span class="text-sky-300">server.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Optional Node.js Express backend entry</span></div>
+              <div class="pl-4">├── <span class="text-gray-400">logs/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Access and error logs (Nginx + Apache)</span></div>
+              <div class="pl-4">└── <span class="text-gray-400">stats/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># AWStats &amp; visitor analytics</span></div>
+            </div>
+          </div>
+
+          <!-- SFTP / FTP Details Card -->
+          <div id="sftp-credentials" class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
+            <h3 class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Connecting via SFTP / FileZilla / VS Code</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                <span class="text-gray-500 block mb-0.5">Protocol</span>
+                <span class="font-mono font-bold text-gray-900 dark:text-white">SFTP (SSH File Transfer)</span>
+              </div>
+              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                <span class="text-gray-500 block mb-0.5">Host / Server IP</span>
+                <span class="font-mono font-bold text-gray-900 dark:text-white">panel.hosta.site</span>
+              </div>
+              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                <span class="text-gray-500 block mb-0.5">Port</span>
+                <span class="font-mono font-bold text-gray-900 dark:text-white">22</span>
+              </div>
+              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                <span class="text-gray-500 block mb-0.5">Username</span>
+                <span class="font-mono font-bold text-brand-500">Your Student Username</span>
+              </div>
+            </div>
+
+            <!-- Pro-Tip Callout -->
+            <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
+              <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
+              <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
+                <span class="font-bold">Pro-Tip for VS Code Users:</span>
+                <p>Install the <em>SFTP</em> extension by Natizyskunk in VS Code. Set <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">"uploadOnSave": true</code> in your <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">.vscode/sftp.json</code> file to synchronize school assignments instantly whenever you press Ctrl+S.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================
+             CHAPTER 2: CONNECTING CUSTOM DOMAINS & DNS SETUP
+             ============================================================= -->
+        <section id="custom-domains" class="doc-section scroll-mt-24 space-y-6">
+          <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 font-bold text-sm">02</span>
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Connecting Custom Domains &amp; DNS Setup</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Point your own domain from Namecheap, GoDaddy, or Cloudflare to your Hosta container.</p>
+            </div>
+          </div>
+
+          <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            Whether you are using a free <code class="text-brand-500 font-mono">*.hosta.site</code> subdomain or pointing an apex domain like <code class="text-brand-500 font-mono">myproject.com</code>, DNS records translate your domain into our server's IP address.
+          </p>
+
+          <!-- DNS Records Reference Table -->
+          <div id="dns-records-table" class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-darkbg-card shadow-sm">
+            <div class="p-4 bg-gray-50 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <span class="font-semibold text-sm text-gray-900 dark:text-white">Required DNS Records for External Registrars</span>
+              <span class="text-[11px] font-mono text-gray-500">TTL: Automatic / 300s</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-100/50 dark:bg-gray-900/40 text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">
+                    <th class="p-3">Type</th>
+                    <th class="p-3">Host / Name</th>
+                    <th class="p-3">Target / Value / IP</th>
+                    <th class="p-3">Proxy / Status</th>
+                    <th class="p-3">Purpose</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800 font-mono">
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-indigo-500">A</td>
+                    <td class="p-3 font-semibold text-gray-900 dark:text-white">@ (root)</td>
+                    <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold select-all">142.91.97.73</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">DNS Only / Proxied</span></td>
+                    <td class="p-3 font-sans text-gray-500 dark:text-gray-400">Points root apex domain to Hosta server</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-indigo-500">A</td>
+                    <td class="p-3 font-semibold text-gray-900 dark:text-white">www</td>
+                    <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold select-all">142.91.97.73</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">DNS Only / Proxied</span></td>
+                    <td class="p-3 font-sans text-gray-500 dark:text-gray-400">Routes www.yourdomain.com requests</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-amber-500">CNAME</td>
+                    <td class="p-3 font-semibold text-gray-900 dark:text-white">subdomain</td>
+                    <td class="p-3 text-indigo-500 font-bold select-all">hosta.site</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">CNAME Alias</span></td>
+                    <td class="p-3 font-sans text-gray-500 dark:text-gray-400">Optional alias mapping for subdomains</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cloudflare Routing & Tunnels Architecture Note -->
+          <div class="p-5 rounded-xl bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/30 space-y-3">
+            <h3 class="font-semibold text-sm text-blue-200 flex items-center gap-2">
+              <span class="text-base">🛡️</span>
+              <span>Cloudflare Edge Proxy &amp; SSL Handshake</span>
+            </h3>
+            <p class="text-xs text-gray-300 leading-relaxed">
+              When using our default free subdomains (<code class="text-brand-300">*.hosta.site</code>), traffic routes through Cloudflare's global edge network before reaching our server cluster on port <code class="text-brand-300">8083 / 443</code>. This gives your student applications immediate DDoS protection, HTTP/3 protocol support, and automatic wildcard SSL.
+            </p>
+          </div>
+
+          <!-- DNS Troubleshooting Terminal Commands -->
+          <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
+            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">Verifying DNS Propagation (Terminal Commands)</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Run these commands in your local command prompt or terminal to confirm your DNS records have fully propagated:
+            </p>
+
+            <div class="space-y-2">
+              <div class="relative group">
+                <pre class="p-3 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll"><code>dig +short A yourdomain.com @1.1.1.1</code></pre>
+                <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-1 rounded bg-gray-800 text-[10px] text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              </div>
+              <div class="relative group">
+                <pre class="p-3 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll"><code>nslookup yourdomain.com 8.8.8.8</code></pre>
+                <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-1 rounded bg-gray-800 text-[10px] text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              </div>
+            </div>
+
+            <!-- Warning Callout -->
+            <div class="p-3.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+              <span class="text-amber-500 text-base">⚠️</span>
+              <p><strong>Note on DNS Propagation:</strong> External domain updates at registrars like GoDaddy or Namecheap can take anywhere from 5 minutes to 24 hours to spread worldwide. Do not request Let's Encrypt certificates until the <code class="font-bold">A</code> record resolves to our IP address.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================
+             CHAPTER 3: DATABASE MANAGEMENT (MYSQL & POSTGRESQL)
+             ============================================================= -->
+        <section id="database-management" class="doc-section scroll-mt-24 space-y-6">
+          <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 font-bold text-sm">03</span>
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Database Management: MySQL &amp; PostgreSQL</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Provision relational database instances for PHP, Laravel, Node.js, and Python projects.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- MySQL (MariaDB) Card -->
+            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl">🐬</span>
+                  <h3 class="font-bold text-base text-gray-900 dark:text-white">MySQL / MariaDB 10.11</h3>
+                </div>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">Port 3306</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                Standard relational database instance hosted on our high-speed SSD array. Ideal for PHP, WordPress, Express, and school capstone projects.
+              </p>
+
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">Host</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">localhost (or 127.0.0.1)</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">Database Name Prefix</span>
+                  <span class="font-mono font-bold text-brand-500">{user}_{dbname}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">Web GUI Tool</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">phpMyAdmin Integration</span>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <a href="https://panel.hosta.site/phpmyadmin/" target="_blank" class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold bg-brand-500 hover:bg-brand-600 text-white shadow transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  <span>Open phpMyAdmin Web Interface</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- PostgreSQL (Neon) Card -->
+            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl">🐘</span>
+                  <h3 class="font-bold text-base text-gray-900 dark:text-white">PostgreSQL (Neon Cloud)</h3>
+                </div>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Port 5432</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                Cloud serverless PostgreSQL database cluster with connection pooling and automated SSL replication for enterprise and modern web stacks.
+              </p>
+
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">Engine Version</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">PostgreSQL 16.x</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">Connection Mode</span>
+                  <span class="font-mono font-bold text-emerald-500">Pooled Connection String</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                  <span class="text-gray-500">SSL Requirement</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">sslmode=require</span>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded bg-gray-50 dark:bg-gray-900 text-[11px] font-mono text-gray-600 dark:text-gray-300 truncate">
+                postgresql://user:pass@ep-host.aws.neon.tech/hosta?sslmode=require
+              </div>
+            </div>
+
+          </div>
+
+          <!-- phpMyAdmin SQL Import Guide -->
+          <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
+            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">How to Import Your School SQL Dump (.sql file)</h3>
+            <ol class="list-decimal list-inside space-y-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              <li>Log in to your <strong>Student Portal</strong> and navigate to the <strong>Databases</strong> tab.</li>
+              <li>Click <strong>New Database</strong>, choose a name (e.g. <code class="font-mono text-brand-500">hostb_capstone</code>), and note the generated password.</li>
+              <li>Click the <strong>Open phpMyAdmin</strong> link in your dashboard.</li>
+              <li>Log in using your full database username (e.g. <code class="font-mono text-brand-500">hostb_capstone</code>) and password.</li>
+              <li>Select your database on the left sidebar, click the <strong>Import</strong> tab on top, choose your <code class="font-mono">.sql</code> file, and click <strong>Go</strong>.</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- =============================================================
+             CHAPTER 4: DEVELOPER API & PROGRAMMATIC PROVISIONING
+             ============================================================= -->
+        <section id="developer-api" class="doc-section scroll-mt-24 space-y-6">
+          <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 font-bold text-sm">04</span>
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Developer REST API Reference</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Automate domain provisioning, databases, and quota monitoring via programmatic HTTPS requests.</p>
+            </div>
+          </div>
+
+          <!-- Endpoint Overview Table -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-darkbg-card shadow-sm">
+            <div class="p-4 bg-gray-50 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <span class="font-semibold text-sm text-gray-900 dark:text-white">Base Endpoint: <code class="text-brand-500">https://hosta.site/api/hosting</code></span>
+              <span class="text-[11px] font-mono text-gray-500">JSON Payload &amp; Responses</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-100/50 dark:bg-gray-900/40 text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider">
+                    <th class="p-3">Method</th>
+                    <th class="p-3">Endpoint Path</th>
+                    <th class="p-3">Description</th>
+                    <th class="p-3">Auth Required</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800 font-mono">
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-emerald-500">POST</td>
+                    <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/domains</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Provisions a new web domain + triggers Let's Encrypt SSL</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-blue-500">GET</td>
+                    <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/domains</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Lists all active web domains for user</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-emerald-500">POST</td>
+                    <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/databases</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Creates a new MySQL database + database user</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-blue-500">GET</td>
+                    <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/databases</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Fetches database list and connection credentials</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                    <td class="p-3 font-bold text-blue-500">GET</td>
+                    <td class="p-3 text-gray-900 dark:text-white font-semibold">/api/hosting/stats</td>
+                    <td class="p-3 font-sans text-gray-600 dark:text-gray-300">Returns disk, bandwidth, database, and email metrics</td>
+                    <td class="p-3 font-sans"><span class="px-2 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Bearer Token</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Interactive Code Snippets Tabs -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-darkbg-card shadow-sm space-y-0">
+            <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/80 px-4 py-2.5">
+              <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Example: Create a New Web Domain</span>
+              
+              <!-- Tab Navigation Buttons -->
+              <div class="flex items-center gap-1 bg-gray-200 dark:bg-gray-800 p-1 rounded-lg text-xs" role="tablist">
+                <button class="code-tab-btn px-2.5 py-1 rounded-md font-medium text-brand-600 dark:text-white bg-white dark:bg-gray-700 shadow-sm" onclick="switchCodeTab('curl', this)">cURL</button>
+                <button class="code-tab-btn px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" onclick="switchCodeTab('node', this)">Node.js (Axios)</button>
+                <button class="code-tab-btn px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" onclick="switchCodeTab('fetch', this)">Fetch API</button>
+                <button class="code-tab-btn px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" onclick="switchCodeTab('python', this)">Python</button>
+              </div>
+            </div>
+
+            <!-- TAB 1: cURL -->
+            <div id="code-curl" class="code-panel relative p-4 bg-gray-950 text-gray-100 font-mono text-xs overflow-x-auto code-scroll">
+              <button class="copy-code-btn absolute right-3 top-3 px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              <pre><code>curl -X POST https://hosta.site/api/hosting/domains \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
+  -d '{
+    "domain": "myproject.hosta.site",
+    "enableSsl": true
+  }'</code></pre>
+            </div>
+
+            <!-- TAB 2: Node.js (Axios) -->
+            <div id="code-node" class="code-panel hidden relative p-4 bg-gray-950 text-gray-100 font-mono text-xs overflow-x-auto code-scroll">
+              <button class="copy-code-btn absolute right-3 top-3 px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              <pre><code>const axios = require('axios');
+
+async function provisionDomain() {
+  try {
+    const response = await axios.post('https://hosta.site/api/hosting/domains', {
+      domain: 'myproject.hosta.site',
+      enableSsl: true
+    }, {
+      headers: {
+        'Authorization': 'Bearer YOUR_SESSION_TOKEN',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Domain Provisioned:', response.data);
+  } catch (error) {
+    console.error('Error:', error.response?.data || error.message);
+  }
+}
+
+provisionDomain();</code></pre>
+            </div>
+
+            <!-- TAB 3: Fetch API -->
+            <div id="code-fetch" class="code-panel hidden relative p-4 bg-gray-950 text-gray-100 font-mono text-xs overflow-x-auto code-scroll">
+              <button class="copy-code-btn absolute right-3 top-3 px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              <pre><code>const response = await fetch('https://hosta.site/api/hosting/domains', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_SESSION_TOKEN'
+  },
+  body: JSON.stringify({
+    domain: 'myproject.hosta.site',
+    enableSsl: true
+  })
+});
+
+const result = await response.json();
+console.log(result);</code></pre>
+            </div>
+
+            <!-- TAB 4: Python -->
+            <div id="code-python" class="code-panel hidden relative p-4 bg-gray-950 text-gray-100 font-mono text-xs overflow-x-auto code-scroll">
+              <button class="copy-code-btn absolute right-3 top-3 px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition" onclick="copySnippet(this)">Copy</button>
+              <pre><code>import requests
+
+url = "https://hosta.site/api/hosting/domains"
+headers = {
+    "Authorization": "Bearer YOUR_SESSION_TOKEN",
+    "Content-Type": "application/json"
+}
+payload = {
+    "domain": "myproject.hosta.site",
+    "enableSsl": True
+}
+
+response = requests.post(url, json=payload, headers=headers)
+print(response.json())</code></pre>
+            </div>
+
+          </div>
+
+          <!-- Standard JSON Response Format Specification -->
+          <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
+            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">Standard API JSON Response Schema</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">All Hosta hosting endpoints consistently return the following structure:</p>
+
+            <div class="p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll border border-gray-800">
+              <pre><code>{
+  "success": true,
+  "data": {
+    "user": "hostb",
+    "domain": "myproject.hosta.site",
+    "sslStatus": "enabled",
+    "sslDetails": { "status": "ok" }
+  },
+  "message": "Domain 'myproject.hosta.site' provisioned successfully."
+}</code></pre>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- =================================================================
+       FOOTER
+       ================================================================= -->
+  <footer class="mt-20 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-darkbg-card py-8 text-xs text-gray-500 dark:text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="/assets/web_assets/logo-mark-256.png" alt="Hosta" class="w-5 h-5 object-contain">
+        <span class="font-semibold text-gray-900 dark:text-white">Hosta Webhosting Platform</span>
+        <span>• Dedicated to Philippine IT, CS &amp; Engineering Students</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:underline">Home</a>
+        <a href="/#plans" class="hover:underline">Pricing</a>
+        <a href="/docs" class="text-brand-500 font-medium">Docs</a>
+        <a href="https://panel.hosta.site" target="_blank" class="hover:underline">Server Panel</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =================================================================
+       INTERACTIVE CLIENT-SIDE JAVASCRIPT
+       ================================================================= -->
+  <script>
+    // Theme Switcher Logic
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('hosta_theme', isDark ? 'dark' : 'light');
+    });
+
+    // Code Snippet Tab Switcher
+    function switchCodeTab(lang, btn) {
+      document.querySelectorAll('.code-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.code-tab-btn').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+        b.classList.add('text-gray-600', 'dark:text-gray-400');
+      });
+
+      const activePanel = document.getElementById(`code-${lang}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+
+      btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+      btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    }
+
+    // Copy to Clipboard Helper
+    function copySnippet(btn) {
+      const codeBlock = btn.parentElement.querySelector('code');
+      if (!codeBlock) return;
+      navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied! ✓';
+        btn.classList.add('bg-emerald-600', 'text-white');
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.classList.remove('bg-emerald-600', 'text-white');
+        }, 2000);
+      });
+    }
+
+    // Quick Search & Filter in Documentation
+    const searchInput = document.getElementById('docSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        const sections = document.querySelectorAll('.doc-section');
+        
+        sections.forEach(sec => {
+          const text = sec.innerText.toLowerCase();
+          if (!term || text.includes(term)) {
+            sec.style.display = 'block';
+          } else {
+            sec.style.display = 'none';
+          }
+        });
+      });
+
+      // Ctrl + K keyboard shortcut
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    }
+
+    // Mobile Navigation Drawer Toggle
+    const mobileToggle = document.getElementById('mobileNavToggle');
+    const docSidebar = document.getElementById('docSidebar');
+    if (mobileToggle && docSidebar) {
+      mobileToggle.addEventListener('click', () => {
+        docSidebar.classList.toggle('hidden');
+      });
+    }
+  </script>
+</body>
+</html>
