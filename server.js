@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const apiRoutes = require('./server/routes/api');
+const hostingRoutes = require('./server/routes/hosting');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount API routes
+app.use('/api/hosting', hostingRoutes);
 app.use('/api', apiRoutes);
 
 // Fallback to index.html for client-side navigation

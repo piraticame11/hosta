@@ -8,8 +8,8 @@ const DEFAULT_CONFIG = {
   hestiaHost: process.env.HESTIA_HOST || 'https://hostia.site:8083',
   hestiaPort: parseInt(process.env.HESTIA_PORT || '8083', 10),
   authType: process.env.HESTIA_AUTH_TYPE || 'access_key', // 'access_key' or 'user_pass'
-  accessKey: process.env.HESTIA_ACCESS_KEY || '',
-  secretKey: process.env.HESTIA_SECRET_KEY || '',
+  accessKey: process.env.HESTIA_ACCESS_KEY || process.env.HESTIA_ACCESS_KEY_ID || '',
+  secretKey: process.env.HESTIA_SECRET_KEY || process.env.HESTIA_SECRET_ACCESS_KEY || '',
   username: process.env.HESTIA_USERNAME || 'admin',
   password: process.env.HESTIA_PASSWORD || '',
   defaultUser: process.env.HESTIA_DEFAULT_USER || 'admin',
