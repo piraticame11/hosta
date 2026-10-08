@@ -18,7 +18,8 @@ app.get(['/docs', '/docs/', '/docs.html', '/guides/hosting', '/help'], (req, res
   res.sendFile(path.join(__dirname, 'public', 'docs.html'));
 });
 
-// Serve static frontend assets
+// Serve uploaded files (e.g. GCash receipts) and frontend assets
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 // Mount API routes

@@ -671,8 +671,12 @@ router.post('/payments/submit', requireAuth, async (req, res) => {
   try {
     const { referenceNumber, receiptData, receiptName, planId = 'student-monthly' } = req.body;
     const cleanRef = referenceNumber ? String(referenceNumber).trim() : '';
+    const existing = await db.getLatestUserPayment(req.user.id);
 
-    if (!cleanRef && !receiptData) {
+    const hasRef = Boolean(cleanRef || existing?.reference_number || existing?.referenceNumber);
+    const hasReceipt = Boolean(receiptData || existing?.receipt_url || existing?.receiptUrl);
+
+    if (!hasRef && !hasReceipt) {
       return res.status(400).json({
         success: false,
         error: 'Either a GCash Reference Number OR a Receipt Screenshot must be provided.'
@@ -713,8 +717,8 @@ router.post('/payments/submit', requireAuth, async (req, res) => {
       emailService.sendAdminPaymentNotification({
         adminEmail,
         student: req.user,
-        referenceNumber: cleanRef,
-        receiptUrl,
+        referenceNumber: submission.reference_number || submission.referenceNumber || cleanRef,
+        receiptUrl: submission.receipt_url || submission.receiptUrl || receiptUrl,
         amount: 150.00
       }).catch(e => console.error('[Email Notification Error]', e.message));
     } catch (mailErr) {
@@ -723,7 +727,7 @@ router.post('/payments/submit', requireAuth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Your payment submission has been received! The administrator will review your GCash transaction.',
+      message: 'Your payment submission has been saved! The administrator will review your GCash transaction.',
       submission
     });
   } catch (err) {
@@ -732,14 +736,18 @@ router.post('/payments/submit', requireAuth, async (req, res) => {
   }
 });
 
-// Student checks their latest pass/payment status
+// Student checks their latest pass/payment status (fresh from DB)
 router.get('/payments/my-status', requireAuth, async (req, res) => {
   try {
+    const user = await db.getUser(req.user.id);
     const latest = await db.getLatestUserPayment(req.user.id);
+    const currentStatus = user?.package_status || user?.packageStatus || req.user.packageStatus || 'unpaid';
     res.json({
       success: true,
-      packageStatus: req.user.packageStatus || 'unpaid',
-      latestPayment: latest
+      packageStatus: currentStatus,
+      package_status: currentStatus,
+      latestPayment: latest,
+      latest_payment: latest
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

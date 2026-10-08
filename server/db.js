@@ -1241,19 +1241,70 @@ const dbService = {
     await ensureInitialized();
     const cleanRef = referenceNumber ? String(referenceNumber).trim() : null;
     
-    const res = await pool.query(`
-      INSERT INTO payment_submissions (
-        user_id, plan_id, amount, reference_number, receipt_url, receipt_filename, status, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, 'pending', NOW(), NOW())
-      RETURNING *
-    `, [userId, planId, amount, cleanRef, receiptUrl || null, receiptFilename || null]);
+    // Check if user already has an existing payment submission (keep exactly 1 entry per student)
+    const existingRes = await pool.query(`
+      SELECT * FROM payment_submissions WHERE user_id = $1 ORDER BY id DESC LIMIT 1
+    `, [userId]);
+
+    let submissionRow;
+    if (existingRes.rowCount > 0) {
+      const existing = existingRes.rows[0];
+      const finalRef = (cleanRef !== null && cleanRef !== undefined && cleanRef !== '') ? cleanRef : existing.reference_number;
+      const finalReceiptUrl = receiptUrl || existing.receipt_url;
+      const finalReceiptFilename = receiptFilename || existing.receipt_filename;
+
+      const updateRes = await pool.query(`
+        UPDATE payment_submissions
+        SET reference_number = $1,
+            receipt_url = $2,
+            receipt_filename = $3,
+            status = 'pending',
+            admin_notes = NULL,
+            updated_at = NOW()
+        WHERE id = $4
+        RETURNING *
+      `, [finalRef, finalReceiptUrl, finalReceiptFilename, existing.id]);
+
+      submissionRow = updateRes.rows[0];
+
+      // Clean up any historic duplicate records if they existed for this user
+      await pool.query('DELETE FROM payment_submissions WHERE user_id = $1 AND id <> $2', [userId, existing.id]);
+    } else {
+      const insertRes = await pool.query(`
+        INSERT INTO payment_submissions (
+          user_id, plan_id, amount, reference_number, receipt_url, receipt_filename, status, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, 'pending', NOW(), NOW())
+        RETURNING *
+      `, [userId, planId, amount, cleanRef, receiptUrl || null, receiptFilename || null]);
+      submissionRow = insertRes.rows[0];
+    }
 
     // Update user's package_status to 'pending'
     await pool.query('UPDATE users SET package_status = $1, updated_at = NOW() WHERE id = $2', ['pending', userId]);
 
-    const submission = res.rows[0];
     const user = await this.getUser(userId);
-    return { ...submission, user };
+    return {
+      id: submissionRow.id,
+      userId: submissionRow.user_id,
+      user_id: submissionRow.user_id,
+      planId: submissionRow.plan_id,
+      plan_id: submissionRow.plan_id,
+      amount: Number(submissionRow.amount),
+      referenceNumber: submissionRow.reference_number,
+      reference_number: submissionRow.reference_number,
+      receiptUrl: submissionRow.receipt_url,
+      receipt_url: submissionRow.receipt_url,
+      receiptFilename: submissionRow.receipt_filename,
+      receipt_filename: submissionRow.receipt_filename,
+      status: submissionRow.status,
+      adminNotes: submissionRow.admin_notes,
+      admin_notes: submissionRow.admin_notes,
+      createdAt: submissionRow.created_at,
+      created_at: submissionRow.created_at,
+      updatedAt: submissionRow.updated_at,
+      updated_at: submissionRow.updated_at,
+      user
+    };
   },
 
   async listPayments({ status, limit = 100 } = {}) {
@@ -1279,20 +1330,34 @@ const dbService = {
     return res.rows.map(r => ({
       id: r.id,
       userId: r.user_id,
+      user_id: r.user_id,
       username: r.username,
       fullName: r.user_full_name,
+      user_full_name: r.user_full_name,
       email: r.user_email,
+      user_email: r.user_email,
       planId: r.plan_id,
+      plan_id: r.plan_id,
       amount: Number(r.amount),
       referenceNumber: r.reference_number,
+      reference_number: r.reference_number,
       receiptUrl: r.receipt_url,
+      receipt_url: r.receipt_url,
       receiptFilename: r.receipt_filename,
+      receipt_filename: r.receipt_filename,
       status: r.status,
       adminNotes: r.admin_notes,
+      admin_notes: r.admin_notes,
       reviewedBy: r.reviewed_by,
+      reviewed_by: r.reviewed_by,
       reviewedAt: r.reviewed_at,
+      reviewed_at: r.reviewed_at,
       createdAt: r.created_at,
-      userPackageStatus: r.user_package_status
+      created_at: r.created_at,
+      updatedAt: r.updated_at,
+      updated_at: r.updated_at,
+      userPackageStatus: r.user_package_status,
+      user_package_status: r.user_package_status
     }));
   },
 
@@ -1309,19 +1374,32 @@ const dbService = {
     return {
       id: r.id,
       userId: r.user_id,
+      user_id: r.user_id,
       username: r.username,
       fullName: r.user_full_name,
+      user_full_name: r.user_full_name,
       email: r.user_email,
+      user_email: r.user_email,
       planId: r.plan_id,
+      plan_id: r.plan_id,
       amount: Number(r.amount),
       referenceNumber: r.reference_number,
+      reference_number: r.reference_number,
       receiptUrl: r.receipt_url,
+      receipt_url: r.receipt_url,
       receiptFilename: r.receipt_filename,
+      receipt_filename: r.receipt_filename,
       status: r.status,
       adminNotes: r.admin_notes,
+      admin_notes: r.admin_notes,
       reviewedBy: r.reviewed_by,
+      reviewed_by: r.reviewed_by,
       reviewedAt: r.reviewed_at,
-      createdAt: r.created_at
+      reviewed_at: r.reviewed_at,
+      createdAt: r.created_at,
+      created_at: r.created_at,
+      updatedAt: r.updated_at,
+      updated_at: r.updated_at
     };
   },
 
@@ -1332,7 +1410,33 @@ const dbService = {
       WHERE user_id = $1
       ORDER BY id DESC LIMIT 1
     `, [userId]);
-    return res.rowCount > 0 ? res.rows[0] : null;
+    if (res.rowCount === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      userId: r.user_id,
+      user_id: r.user_id,
+      planId: r.plan_id,
+      plan_id: r.plan_id,
+      amount: Number(r.amount),
+      referenceNumber: r.reference_number,
+      reference_number: r.reference_number,
+      receiptUrl: r.receipt_url,
+      receipt_url: r.receipt_url,
+      receiptFilename: r.receipt_filename,
+      receipt_filename: r.receipt_filename,
+      status: r.status,
+      adminNotes: r.admin_notes,
+      admin_notes: r.admin_notes,
+      reviewedBy: r.reviewed_by,
+      reviewed_by: r.reviewed_by,
+      reviewedAt: r.reviewed_at,
+      reviewed_at: r.reviewed_at,
+      createdAt: r.created_at,
+      created_at: r.created_at,
+      updatedAt: r.updated_at,
+      updated_at: r.updated_at
+    };
   },
 
   async approvePayment({ paymentId, adminUserId }) {

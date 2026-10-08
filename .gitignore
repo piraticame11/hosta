@@ -6,3 +6,5 @@ npm-debug.log*
 *.db-shm
 *.db-wal
 server/data/
+public/uploads/*
+!public/uploads/**/.gitkeep

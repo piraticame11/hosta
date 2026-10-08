@@ -231,6 +231,13 @@ function switchMainView(viewName) {
 }
 
 function switchDashTab(tabName) {
+  const adminOnlyTabs = ['payments', 'accounts', 'chat', 'settings'];
+  const isAdmin = AppState.isAuthenticated && AppState.currentUser?.role === 'admin';
+  
+  if (adminOnlyTabs.includes(tabName) && !isAdmin) {
+    tabName = 'overview';
+  }
+
   AppState.activeDashTab = tabName;
 
   document.querySelectorAll('.subnav-btn').forEach(btn => {
@@ -241,21 +248,33 @@ function switchDashTab(tabName) {
     }
   });
 
-  document.querySelectorAll('.dash-view').forEach(view => view.classList.remove('active'));
+  document.querySelectorAll('.dash-view').forEach(view => {
+    if (!isAdmin && ['dash-payments', 'dash-accounts', 'dash-chat', 'dash-settings'].includes(view.id)) {
+      view.classList.remove('active');
+      view.style.display = 'none';
+      return;
+    }
+    view.style.display = '';
+    view.classList.remove('active');
+  });
+
   const targetView = document.getElementById(`dash-${tabName}`);
-  if (targetView) targetView.classList.add('active');
+  if (targetView) {
+    targetView.classList.add('active');
+    targetView.style.display = 'block';
+  }
 
   // Trigger data loading for specific tab
   if (tabName === 'overview') loadStudentPassStatus();
-  if (tabName === 'accounts') loadAccounts();
+  if (tabName === 'accounts' && isAdmin) loadAccounts();
   if (tabName === 'domains') loadWebDomains();
   if (tabName === 'databases') loadDatabases();
   if (tabName === 'dns') loadDnsDomains();
   if (tabName === 'backups') loadBackups();
   if (tabName === 'profile') loadUserProfileForm();
-  if (tabName === 'settings') loadSettingsForm();
-  if (tabName === 'chat') loadAdminChatThreads();
-  if (tabName === 'payments') loadAdminPayments();
+  if (tabName === 'settings' && isAdmin) loadSettingsForm();
+  if (tabName === 'chat' && isAdmin) loadAdminChatThreads();
+  if (tabName === 'payments' && isAdmin) loadAdminPayments();
 }
 
 function handleQuickAction(action) {
@@ -1478,9 +1497,25 @@ function updateAuthUI() {
     if (quickChatText) quickChatText.textContent = isAdmin ? 'Chat Inbox' : 'Live Chat Support';
 
     if (isAdmin) {
+      document.querySelectorAll('.dash-view').forEach(view => {
+        if (['dash-payments', 'dash-accounts', 'dash-chat', 'dash-settings'].includes(view.id)) {
+          view.style.display = '';
+        }
+      });
       loadAdminChatThreads(false);
       updatePendingPaymentsBadge();
     } else {
+      const adminViews = ['dash-payments', 'dash-accounts', 'dash-chat', 'dash-settings'];
+      adminViews.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('active');
+          el.style.display = 'none';
+        }
+      });
+      if (['payments', 'accounts', 'chat', 'settings'].includes(AppState.activeDashTab)) {
+        switchDashTab('overview');
+      }
       loadStudentPassStatus();
     }
   } else {
@@ -1503,6 +1538,18 @@ function updateAuthUI() {
     if (mobileNavAccounts) mobileNavAccounts.style.display = 'none';
     if (mobileNavChat) mobileNavChat.style.display = 'none';
     if (mobileNavPayments) mobileNavPayments.style.display = 'none';
+
+    const adminViews = ['dash-payments', 'dash-accounts', 'dash-chat', 'dash-settings'];
+    adminViews.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('active');
+        el.style.display = 'none';
+      }
+    });
+    if (['payments', 'accounts', 'chat', 'settings'].includes(AppState.activeDashTab)) {
+      AppState.activeDashTab = 'overview';
+    }
 
     const banner = document.getElementById('studentPassAlertBanner');
     if (banner) banner.style.display = 'none';
@@ -1840,6 +1887,7 @@ async function handleLoginSubmit(e) {
       closeModal('modalLogin');
       showToast('Welcome to Hosta', data.message || `Logged in as ${data.user.name}`, 'success');
 
+      switchDashTab('overview');
       switchMainView('dashboard');
       refreshDashboardData();
       if (data.user.role === 'admin') {
@@ -2145,6 +2193,8 @@ async function handleLogout() {
       AppState.chatPollInterval = null;
     }
 
+    AppState.activeDashTab = 'overview';
+    switchDashTab('overview');
     updateAuthUI();
     switchMainView('landing');
     showToast('Signed Out', 'You have been securely logged out.', 'info');
@@ -3465,12 +3515,13 @@ async function loadStudentPassStatus() {
     if (!data.success) return;
 
     AppState.userPassStatus = data;
-    const status = data.package_status || 'unpaid';
+    const status = data.package_status || data.packageStatus || 'unpaid';
+    const latest = data.latest_payment || data.latestPayment;
 
     if (status === 'active') {
       banner.style.display = 'none';
     } else if (status === 'pending') {
-      const ref = data.latest_payment?.reference_number || 'Under Review';
+      const ref = latest?.reference_number || latest?.referenceNumber || 'Under Review';
       banner.innerHTML = `
         <div class="student-pass-banner warning">
           <div class="pass-banner-icon">
@@ -3482,17 +3533,17 @@ async function loadStudentPassStatus() {
               <span class="badge badge-warning" style="margin-left: 8px;">Pending Admin Approval</span>
             </div>
             <div class="pass-banner-desc">
-              Your GCash transfer (Ref: <strong>${escapeHtml(ref)}</strong>) was submitted and is queued for verification. The admin will cross-check transaction records shortly to unlock domain &amp; database provisioning.
+              Your GCash transfer (Ref: <strong>${escapeHtml(ref)}</strong>) is queued for verification. If needed, you can edit your submission. Features will unlock once verified.
             </div>
           </div>
           <div class="pass-banner-action">
-            <button class="btn btn-sm btn-outline" onclick="openStudentPaymentModal()">View Proof</button>
+            <button class="btn btn-sm btn-outline" onclick="openStudentPaymentModal()">Edit Proof / Details</button>
           </div>
         </div>
       `;
       banner.style.display = 'block';
     } else if (status === 'rejected') {
-      const note = data.latest_payment?.admin_notes || 'Transaction proof could not be verified.';
+      const note = latest?.admin_notes || latest?.adminNotes || 'Transaction proof could not be verified.';
       banner.innerHTML = `
         <div class="student-pass-banner danger">
           <div class="pass-banner-icon">
@@ -3504,11 +3555,11 @@ async function loadStudentPassStatus() {
               <span class="badge badge-danger" style="margin-left: 8px;">Action Required</span>
             </div>
             <div class="pass-banner-desc">
-              Note from Admin: <em>${escapeHtml(note)}</em>. Please submit a valid reference number or receipt screenshot.
+              Note from Admin: <em>${escapeHtml(note)}</em>. Please edit and submit a valid reference number or receipt screenshot.
             </div>
           </div>
           <div class="pass-banner-action">
-            <button class="btn btn-sm btn-primary" onclick="openStudentPaymentModal()">Resubmit Proof</button>
+            <button class="btn btn-sm btn-primary" onclick="openStudentPaymentModal()">Edit &amp; Resubmit Proof</button>
           </div>
         </div>
       `;
@@ -3545,9 +3596,42 @@ async function loadStudentPassStatus() {
 window.loadStudentPassStatus = loadStudentPassStatus;
 
 function openStudentPaymentModal() {
-  if (AppState.userPassStatus?.latest_payment?.reference_number) {
-    setValue('inputPaymentRef', AppState.userPassStatus.latest_payment.reference_number);
+  const latest = AppState.userPassStatus?.latest_payment || AppState.userPassStatus?.latestPayment;
+  const ref = latest?.reference_number || latest?.referenceNumber || '';
+  const receiptUrl = latest?.receipt_url || latest?.receiptUrl || '';
+  const status = AppState.userPassStatus?.package_status || AppState.userPassStatus?.packageStatus || 'unpaid';
+
+  if (ref) {
+    setValue('inputPaymentRef', ref);
   }
+
+  const previewWrap = document.getElementById('receiptUploadPreviewWrap');
+  const previewImg = document.getElementById('receiptUploadPreviewImg');
+  const currentReceiptNote = document.getElementById('currentReceiptNote');
+
+  if (receiptUrl && !AppState.currentReceiptBase64) {
+    if (previewImg) previewImg.src = receiptUrl;
+    if (previewWrap) previewWrap.style.display = 'block';
+    if (currentReceiptNote) currentReceiptNote.textContent = '(Existing submitted receipt — select a file to replace)';
+  } else if (!AppState.currentReceiptBase64) {
+    if (previewWrap) previewWrap.style.display = 'none';
+  }
+
+  const modalTitle = document.getElementById('studentPaymentModalTitle');
+  const submitBtn = document.getElementById('btnSubmitPaymentForm');
+  const submitBtnText = submitBtn?.querySelector('span') || submitBtn;
+
+  if (status === 'pending') {
+    if (modalTitle) modalTitle.textContent = 'Edit Student Pass Payment Proof';
+    if (submitBtnText) submitBtnText.textContent = 'Update / Save Changes';
+  } else if (status === 'rejected') {
+    if (modalTitle) modalTitle.textContent = 'Resubmit Student Pass Payment Proof';
+    if (submitBtnText) submitBtnText.textContent = 'Resubmit Payment Proof';
+  } else {
+    if (modalTitle) modalTitle.textContent = 'Activate Student Monthly Pass';
+    if (submitBtnText) submitBtnText.textContent = 'Submit Payment Proof';
+  }
+
   openModal('modalStudentPayment');
 }
 window.openStudentPaymentModal = openStudentPaymentModal;
@@ -3567,7 +3651,9 @@ function handleReceiptFileChange(event) {
     AppState.currentReceiptBase64 = e.target.result;
     const previewWrap = document.getElementById('receiptUploadPreviewWrap');
     const previewImg = document.getElementById('receiptUploadPreviewImg');
+    const currentReceiptNote = document.getElementById('currentReceiptNote');
     if (previewImg) previewImg.src = e.target.result;
+    if (currentReceiptNote) currentReceiptNote.textContent = '(New screenshot ready to upload)';
     if (previewWrap) previewWrap.style.display = 'block';
   };
   reader.readAsDataURL(file);
@@ -3587,9 +3673,12 @@ async function handlePaymentSubmit(e) {
   if (e) e.preventDefault();
   const refNumber = (getValue('inputPaymentRef') || '').trim();
   const receiptData = AppState.currentReceiptBase64;
+  const latest = AppState.userPassStatus?.latest_payment || AppState.userPassStatus?.latestPayment;
+  const existingReceiptUrl = latest?.receipt_url || latest?.receiptUrl;
+  const existingRef = latest?.reference_number || latest?.referenceNumber;
 
-  // Validation: Either Reference Number OR Receipt Screenshot is required (at least 1, other optional)
-  if (!refNumber && !receiptData) {
+  // Validation: Either Reference Number OR Receipt Screenshot (new or existing) is required
+  if (!refNumber && !receiptData && !existingReceiptUrl && !existingRef) {
     showToast('Missing Proof', 'Please provide either a GCash Reference Number or upload a Receipt Screenshot (or both).', 'error');
     return;
   }
@@ -3597,7 +3686,7 @@ async function handlePaymentSubmit(e) {
   const submitBtn = document.getElementById('btnSubmitPaymentForm');
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>Submitting Proof...</span>';
+    submitBtn.innerHTML = '<span>Saving Proof...</span>';
   }
 
   try {
@@ -3612,10 +3701,9 @@ async function handlePaymentSubmit(e) {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('Payment Submitted', 'Your payment proof has been submitted! Admin will verify and activate your pass shortly.', 'success');
+      showToast('Payment Saved', 'Your payment proof has been saved and queued for verification!', 'success');
       closeModal('modalStudentPayment');
       clearReceiptUpload();
-      setValue('inputPaymentRef', '');
       await loadStudentPassStatus();
     } else {
       showToast('Submission Failed', data.error || 'Failed to submit payment proof', 'error');
@@ -3625,7 +3713,8 @@ async function handlePaymentSubmit(e) {
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>Submit Payment Proof</span>';
+      const status = AppState.userPassStatus?.package_status || AppState.userPassStatus?.packageStatus || 'unpaid';
+      submitBtn.innerHTML = `<span>${status === 'pending' ? 'Update / Save Changes' : 'Submit Payment Proof'}</span>`;
     }
   }
 }
@@ -3704,45 +3793,59 @@ function renderPaymentsTable(payments) {
   }
 
   tbody.innerHTML = payments.map(p => {
-    const userDisplay = p.username ? `<strong>@${escapeHtml(p.username)}</strong><br><small style="color: var(--text-muted);">${escapeHtml(p.user_email || '')}</small>` : `User #${p.user_id}`;
-    const dateStr = p.created_at ? new Date(p.created_at).toLocaleString() : 'N/A';
+    const username = p.username || (p.user && p.user.username) || '';
+    const email = p.email || p.user_email || (p.user && p.user.email) || '';
+    const userDisplay = username 
+      ? `<strong>@${escapeHtml(username)}</strong><br><small style="color: var(--text-muted);">${escapeHtml(email)}</small>` 
+      : `User #${p.userId || p.user_id}`;
+
+    const dateVal = p.createdAt || p.created_at;
+    const dateStr = dateVal ? new Date(dateVal).toLocaleString() : 'N/A';
     
+    const ref = p.referenceNumber || p.reference_number;
+    const receiptUrl = p.receiptUrl || p.receipt_url;
+    const status = p.status || 'pending';
+    const amount = p.amount !== undefined ? p.amount : '150.00';
+    const planId = p.planId || p.plan_id || 'student_monthly';
+    const id = p.id;
+    const notes = p.adminNotes || p.admin_notes || '';
+
     let statusBadge = '';
-    if (p.status === 'pending') {
+    if (status === 'pending') {
       statusBadge = '<span class="badge badge-warning">Pending Review</span>';
-    } else if (p.status === 'approved') {
+    } else if (status === 'approved') {
       statusBadge = '<span class="badge badge-success">Approved</span>';
-    } else if (p.status === 'rejected') {
-      statusBadge = `<span class="badge badge-danger" title="${escapeHtml(p.admin_notes || '')}">Rejected</span>`;
+    } else if (status === 'rejected') {
+      statusBadge = `<span class="badge badge-danger" title="${escapeHtml(notes)}">Rejected</span>`;
     }
 
-    const refHtml = p.reference_number 
-      ? `<code class="copyable-badge" onclick="copyToClipboard('${escapeHtml(p.reference_number)}')" title="Click to copy">${escapeHtml(p.reference_number)}</code>`
+    const refHtml = ref 
+      ? `<code class="copyable-badge" onclick="copyToClipboard('${escapeHtml(ref)}')" title="Click to copy">${escapeHtml(ref)}</code>`
       : '<span style="color: var(--text-muted); font-size: 0.82rem;">None provided</span>';
 
-    const receiptHtml = p.receipt_url
-      ? `<button type="button" class="btn btn-sm btn-outline" onclick="openReceiptViewer('${escapeHtml(p.receipt_url)}', '${escapeHtml(p.reference_number || '')}')" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;">
-           <img src="${escapeHtml(p.receipt_url)}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 4px;">
+    const receiptHtml = receiptUrl
+      ? `<button type="button" class="btn btn-sm btn-outline" onclick="openReceiptViewer('${escapeHtml(receiptUrl)}', '${escapeHtml(ref || '')}')" style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px;">
+           <img src="${escapeHtml(receiptUrl)}" alt="Receipt" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-subtle); display: inline-block;">
            <span>View Receipt</span>
          </button>`
       : '<span style="color: var(--text-muted); font-size: 0.82rem;">No image</span>';
 
     let actionButtons = '';
-    if (p.status === 'pending') {
+    if (status === 'pending') {
       actionButtons = `
         <div style="display: flex; gap: 6px; justify-content: flex-end;">
-          <button class="btn btn-sm btn-primary" onclick="adminApprovePayment(${p.id})">
+          <button class="btn btn-sm btn-primary" onclick="adminApprovePayment(${id})">
             <span>Approve</span>
           </button>
-          <button class="btn btn-sm btn-outline danger" onclick="adminRejectPayment(${p.id})">
+          <button class="btn btn-sm btn-outline danger" onclick="adminRejectPayment(${id})">
             <span>Reject</span>
           </button>
         </div>
       `;
-    } else if (p.status === 'approved') {
+    } else if (status === 'approved') {
       actionButtons = `
         <div style="display: flex; gap: 6px; justify-content: flex-end;">
-          <button class="btn btn-sm btn-outline danger" onclick="adminDeactivatePass('${escapeHtml(p.username)}')">
+          <button class="btn btn-sm btn-outline danger" onclick="adminDeactivatePass('${escapeHtml(username)}')">
             <span>Deactivate Pass</span>
           </button>
         </div>
@@ -3750,7 +3853,7 @@ function renderPaymentsTable(payments) {
     } else {
       actionButtons = `
         <div style="display: flex; gap: 6px; justify-content: flex-end;">
-          <button class="btn btn-sm btn-outline" onclick="adminApprovePayment(${p.id})">
+          <button class="btn btn-sm btn-outline" onclick="adminApprovePayment(${id})">
             <span>Re-Approve</span>
           </button>
         </div>
@@ -3761,8 +3864,8 @@ function renderPaymentsTable(payments) {
       <tr>
         <td>${userDisplay}</td>
         <td>
-          <strong>₱${escapeHtml(p.amount || '150.00')}</strong>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(p.plan_id || 'student_monthly')}</div>
+          <strong>₱${escapeHtml(amount)}</strong>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(planId)}</div>
         </td>
         <td>${refHtml}</td>
         <td>${receiptHtml}</td>

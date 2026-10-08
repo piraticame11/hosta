@@ -1445,7 +1445,7 @@
     <div class="modal-window modal-lg">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <h3 class="modal-title">Activate Student Monthly Pass</h3>
+          <h3 class="modal-title" id="studentPaymentModalTitle">Activate Student Monthly Pass</h3>
           <span class="badge badge-success" style="font-size: 0.82rem; padding: 4px 10px;">₱150.00 / Month</span>
         </div>
         <button class="modal-close-btn" data-modal-close aria-label="Close modal">
@@ -1515,7 +1515,8 @@
                 <div id="receiptUploadPreviewWrap" style="display: none; margin-top: 10px;">
                   <div style="position: relative; display: inline-block;">
                     <img id="receiptUploadPreviewImg" src="" alt="Receipt Preview" style="max-height: 130px; border-radius: 8px; border: 1px solid var(--border-subtle); display: block;">
-                    <button type="button" class="btn btn-sm btn-outline danger" onclick="clearReceiptUpload()" style="margin-top: 6px; padding: 4px 8px; font-size: 0.75rem;">Remove Image</button>
+                    <div id="currentReceiptNote" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;"></div>
+                    <button type="button" class="btn btn-sm btn-outline danger" onclick="clearReceiptUpload()" style="margin-top: 6px; padding: 4px 8px; font-size: 0.75rem;">Remove / Replace Image</button>
                   </div>
                 </div>
               </div>
