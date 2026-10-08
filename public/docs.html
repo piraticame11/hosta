@@ -197,7 +197,7 @@
           <a href="#quick-start" class="sidebar-link flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/50 border border-brand-200 dark:border-brand-800/60">
             <span class="flex items-center gap-2.5">
               <span class="text-base">🚀</span>
-              <span>1. Quick Start Guide</span>
+              <span>1. Upload &amp; Deploy Guide</span>
             </span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-200/50 dark:bg-brand-900/80 font-mono">01</span>
           </a>
@@ -230,8 +230,11 @@
         <!-- Quick Jump Reference -->
         <div class="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
           <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Cheat Sheet &amp; Tools</p>
+          <a href="#step-workspace" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Directory &amp; Permissions</a>
+          <a href="#step-upload" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ File Upload (ZIP/SFTP/Git)</a>
+          <a href="#step-stacks" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Stacks (Static/Node/Laravel)</a>
+          <a href="#step-troubleshoot" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Server Logs &amp; 502/500 Fixes</a>
           <a href="#dns-records-table" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Required DNS Records</a>
-          <a href="#sftp-credentials" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ SFTP &amp; File Manager</a>
           <a href="#api-curl-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ cURL / Bash Automation</a>
           <a href="#api-node-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Node.js Axios Example</a>
           <a href="#api-python-sample" class="block px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500">→ Python Requests Example</a>
@@ -270,109 +273,618 @@
         </div>
 
         <!-- =============================================================
-             CHAPTER 1: QUICK START GUIDE
+             CHAPTER 1: UPLOADING FILES & STARTING YOUR SITE
              ============================================================= -->
-        <section id="quick-start" class="doc-section scroll-mt-24 space-y-6">
+        <section id="quick-start" class="doc-section scroll-mt-24 space-y-8">
           <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
             <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 font-bold text-sm">01</span>
             <div>
-              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Quick Start: Deploying Your First Web Domain</h2>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Launch a live web domain in under 60 seconds with automated Let's Encrypt SSL.</p>
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Uploading Files &amp; Starting Your Site</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Granular walkthrough for uploading code, configuring web roots, launching Node.js (PM2), Static SPAs, PHP/Laravel, and monitoring logs.</p>
             </div>
           </div>
 
-          <!-- Walkthrough Steps -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
-              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 1</span>
-              <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-brand-500 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <!-- ===========================================================
+               STEP 1: SITE WORKSPACE & DIRECTORY PERMISSIONS
+               =========================================================== -->
+          <div id="step-workspace" class="p-6 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800">STEP 1</span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Navigating the Site Workspace &amp; File Permissions</h3>
               </div>
-              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Provision Domain</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Open the Student Portal &rarr; <strong>Web Domain</strong> tab, enter your desired domain name (e.g. <code class="text-brand-500">mysite.hosta.site</code>), and click <strong>Create Domain</strong>.
-              </p>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Linux HestiaCP Isolated User Environment</span>
             </div>
 
-            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
-              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 2</span>
-              <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-              </div>
-              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Upload Web Files</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Connect via SFTP or Web File Manager. Put your HTML/CSS/JS or Node.js assets into the generated <code class="text-brand-500">public_html</code> directory.
-              </p>
-            </div>
-
-            <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm relative">
-              <span class="absolute top-4 right-4 text-xs font-mono font-bold text-gray-400">STEP 3</span>
-              <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mb-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              </div>
-              <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Auto-SSL Activated</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                Let's Encrypt certificates are automatically requested and bound to Nginx. Your website is immediately accessible via secure <code class="text-emerald-500">https://</code>.
-              </p>
-            </div>
-
-          </div>
-
-          <!-- Directory Structure Explanation -->
-          <div class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-4">
-            <h3 class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-              <span>Automated Linux Directory Structure</span>
-            </h3>
             <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              When a domain is added to Hosta via the dashboard or API, our HestiaCP automation provisions an isolated root directory structure under your system user profile:
+              When a web domain is created in Hosta, our server provisions an isolated directory tree under your Linux user account. All public web traffic from Nginx and Cloudflare is directed to your website's dedicated directory.
             </p>
 
+            <!-- Production Directory Hierarchy Diagram -->
             <div class="p-4 rounded-lg bg-gray-900 text-gray-200 font-mono text-xs overflow-x-auto code-scroll leading-relaxed border border-gray-800">
-              <div class="text-gray-400"># Production Directory Layout</div>
-              <div>/home/<span class="text-brand-400">{username}</span>/web/<span class="text-amber-400">{your-domain.com}</span>/</div>
-              <div class="pl-4">├── <span class="text-emerald-400 font-bold">public_html/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Web root served to visitors</span></div>
-              <div class="pl-8">├── <span class="text-sky-300">index.html</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default landing or SPA entrance</span></div>
-              <div class="pl-8">├── <span class="text-sky-300">assets/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># CSS, Javascript bundles, images</span></div>
-              <div class="pl-8">└── <span class="text-sky-300">server.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Optional Node.js Express backend entry</span></div>
-              <div class="pl-4">├── <span class="text-gray-400">logs/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Access and error logs (Nginx + Apache)</span></div>
-              <div class="pl-4">└── <span class="text-gray-400">stats/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># AWStats &amp; visitor analytics</span></div>
+              <div class="text-gray-400"># Standard Hosta Site Production Hierarchy</div>
+              <div>/home/<span class="text-brand-400">&lt;username&gt;</span>/web/<span class="text-amber-400">&lt;your-domain.com&gt;</span>/</div>
+              <div class="pl-4">├── <span class="text-emerald-400 font-bold">public_html/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default web root (Static sites, Node.js entry, PHP)</span></div>
+              <div class="pl-8">├── <span class="text-sky-300">index.html</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Default landing or SPA entry point</span></div>
+              <div class="pl-8">├── <span class="text-sky-300">server.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Node.js backend entry (Express / Nest / Fastify)</span></div>
+              <div class="pl-8">├── <span class="text-amber-300 font-bold">public/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Laravel Document Root (contains index.php)</span></div>
+              <div class="pl-8">└── <span class="text-sky-300">assets/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Bundled CSS, JS, images, media</span></div>
+              <div class="pl-4">├── <span class="text-purple-400 font-bold">logs/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Nginx &amp; Apache access.log and error.log</span></div>
+              <div class="pl-4">└── <span class="text-gray-400">stats/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># Traffic statistics and AWStats analytics</span></div>
+            </div>
+
+            <!-- Linux Permissions Standards Table -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Required Linux File &amp; Folder Permissions</h4>
+              <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-600 dark:text-gray-300">
+                      <th class="p-2.5">File System Item</th>
+                      <th class="p-2.5">Numeric Mode</th>
+                      <th class="p-2.5">Symbolic Mode</th>
+                      <th class="p-2.5">Explanation</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200 dark:divide-gray-800 font-mono">
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">Web Directories</td>
+                      <td class="p-2.5 text-brand-600 dark:text-brand-400 font-bold">755</td>
+                      <td class="p-2.5 text-gray-500">rwxr-xr-x</td>
+                      <td class="p-2.5 font-sans text-gray-600 dark:text-gray-400">Owner can read/write/execute; public web server can read &amp; traverse.</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">Standard Files (.html, .js, .css, .php)</td>
+                      <td class="p-2.5 text-emerald-600 dark:text-emerald-400 font-bold">644</td>
+                      <td class="p-2.5 text-gray-500">rw-r--r--</td>
+                      <td class="p-2.5 font-sans text-gray-600 dark:text-gray-400">Owner can read/write; web server can read without dangerous execution.</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">Laravel Storage &amp; Cache</td>
+                      <td class="p-2.5 text-amber-600 dark:text-amber-400 font-bold">775</td>
+                      <td class="p-2.5 text-gray-500">rwxrwxr-x</td>
+                      <td class="p-2.5 font-sans text-gray-600 dark:text-gray-400">Allows PHP-FPM web process to write session, log, and view cache files.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Permission Fix Command Helper -->
+            <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+              <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+              <div class="text-gray-400 mb-1"># Fast Terminal One-Liner to Reset Standard Permissions:</div>
+              <pre><code>find /home/$USER/web/yourdomain.com/public_html -type d -exec chmod 755 {} +
+find /home/$USER/web/yourdomain.com/public_html -type f -exec chmod 644 {} +</code></pre>
+            </div>
+
+            <!-- Note Callout Box -->
+            <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/80 flex items-start gap-3 text-xs">
+              <span class="text-blue-600 dark:text-blue-400 text-lg leading-none">ℹ️</span>
+              <div class="space-y-1 text-blue-900 dark:text-blue-200">
+                <span class="font-bold">NOTE: Preventing 403 Forbidden Errors</span>
+                <p>Never set files to <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">777</code>. Full world-writable permissions pose an extreme security vulnerability and can trigger automated HestiaCP security blocks. Stick to <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">755</code> for folders and <code class="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded">644</code> for files.</p>
+              </div>
             </div>
           </div>
 
-          <!-- SFTP / FTP Details Card -->
-          <div id="sftp-credentials" class="p-5 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 space-y-3">
-            <h3 class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              <span>Connecting via SFTP / FileZilla / VS Code</span>
-            </h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <span class="text-gray-500 block mb-0.5">Protocol</span>
-                <span class="font-mono font-bold text-gray-900 dark:text-white">SFTP (SSH File Transfer)</span>
+          <!-- ===========================================================
+               STEP 2: UPLOAD SITE FILES (3 METHODS)
+               =========================================================== -->
+          <div id="step-upload" class="p-6 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800">STEP 2</span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Uploading Site Files (Choose Your Preferred Method)</h3>
               </div>
-              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <span class="text-gray-500 block mb-0.5">Host / Server IP</span>
-                <span class="font-mono font-bold text-gray-900 dark:text-white">panel.hosta.site</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">File Manager • SFTP Client • Terminal CLI</span>
+            </div>
+
+            <!-- Upload Method Tabs Selector -->
+            <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
+              <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchUploadTab('filemanager', this)">
+                📁 Method A: Dashboard File Manager
+              </button>
+              <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchUploadTab('sftp', this)">
+                🔌 Method B: SFTP / FileZilla &amp; VS Code
+              </button>
+              <button class="upload-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchUploadTab('cli', this)">
+                ⚡ Method C: Git &amp; CLI (rsync / scp)
+              </button>
+            </div>
+
+            <!-- METHOD A: FILE MANAGER -->
+            <div id="upload-filemanager" class="upload-panel space-y-4">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Method A: Dashboard File Manager (Fastest for Single Files &amp; ZIPs)</span>
               </div>
-              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <span class="text-gray-500 block mb-0.5">Port</span>
-                <span class="font-mono font-bold text-gray-900 dark:text-white">22</span>
-              </div>
-              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <span class="text-gray-500 block mb-0.5">Username</span>
-                <span class="font-mono font-bold text-brand-500">Your Student Username</span>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                The web-based File Manager allows you to manage files directly inside your browser without installing third-party software:
+              </p>
+
+              <ol class="space-y-3 text-xs text-gray-700 dark:text-gray-300 list-decimal list-inside leading-relaxed">
+                <li>
+                  <strong>Open File Manager:</strong> Sign into the Student Portal &rarr; navigate to <strong>Files</strong> or click the folder icon next to your domain.
+                </li>
+                <li>
+                  <strong>Browse to Web Root:</strong> Double-click <code class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono text-brand-500">web &rarr; yourdomain.com &rarr; public_html</code>.
+                </li>
+                <li>
+                  <strong>Create Local ZIP Archive:</strong> On your computer, select all files inside your project or build directory (e.g. <code class="font-mono">index.html</code>, <code class="font-mono">assets/</code>) and compress them into a <code class="font-mono">.zip</code> archive.
+                </li>
+                <li>
+                  <strong>Upload Archive:</strong> In the File Manager toolbar, click <strong>Upload File</strong>, select your <code class="font-mono">.zip</code> file, and wait for the progress bar to complete.
+                </li>
+                <li>
+                  <strong>Extract In-Place:</strong> Right-click the uploaded <code class="font-mono">.zip</code> archive &rarr; select <strong>Extract Archive</strong>. Your files will instantly unpack into <code class="font-mono">public_html</code>.
+                </li>
+                <li>
+                  <strong>Delete ZIP File:</strong> Right-click and delete the original <code class="font-mono">.zip</code> to recover your account SSD storage quota.
+                </li>
+              </ol>
+
+              <!-- Pro Tip Box -->
+              <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-3 text-xs">
+                <span class="text-amber-600 dark:text-amber-400 text-lg leading-none">💡</span>
+                <div class="space-y-1 text-amber-900 dark:text-amber-200">
+                  <span class="font-bold">PRO TIP: Zip the Contents, Not the Parent Folder</span>
+                  <p>When creating your ZIP archive, select the <em>contents inside</em> your build folder (e.g., select <code class="font-mono">index.html</code> and <code class="font-mono">assets/</code>) instead of right-clicking the parent folder itself. If you zip the folder, you will end up with an unwanted nested directory like <code class="font-mono">public_html/my-app/index.html</code>!</p>
+                </div>
               </div>
             </div>
 
-            <!-- Pro-Tip Callout -->
-            <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
-              <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
-              <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
-                <span class="font-bold">Pro-Tip for VS Code Users:</span>
-                <p>Install the <em>SFTP</em> extension by Natizyskunk in VS Code. Set <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">"uploadOnSave": true</code> in your <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">.vscode/sftp.json</code> file to synchronize school assignments instantly whenever you press Ctrl+S.</p>
+            <!-- METHOD B: SFTP / FILEZILLA -->
+            <div id="upload-sftp" class="upload-panel hidden space-y-4">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Method B: SFTP / FileZilla &amp; VS Code (Best for Large Projects)</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                SFTP (SSH File Transfer Protocol) provides encrypted, rock-solid transfers for larger codebases, full directories, and iterative programming.
+              </p>
+
+              <!-- Connection Credentials Grid -->
+              <div id="sftp-credentials" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <span class="text-gray-500 block mb-0.5">Protocol</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">SFTP - SSH File Transfer</span>
+                </div>
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <span class="text-gray-500 block mb-0.5">Host / Server IP</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">hosta.site</span>
+                </div>
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <span class="text-gray-500 block mb-0.5">Port</span>
+                  <span class="font-mono font-bold text-gray-900 dark:text-white">22</span>
+                </div>
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <span class="text-gray-500 block mb-0.5">Target Path</span>
+                  <span class="font-mono font-bold text-brand-500">/home/$USER/web/$DOMAIN/public_html</span>
+                </div>
+              </div>
+
+              <!-- FileZilla Steps -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">FileZilla Quick Setup:</h4>
+                <ol class="space-y-2 text-xs text-gray-700 dark:text-gray-300 list-decimal list-inside leading-relaxed">
+                  <li>Open FileZilla &rarr; enter <strong>Host:</strong> <code class="font-mono text-brand-500">sftp://hosta.site</code> (or server IP).</li>
+                  <li>Enter your Hosta student username and account password, with <strong>Port:</strong> <code class="font-mono">22</code>.</li>
+                  <li>Click <strong>Quickconnect</strong>. When prompted for unknown host key, verify and accept.</li>
+                  <li>In the <strong>Remote site</strong> pane (right), browse to <code class="font-mono">/home/&lt;user&gt;/web/&lt;domain&gt;/public_html</code>.</li>
+                  <li>Drag and drop your local files from the left pane into <code class="font-mono">public_html</code>.</li>
+                </ol>
+              </div>
+
+              <!-- VS Code SFTP Extension Config -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Automated Upload-On-Save in Visual Studio Code:</h4>
+                <p class="text-xs text-gray-600 dark:text-gray-300">Install the <em>SFTP</em> extension by Natizyskunk in VS Code and create <code class="font-mono text-brand-500">.vscode/sftp.json</code>:</p>
+
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code>{
+  "name": "Hosta-Production",
+  "host": "hosta.site",
+  "protocol": "sftp",
+  "port": 22,
+  "username": "your_username",
+  "remotePath": "/home/your_username/web/yourdomain.com/public_html",
+  "uploadOnSave": true,
+  "ignore": [".vscode", ".git", ".DS_Store", "node_modules"]
+}</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- METHOD C: CLI & GIT -->
+            <div id="upload-cli" class="upload-panel hidden space-y-4">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Method C: Git Deployment &amp; Terminal CLI (Fastest for Developers)</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                If you have SSH shell access enabled on your account, terminal tools provide instantaneous, automated deployment:
+              </p>
+
+              <!-- Option 1: Git Clone -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <span class="text-brand-500 font-mono">1.</span>
+                  <span>Direct Git Clone &amp; Pull Workflow</span>
+                </h4>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># 1. Connect via SSH to your Hosta container
+ssh your_username@hosta.site
+
+# 2. Enter your web root
+cd /home/your_username/web/yourdomain.com/public_html
+
+# 3. Clone your GitHub / GitLab repository directly into the current directory
+git clone https://github.com/username/project.git .
+
+# 4. Pull future updates at any time:
+git pull origin main</code></pre>
+                </div>
+              </div>
+
+              <!-- Option 2: Rsync -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <span class="text-emerald-500 font-mono">2.</span>
+                  <span>Syncing Local Changes via rsync (Excludes heavy node_modules)</span>
+                </h4>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># Run from your local project directory on your laptop:
+rsync -avz --progress --exclude 'node_modules' --exclude '.git' ./ your_username@hosta.site:/home/your_username/web/yourdomain.com/public_html/</code></pre>
+                </div>
+              </div>
+
+              <!-- Option 3: SCP -->
+              <div class="space-y-2">
+                <h4 class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <span class="text-sky-500 font-mono">3.</span>
+                  <span>Copying Production Build Bundles via scp</span>
+                </h4>
+                <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                  <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                  <pre><code># Copy production Vite / React dist bundle to server:
+scp -r ./dist/* your_username@hosta.site:/home/your_username/web/yourdomain.com/public_html/</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===========================================================
+               STEP 3: CONFIGURING & STARTING YOUR APPLICATION STACK
+               =========================================================== -->
+          <div id="step-stacks" class="p-6 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800">STEP 3</span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Configuring &amp; Starting Your Technology Stack</h3>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Select Your Framework Below</span>
+            </div>
+
+            <!-- Stack Selector Tabs -->
+            <div class="flex items-center gap-2 p-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 overflow-x-auto">
+              <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm shrink-0" onclick="switchDeployTab('static', this)">
+                🌐 Stack A: Static Sites (HTML/React/Vue)
+              </button>
+              <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDeployTab('node', this)">
+                🟢 Stack B: Node.js (Express / PM2)
+              </button>
+              <button class="deploy-tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shrink-0" onclick="switchDeployTab('laravel', this)">
+                🐘 Stack C: PHP &amp; Laravel Web Apps
+              </button>
+            </div>
+
+            <!-- STACK A: STATIC SITES -->
+            <div id="deploy-static" class="deploy-panel space-y-4">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Stack A: Static HTML/CSS/JS Sites &amp; SPAs (React, Vue, Vite, Vanilla)</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                Static websites require zero backend process configuration. Nginx serves HTML, CSS, JavaScript bundles, images, and fonts with automated compression and caching.
+              </p>
+
+              <div class="space-y-3 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1">
+                  <span class="font-bold text-gray-900 dark:text-white">1. Verify Entrance File Location:</span>
+                  <p>Ensure your primary entry point (<code class="font-mono text-brand-500">index.html</code>) is placed directly inside <code class="font-mono">/home/$USER/web/$DOMAIN/public_html/</code>, and not inside a subfolder.</p>
+                </div>
+
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1">
+                  <span class="font-bold text-gray-900 dark:text-white">2. Modern Build Output (Vite / React / Vue):</span>
+                  <p>Run <code class="font-mono bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">npm run build</code> locally. Then upload the compiled contents of the <code class="font-mono text-brand-500">dist/</code> or <code class="font-mono text-brand-500">build/</code> folder into <code class="font-mono">public_html</code>.</p>
+                </div>
+
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1">
+                  <span class="font-bold text-gray-900 dark:text-white">3. Client-Side SPA Routing Note:</span>
+                  <p>If you use React Router or Vue Router in HTML5 History mode (<code class="font-mono">/dashboard</code>, <code class="font-mono">/profile</code>), refreshing the browser requires Nginx to fallback to <code class="font-mono">index.html</code>. Hosta's standard web templates support Single Page Apps automatically.</p>
+                </div>
+              </div>
+
+              <!-- Cache Refresh Tip -->
+              <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
+                <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
+                <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
+                  <span class="font-bold">PRO TIP: Clearing Browser &amp; Edge Cache</span>
+                  <p>If newly uploaded assets don't appear immediately, perform a hard refresh in your browser with <kbd class="px-1.5 py-0.5 rounded bg-emerald-200 dark:bg-emerald-800 font-mono text-[10px]">Ctrl + F5</kbd> (Windows) or <kbd class="px-1.5 py-0.5 rounded bg-emerald-200 dark:bg-emerald-800 font-mono text-[10px]">Cmd + Shift + R</kbd> (Mac) to bypass local cache.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- STACK B: NODE.JS -->
+            <div id="deploy-node" class="deploy-panel hidden space-y-5">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Stack B: Node.js &amp; Dynamic Web Apps (Express, Nest, Fastify, Next.js Standalone)</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                Node.js applications execute as ongoing background processes managed by <strong>PM2</strong>. Nginx acts as a high-performance reverse proxy routing incoming HTTPS traffic on port 443 to your application's local port (e.g. <code class="font-mono text-brand-500">http://127.0.0.1:3000</code>).
+              </p>
+
+              <!-- Node.js Deployment Steps -->
+              <div class="space-y-4">
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">1. Install Dependencies on Server:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code>cd /home/your_username/web/yourdomain.com/public_html
+npm install --production</code></pre>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">2. Production Environment (.env) Setup:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code>PORT=3000
+NODE_ENV=production
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=your_username_dbname
+DB_USER=your_username_dbuser
+DB_PASSWORD=your_secure_password</code></pre>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">3. Manage Processes with PM2 (Process Manager):</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code># Start your app under PM2 process supervisor
+pm2 start server.js --name "my-app" --time
+
+# Verify running status, CPU, and RAM
+pm2 status
+
+# Live streaming logs
+pm2 logs my-app
+
+# Restart app after uploading updated code
+pm2 restart my-app
+
+# Ensure application automatically restarts after server reboot
+pm2 save
+pm2 startup</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pro Tip Box -->
+              <div class="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-start gap-3 text-xs">
+                <span class="text-emerald-600 dark:text-emerald-400 text-lg leading-none">💡</span>
+                <div class="space-y-1 text-emerald-900 dark:text-emerald-200">
+                  <span class="font-bold">PRO TIP: Port Binding in server.js</span>
+                  <p>In your Express code, always listen to <code class="bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">process.env.PORT || 3000</code>: <br><code class="font-mono">const PORT = process.env.PORT || 3000; app.listen(PORT, '0.0.0.0', () => console.log(`Server on ${PORT}`));</code></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- STACK C: LARAVEL & PHP -->
+            <div id="deploy-laravel" class="deploy-panel hidden space-y-5">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <span>Stack C: PHP &amp; Laravel Web Applications (PHP-FPM + Composer + Artisan)</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                Laravel uses PHP-FPM managed through HestiaCP. Because Laravel's front controller (<code class="font-mono text-brand-500">index.php</code>) lives in the <code class="font-mono">public/</code> subdirectory, configuring the custom web document root is mandatory.
+              </p>
+
+              <!-- Critical Callout: Custom Web Document Root -->
+              <div class="p-4 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/80 flex items-start gap-3 text-xs">
+                <span class="text-red-600 dark:text-red-400 text-lg leading-none">⚠️</span>
+                <div class="space-y-1 text-red-900 dark:text-red-200">
+                  <span class="font-bold">CRITICAL: Setting Laravel Web Document Root</span>
+                  <p>In the Hosta Student Portal / HestiaCP &rarr; go to <strong>Web Domain</strong> &rarr; click <strong>Edit Domain</strong> &rarr; expand <strong>Advanced Options</strong> &rarr; set <strong>Custom Document Root</strong> to: <br><code class="font-mono font-bold text-red-600 dark:text-red-300 bg-red-100 dark:bg-red-900/60 px-1 py-0.5 rounded">/home/&lt;user&gt;/web/&lt;domain&gt;/public_html/public</code>.<br>Exposing the root <code class="font-mono">public_html</code> directory directly exposes your <code class="font-mono">.env</code> secret database credentials to anyone browsing your site!</p>
+                </div>
+              </div>
+
+              <!-- Laravel Step by Step Walkthrough -->
+              <div class="space-y-4">
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">1. Upload Codebase &amp; Install Composer Dependencies:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code>cd /home/your_username/web/yourdomain.com/public_html
+composer install --no-dev --optimize-autoloader</code></pre>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">2. Environment Configuration &amp; Key Generation:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code># Copy production environment template
+cp .env.example .env
+
+# Generate encryption app key
+php artisan key:generate</code></pre>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">3. Grant Write Permissions to Storage and Bootstrap Cache:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code>chmod -R 775 storage bootstrap/cache
+chown -R $USER:$USER storage bootstrap/cache</code></pre>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-xs font-bold text-gray-900 dark:text-white">4. Run Migrations &amp; Cache for Production Performance:</span>
+                  <div class="relative p-3 rounded-lg bg-gray-950 text-gray-200 font-mono text-xs border border-gray-800">
+                    <button class="copy-code-btn absolute right-2.5 top-2.5 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:text-white text-[11px] transition" onclick="copySnippet(this)">Copy</button>
+                    <pre><code># Execute database migrations
+php artisan migrate --force
+
+# Create public storage symlink for uploaded files
+php artisan storage:link
+
+# Cache config, routes, and views for 10x faster response time
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Common Error Box -->
+              <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 flex items-start gap-3 text-xs">
+                <span class="text-amber-600 dark:text-amber-400 text-lg leading-none">⚠️</span>
+                <div class="space-y-1 text-amber-900 dark:text-amber-200">
+                  <span class="font-bold">COMMON ERROR: Stale Cached Configurations</span>
+                  <p>Whenever you edit your <code class="font-mono">.env</code> credentials on the server, you must refresh the config cache by running: <br><code class="font-mono">php artisan config:clear &amp;&amp; php artisan config:cache</code>. Otherwise, Laravel continues executing old cached database credentials!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===========================================================
+               STEP 4: VERIFICATION, LOGS & TROUBLESHOOTING
+               =========================================================== -->
+          <div id="step-troubleshoot" class="p-6 rounded-xl bg-white dark:bg-darkbg-card border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800">STEP 4</span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Verification, Runtime Logs &amp; Troubleshooting</h3>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Inspecting Server Errors &amp; Live Status</span>
+            </div>
+
+            <!-- Verification & SSL Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1.5">
+                <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <span class="text-emerald-500">🔒</span>
+                  <span>SSL &amp; HTTPS Verification</span>
+                </span>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Open <code class="font-mono text-emerald-600 dark:text-emerald-400">https://yourdomain.com</code> in your browser. Look for the secure padlock icon. Let's Encrypt certificates are provisioned automatically via HestiaCP and renewed every 60 days via system cron.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-1.5">
+                <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <span class="text-brand-500">⚡</span>
+                  <span>Cloudflare CDN &amp; DDoS Shield</span>
+                </span>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  For <code class="font-mono text-brand-500">*.hosta.site</code> subdomains, Cloudflare edge proxying handles HTTP/2, HTTP/3, and DDoS mitigation automatically before traffic reaches port 443 on our server.
+                </p>
+              </div>
+            </div>
+
+            <!-- Server Runtime Log File Locations -->
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Where to Inspect Server Runtime Logs</h4>
+              <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+                <table class="w-full text-left text-xs border-collapse font-mono">
+                  <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 font-semibold font-sans text-gray-600 dark:text-gray-300">
+                      <th class="p-2.5">Component</th>
+                      <th class="p-2.5">Log File Path</th>
+                      <th class="p-2.5">Live Streaming Command</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200 dark:divide-gray-800 text-[11px]">
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">Nginx Web Server</td>
+                      <td class="p-2.5 text-brand-500">/home/$USER/web/$DOMAIN/logs/$DOMAIN.error.log</td>
+                      <td class="p-2.5 text-gray-600 dark:text-gray-400">tail -n 50 -f .../$DOMAIN.error.log</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">PHP / Laravel</td>
+                      <td class="p-2.5 text-amber-500">public_html/storage/logs/laravel.log</td>
+                      <td class="p-2.5 text-gray-600 dark:text-gray-400">tail -n 50 -f storage/logs/laravel.log</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-sans font-medium text-gray-900 dark:text-white">Node.js (PM2)</td>
+                      <td class="p-2.5 text-emerald-500">~/.pm2/logs/my-app-error.log</td>
+                      <td class="p-2.5 text-gray-600 dark:text-gray-400">pm2 logs my-app --lines 50</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Troubleshooting Recipes Grid -->
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Common Errors &amp; Instant Fix Recipes</h4>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <!-- Recipe 1: 502 Bad Gateway -->
+                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-red-200 dark:border-red-900/40 space-y-2">
+                  <div class="flex items-center gap-2 font-bold text-red-600 dark:text-red-400">
+                    <span>🔴 502 Bad Gateway</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <strong>Cause:</strong> Nginx cannot connect to the backend service. Usually means your Node.js application is stopped, crashed on startup, or listening on the wrong port.
+                  </p>
+                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
+                    Fix: Run <code class="text-brand-500 font-bold">pm2 status</code> &rarr; check crash errors with <code class="text-brand-500 font-bold">pm2 logs</code> &rarr; ensure your app listens on <code class="text-brand-500 font-bold">PORT 3000</code>.
+                  </p>
+                </div>
+
+                <!-- Recipe 2: 500 Internal Server Error -->
+                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-amber-200 dark:border-amber-900/40 space-y-2">
+                  <div class="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400">
+                    <span>🟠 500 Internal Server Error</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <strong>Cause:</strong> Common in Laravel and PHP apps. Caused by missing encryption <code class="font-mono">APP_KEY</code>, incorrect database credentials in <code class="font-mono">.env</code>, or permission denied in <code class="font-mono">storage/</code>.
+                  </p>
+                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
+                    Fix: Run <code class="text-amber-500 font-bold">php artisan key:generate</code> &amp;&amp; <code class="text-amber-500 font-bold">chmod -R 775 storage bootstrap/cache</code>. Check <code class="text-amber-500 font-bold">storage/logs/laravel.log</code>.
+                  </p>
+                </div>
+
+                <!-- Recipe 3: 404 Not Found -->
+                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-blue-200 dark:border-blue-900/40 space-y-2">
+                  <div class="flex items-center gap-2 font-bold text-blue-600 dark:text-blue-400">
+                    <span>🔵 404 Not Found</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <strong>Cause:</strong> Missing <code class="font-mono">index.html</code> in <code class="font-mono">public_html</code>, or files were unpacked into a nested subfolder (e.g. <code class="font-mono">public_html/my-project/index.html</code>).
+                  </p>
+                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
+                    Fix: Move files up one level: <code class="text-blue-500 font-bold">mv public_html/my-project/* public_html/</code>. For Laravel, ensure Document Root points to <code class="text-blue-500 font-bold">public_html/public</code>.
+                  </p>
+                </div>
+
+                <!-- Recipe 4: MODULE_NOT_FOUND -->
+                <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-purple-200 dark:border-purple-900/40 space-y-2">
+                  <div class="flex items-center gap-2 font-bold text-purple-600 dark:text-purple-400">
+                    <span>🟣 Error: Cannot find module 'express'</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <strong>Cause:</strong> In Node.js, dependencies were excluded during Git / rsync upload (which is standard practice) but were not installed on the server.
+                  </p>
+                  <p class="text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-darkbg-card p-2 rounded border border-gray-200 dark:border-gray-800">
+                    Fix: Navigate into <code class="font-mono">public_html</code> &rarr; run <code class="text-purple-500 font-bold">npm install --production</code> &rarr; restart app with <code class="text-purple-500 font-bold">pm2 restart my-app</code>.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -795,6 +1307,36 @@ print(response.json())</code></pre>
       });
 
       const activePanel = document.getElementById(`code-${lang}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+
+      btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+      btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    }
+
+    // Deployment Stack Tab Switcher
+    function switchDeployTab(stack, btn) {
+      document.querySelectorAll('.deploy-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.deploy-tab-btn').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+        b.classList.add('text-gray-600', 'dark:text-gray-400');
+      });
+
+      const activePanel = document.getElementById(`deploy-${stack}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+
+      btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+      btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    }
+
+    // Upload Method Tab Switcher
+    function switchUploadTab(method, btn) {
+      document.querySelectorAll('.upload-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.upload-tab-btn').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
+        b.classList.add('text-gray-600', 'dark:text-gray-400');
+      });
+
+      const activePanel = document.getElementById(`upload-${method}`);
       if (activePanel) activePanel.classList.remove('hidden');
 
       btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-brand-600', 'dark:text-white', 'shadow-sm');
